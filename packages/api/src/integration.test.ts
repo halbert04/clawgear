@@ -232,12 +232,14 @@ describe('Phase 1 Integration', () => {
     // All events should be forwarded
     expect(received.length).toBe(eventTypes.length);
 
-    // Each message should be valid JSON with the correct type
+    // Each message should be valid JSON-RPC notification with the correct event type
     for (let i = 0; i < eventTypes.length; i++) {
       const parsed = JSON.parse(received[i]!);
-      expect(parsed.type).toBe(eventTypes[i]);
-      expect(parsed.companyId).toBe('c1');
-      expect(parsed.payload.test).toBe(true);
+      expect(parsed.jsonrpc).toBe('2.0');
+      expect(parsed.method).toBe('event');
+      expect(parsed.params.type).toBe(eventTypes[i]);
+      expect(parsed.params.companyId).toBe('c1');
+      expect(parsed.params.payload.test).toBe(true);
     }
   });
 
