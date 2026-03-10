@@ -16,6 +16,7 @@ import type {
   FactType,
   GoalLevel,
   GoalStatus,
+  HandOutputMode,
   HeartbeatRunStatus,
   InvocationSource,
   IssuePriority,
@@ -341,6 +342,25 @@ export interface SharedEmbedding {
   embeddingModel: string | null;
   metadata: Record<string, unknown> | null;
   createdAt: Date;
+}
+
+// ============================================================
+// AUTONOMOUS OPERATIONS (HANDS)
+// ============================================================
+
+export interface HandConfig {
+  name: string;
+  description: string;
+  schedule: string;
+  innerAdapter: AdapterType;
+  innerAdapterConfig: Record<string, unknown>;
+  taskPrompt: string;
+  tools: string[];
+  settings: Record<string, unknown>;
+  metrics: string[];
+  requiresApproval: boolean;
+  outputMode: HandOutputMode;
+  ownerAgentId: string | null;
 }
 
 // ============================================================

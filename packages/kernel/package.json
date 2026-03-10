@@ -11,9 +11,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@clawgear/shared": "workspace:*",
     "@clawgear/db": "workspace:*",
     "@clawgear/runtime": "workspace:*",
+    "@clawgear/shared": "workspace:*",
+    "cron-parser": "^5.5.0",
     "drizzle-orm": "catalog:"
   },
   "devDependencies": {

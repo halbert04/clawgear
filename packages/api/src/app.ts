@@ -1,5 +1,10 @@
 import type { Database } from '@clawgear/db';
-import type { ChannelRouter, HeartbeatEngine, InProcessEventBus } from '@clawgear/kernel';
+import type {
+  ChannelRouter,
+  HandScheduler,
+  HeartbeatEngine,
+  InProcessEventBus,
+} from '@clawgear/kernel';
 import { Hono } from 'hono';
 import { createBunWebSocket } from 'hono/bun';
 import { cors } from 'hono/cors';
@@ -15,6 +20,7 @@ import { companyRoutes } from './routes/companies.js';
 import { conversationRoutes } from './routes/conversations.js';
 import { factRoutes } from './routes/facts.js';
 import { goalRoutes } from './routes/goals.js';
+import { handRoutes } from './routes/hands.js';
 import { healthRoutes } from './routes/health.js';
 import { heartbeatRoutes } from './routes/heartbeats.js';
 import { issueRoutes } from './routes/issues.js';
@@ -28,6 +34,7 @@ export interface AppDeps {
   eventBus: InProcessEventBus;
   heartbeatEngine?: HeartbeatEngine;
   channelRouter?: ChannelRouter;
+  handScheduler?: HandScheduler;
 }
 
 const { upgradeWebSocket, websocket } = createBunWebSocket();
@@ -59,6 +66,7 @@ export function createApp(deps: AppDeps) {
   app.route('/api/companies/:companyId/memory', memoryRoutes(deps));
   app.route('/api/companies/:companyId/conversations', conversationRoutes(deps));
   app.route('/api/companies/:companyId/channel-bindings', channelBindingRoutes(deps));
+  app.route('/api/companies/:companyId/hands', handRoutes(deps));
 
   // Heartbeat routes (requires heartbeat engine)
   if (deps.heartbeatEngine) {

@@ -51,6 +51,10 @@ export const EventTypes = {
   CONVERSATION_CREATED: 'conversation.created',
   CONVERSATION_CLOSED: 'conversation.closed',
 
+  // Hands (Autonomous Operations)
+  HAND_ACTIVATED: 'hand.activated',
+  HAND_DEACTIVATED: 'hand.deactivated',
+
   // System
   SYSTEM_HEALTH_CHANGED: 'system.health_changed',
   SYSTEM_DEGRADED: 'system.degraded',
@@ -159,6 +163,23 @@ export interface ConversationCreatedEvent extends SystemEvent {
   };
 }
 
+export interface HandActivatedEvent extends SystemEvent {
+  type: typeof EventTypes.HAND_ACTIVATED;
+  payload: {
+    agentId: string;
+    handName: string;
+    schedule: string;
+  };
+}
+
+export interface HandDeactivatedEvent extends SystemEvent {
+  type: typeof EventTypes.HAND_DEACTIVATED;
+  payload: {
+    agentId: string;
+    handName: string;
+  };
+}
+
 export type TypedSystemEvent =
   | AgentStatusChangedEvent
   | IssueStatusChangedEvent
@@ -168,4 +189,6 @@ export type TypedSystemEvent =
   | QualityGateResultEvent
   | ChannelMessageReceivedEvent
   | ChannelMessageSentEvent
-  | ConversationCreatedEvent;
+  | ConversationCreatedEvent
+  | HandActivatedEvent
+  | HandDeactivatedEvent;

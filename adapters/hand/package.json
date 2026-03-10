@@ -1,5 +1,5 @@
 {
-  "name": "@clawgear/runtime",
+  "name": "@clawgear/adapter-hand",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,11 +10,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@clawgear/db": "workspace:*",
-    "@clawgear/kernel": "workspace:*",
     "@clawgear/shared": "workspace:*",
-    "drizzle-orm": "catalog:",
-    "smol-toml": "^1.6.0"
+    "@clawgear/runtime": "workspace:*",
+    "@clawgear/db": "workspace:*",
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",

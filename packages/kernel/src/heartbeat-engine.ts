@@ -115,6 +115,7 @@ export class HeartbeatEngine {
         taskDescription: null,
         sessionId: runtimeState?.sessionId ?? null,
         timeout,
+        adapterConfig: agent.adapterConfig as Record<string, unknown>,
       });
 
       // 9. Execute adapter with timeout
@@ -134,10 +135,18 @@ export class HeartbeatEngine {
         .where(eq(heartbeatRuns.id, runId));
 
       // 11. Record cost event
+      // For hand agents with ownerAgentId, attribute costs to the owner
+      const adapterConfig = agent.adapterConfig as Record<string, unknown>;
+      const handConfig = adapterConfig?.handConfig as { ownerAgentId?: string | null } | undefined;
+      const costAgentId =
+        agent.adapterType === 'hand' && handConfig?.ownerAgentId
+          ? handConfig.ownerAgentId
+          : agentId;
+
       if (result.usage.costCents > 0) {
         await this.kernelHandle.recordCost({
           companyId: agent.companyId,
-          agentId,
+          agentId: costAgentId,
           issueId: null,
           projectId: null,
           goalId: null,
@@ -153,7 +162,7 @@ export class HeartbeatEngine {
       // Also insert into cost_events table directly
       await this.db.insert(costEvents).values({
         companyId: agent.companyId,
-        agentId,
+        agentId: costAgentId,
         provider: result.usage.provider,
         model: result.usage.model,
         inputTokens: result.usage.inputTokens,

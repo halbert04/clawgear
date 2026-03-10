@@ -1,6 +1,8 @@
+import { HandAdapter } from '@clawgear/adapter-hand';
 import { createConnection } from '@clawgear/db';
 import { agents, costEvents } from '@clawgear/db/pg';
 import {
+  HandScheduler,
   HeartbeatEngine,
   HeartbeatScheduler,
   InProcessEventBus,
@@ -106,17 +108,27 @@ const heartbeatEngine = new HeartbeatEngine({
   kernelHandle,
 });
 
+// Register HandAdapter
+const handAdapter = new HandAdapter({ adapterRegistry, db, eventBus });
+adapterRegistry.register(handAdapter);
+
 // Scheduler + wake handler
 const scheduler = new HeartbeatScheduler({ db, heartbeatEngine });
 const wakeHandler = new WakeHandler({ eventBus, heartbeatEngine });
 
-const app = createApp({ db, eventBus, heartbeatEngine });
+// Hand scheduler (cron-based, separate from heartbeat scheduler)
+const handScheduler = new HandScheduler({ db, heartbeatEngine, eventBus });
+
+const app = createApp({ db, eventBus, heartbeatEngine, handScheduler });
 
 // Start scheduler and wake handler
 scheduler.start().catch((err) => {
   console.error('Failed to start scheduler:', err);
 });
 wakeHandler.start();
+handScheduler.start().catch((err) => {
+  console.error('Failed to start hand scheduler:', err);
+});
 
 console.log(
   JSON.stringify({

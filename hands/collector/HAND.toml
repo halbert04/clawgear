@@ -1,0 +1,29 @@
+[hand]
+name = "collector"
+description = "OSINT monitoring hand that collects intelligence from configured targets and generates alerts"
+schedule = "0 */4 * * *"
+task_prompt = """
+Monitor configured intelligence targets and collect relevant information.
+
+1. Check each configured monitoring target for new information
+2. Evaluate relevance and urgency of findings
+3. Store important findings as facts in the knowledge graph
+4. Generate alerts for critical or time-sensitive discoveries
+5. Summarize collection results
+
+Format discovered facts as:
+FACT: subject | predicate | object
+"""
+requires_approval = false
+output_mode = "fact"
+
+[adapter]
+type = "claude_code"
+
+[settings]
+alert_threshold = "high"
+max_targets = 10
+dedup_window_hours = 24
+
+[metrics]
+track = ["targets_monitored", "items_collected", "alerts_generated"]

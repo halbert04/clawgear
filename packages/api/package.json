@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@clawgear/adapter-hand": "workspace:*",
     "@clawgear/db": "workspace:*",
     "@clawgear/kernel": "workspace:*",
     "@clawgear/runtime": "workspace:*",

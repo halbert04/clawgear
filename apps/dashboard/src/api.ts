@@ -185,6 +185,38 @@ export function terminateAgent(companyId: string, agentId: string): Promise<Agen
   return post(`/companies/${companyId}/agents/${agentId}/terminate`);
 }
 
+// --- Hand types and functions ---
+
+export interface Hand {
+  id: string;
+  companyId: string;
+  name: string;
+  status: string;
+  adapterType: string;
+  adapterConfig: Record<string, unknown>;
+  spentMonthlyCents: number;
+  budgetMonthlyCents: number;
+  nextRunAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function fetchHands(companyId: string): Promise<PaginatedResponse<Hand>> {
+  return get(`/companies/${companyId}/hands?limit=100`);
+}
+
+export function triggerHand(companyId: string, handId: string): Promise<unknown> {
+  return post(`/companies/${companyId}/hands/${handId}/trigger`);
+}
+
+export function activateHand(companyId: string, handId: string): Promise<unknown> {
+  return post(`/companies/${companyId}/hands/${handId}/activate`);
+}
+
+export function deactivateHand(companyId: string, handId: string): Promise<unknown> {
+  return post(`/companies/${companyId}/hands/${handId}/deactivate`);
+}
+
 // --- Approval actions ---
 
 export function approveApproval(companyId: string, approvalId: string): Promise<Approval> {
