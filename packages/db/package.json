@@ -9,7 +9,6 @@
     "./sqlite": "./src/sqlite/index.ts"
   },
   "scripts": {
-    "test": "bun test",
     "typecheck": "tsc --noEmit",
     "generate": "drizzle-kit generate",
     "migrate": "bun run src/migrate.ts",
