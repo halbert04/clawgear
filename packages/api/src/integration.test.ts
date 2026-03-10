@@ -10,8 +10,8 @@
  * concerns: event emission, WebSocket bridging, and route wiring.
  */
 
-import { InProcessEventBus } from '@clawgear/kernel';
 import { describe, expect, mock, test } from 'bun:test';
+import { InProcessEventBus } from '@clawgear/kernel';
 import { createApp } from './app.js';
 import { EventBridge } from './ws/event-bridge.js';
 

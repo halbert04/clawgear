@@ -1,7 +1,11 @@
 import { approvals } from '@clawgear/db/pg';
 import type { InProcessEventBus } from '@clawgear/kernel';
 import type { SystemEvent } from '@clawgear/shared/interfaces';
-import { createApprovalSchema, decideApprovalSchema, paginationSchema } from '@clawgear/shared/validators';
+import {
+  createApprovalSchema,
+  decideApprovalSchema,
+  paginationSchema,
+} from '@clawgear/shared/validators';
 import { and, eq, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { AppDeps } from '../app.js';

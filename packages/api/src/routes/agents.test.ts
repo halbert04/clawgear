@@ -1,5 +1,5 @@
-import { InProcessEventBus } from '@clawgear/kernel';
 import { describe, expect, mock, test } from 'bun:test';
+import { InProcessEventBus } from '@clawgear/kernel';
 import { createApp } from '../app.js';
 
 const COMPANY_ID = '550e8400-e29b-41d4-a716-446655440001';
@@ -199,7 +199,9 @@ describe('Agent Routes', () => {
   test('PATCH /:id updates agent', async () => {
     const agentRow = makeAgentRow();
     const { db, updateReturning } = createMockDb(agentRow);
-    updateReturning.mockReturnValue([{ ...agentRow, name: 'Alice Updated', updatedAt: new Date() }]);
+    updateReturning.mockReturnValue([
+      { ...agentRow, name: 'Alice Updated', updatedAt: new Date() },
+    ]);
     const eventBus = new InProcessEventBus();
     const emitSpy = mock(() => {});
     eventBus.emit = emitSpy;

@@ -43,8 +43,8 @@
   --radius-lg: 8px;
 
   /* Font */
-  --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', monospace;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: "SF Mono", "Cascadia Code", "Fira Code", "JetBrains Mono", monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 *,
@@ -55,7 +55,9 @@
   padding: 0;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
 }
 
@@ -160,7 +162,9 @@ body {
   padding: var(--space-md) var(--space-lg);
   cursor: pointer;
   border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  transition:
+    color 0.15s,
+    border-color 0.15s;
 }
 
 .tab-btn:hover {
@@ -326,7 +330,10 @@ body {
   font-family: var(--font-mono);
   font-size: 12px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
   white-space: nowrap;
 }
 
@@ -433,20 +440,40 @@ body {
   border-radius: 50%;
 }
 
-.status-idle .status-dot { background: var(--color-green); }
-.status-idle { color: var(--color-green); }
+.status-idle .status-dot {
+  background: var(--color-green);
+}
+.status-idle {
+  color: var(--color-green);
+}
 
-.status-running .status-dot { background: var(--color-blue); }
-.status-running { color: var(--color-blue); }
+.status-running .status-dot {
+  background: var(--color-blue);
+}
+.status-running {
+  color: var(--color-blue);
+}
 
-.status-paused .status-dot { background: var(--color-yellow); }
-.status-paused { color: var(--color-yellow); }
+.status-paused .status-dot {
+  background: var(--color-yellow);
+}
+.status-paused {
+  color: var(--color-yellow);
+}
 
-.status-error .status-dot { background: var(--color-red); }
-.status-error { color: var(--color-red); }
+.status-error .status-dot {
+  background: var(--color-red);
+}
+.status-error {
+  color: var(--color-red);
+}
 
-.status-terminated .status-dot { background: var(--text-muted); }
-.status-terminated { color: var(--text-muted); }
+.status-terminated .status-dot {
+  background: var(--text-muted);
+}
+.status-terminated {
+  color: var(--text-muted);
+}
 
 .budget-cell {
   font-variant-numeric: tabular-nums;

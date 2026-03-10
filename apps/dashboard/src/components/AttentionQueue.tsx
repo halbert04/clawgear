@@ -1,18 +1,13 @@
 import { useState } from 'react';
 import type {
+  ActivityEntry,
   Agent,
   Approval,
-  ActivityEntry,
   BudgetSummary,
   Issue,
   QualityEvaluation,
 } from '../api';
-import {
-  approveApproval,
-  rejectApproval,
-  pauseAgent,
-  resumeAgent,
-} from '../api';
+import { approveApproval, pauseAgent, rejectApproval, resumeAgent } from '../api';
 
 // ============================================================
 // Types
@@ -50,10 +45,7 @@ const SEVERITY_WEIGHT: Record<QueueItemType, number> = {
 };
 
 function computeScore(type: QueueItemType, createdAt: string): number {
-  const hoursSince = Math.max(
-    0,
-    (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60),
-  );
+  const hoursSince = Math.max(0, (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60));
   return SEVERITY_WEIGHT[type] * (1 / (1 + hoursSince));
 }
 
@@ -110,9 +102,7 @@ function buildQueueItems(
 
   // 2. APPROVAL: Pending approval requests
   for (const approval of approvals) {
-    const agent = approval.requestedByAgentId
-      ? agentMap.get(approval.requestedByAgentId)
-      : null;
+    const agent = approval.requestedByAgentId ? agentMap.get(approval.requestedByAgentId) : null;
     const requesterName = agent ? agent.name : 'Unknown agent';
     items.push({
       id: `approval-${approval.id}`,
@@ -151,9 +141,10 @@ function buildQueueItems(
         id: 'budget-company-warning',
         type: ratio >= 1 ? 'urgent' : 'warning',
         label: ratio >= 1 ? 'URGENT' : 'WARNING',
-        description: ratio >= 1
-          ? `Company budget exceeded: ${centsToUsd(budgetSummary.spentMonthlyCents)} / ${centsToUsd(budgetSummary.budgetMonthlyCents)}`
-          : `Company budget at ${(ratio * 100).toFixed(0)}%: ${centsToUsd(budgetSummary.spentMonthlyCents)} / ${centsToUsd(budgetSummary.budgetMonthlyCents)}`,
+        description:
+          ratio >= 1
+            ? `Company budget exceeded: ${centsToUsd(budgetSummary.spentMonthlyCents)} / ${centsToUsd(budgetSummary.budgetMonthlyCents)}`
+            : `Company budget at ${(ratio * 100).toFixed(0)}%: ${centsToUsd(budgetSummary.spentMonthlyCents)} / ${centsToUsd(budgetSummary.budgetMonthlyCents)}`,
         detail: 'Monthly budget threshold reached',
         timestamp: new Date().toISOString(),
         score: computeScore(ratio >= 1 ? 'urgent' : 'warning', new Date().toISOString()),
@@ -170,9 +161,10 @@ function buildQueueItems(
           id: `budget-agent-${agent.id}`,
           type: ratio >= 1 ? 'urgent' : 'warning',
           label: ratio >= 1 ? 'URGENT' : 'WARNING',
-          description: ratio >= 1
-            ? `${agent.name} budget exceeded: ${centsToUsd(agent.spentMonthlyCents)} / ${centsToUsd(agent.budgetMonthlyCents)}`
-            : `${agent.name} budget at ${(ratio * 100).toFixed(0)}%: ${centsToUsd(agent.spentMonthlyCents)} / ${centsToUsd(agent.budgetMonthlyCents)}`,
+          description:
+            ratio >= 1
+              ? `${agent.name} budget exceeded: ${centsToUsd(agent.spentMonthlyCents)} / ${centsToUsd(agent.budgetMonthlyCents)}`
+              : `${agent.name} budget at ${(ratio * 100).toFixed(0)}%: ${centsToUsd(agent.spentMonthlyCents)} / ${centsToUsd(agent.budgetMonthlyCents)}`,
           detail: `Role: ${agent.role}`,
           timestamp: agent.updatedAt,
           score: computeScore(ratio >= 1 ? 'urgent' : 'warning', agent.updatedAt),
@@ -262,9 +254,8 @@ function summarizePayload(payload: Record<string, unknown>): string {
     .map((k) => {
       const v = payload[k];
       const display = typeof v === 'string' ? v : JSON.stringify(v);
-      const short = typeof display === 'string' && display.length > 40
-        ? display.slice(0, 40) + '...'
-        : display;
+      const short =
+        typeof display === 'string' && display.length > 40 ? `${display.slice(0, 40)}...` : display;
       return `${k}: ${short}`;
     })
     .join(', ');
@@ -347,6 +338,7 @@ export function AttentionQueue({
           <div className="queue-item-actions">
             {item.actions?.map((action) => (
               <button
+                type="button"
                 key={action.label}
                 className={`btn ${action.variant !== 'default' ? `btn-${action.variant}` : ''}`}
                 disabled={actionLoading === item.id}

@@ -154,11 +154,7 @@ export function goalRoutes(deps: AppDeps) {
   return app;
 }
 
-function emitGoalEvent(
-  eventBus: InProcessEventBus,
-  type: string,
-  goal: typeof goals.$inferSelect,
-) {
+function emitGoalEvent(eventBus: InProcessEventBus, type: string, goal: typeof goals.$inferSelect) {
   const event: SystemEvent = {
     type,
     companyId: goal.companyId,

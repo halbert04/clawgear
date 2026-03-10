@@ -1,5 +1,5 @@
-import { InProcessEventBus } from '@clawgear/kernel';
 import { describe, expect, mock, test } from 'bun:test';
+import { InProcessEventBus } from '@clawgear/kernel';
 import { Hono } from 'hono';
 import { errorHandler } from '../middleware/error-handler.js';
 import { qualityRoutes } from './quality.js';
@@ -16,7 +16,9 @@ const rubricRow = {
   name: 'Code Quality',
   role: 'engineer',
   taskType: 'code_review',
-  criteria: [{ name: 'correctness', description: 'Is it correct?', weight: 0.5, passThreshold: 0.7 }],
+  criteria: [
+    { name: 'correctness', description: 'Is it correct?', weight: 0.5, passThreshold: 0.7 },
+  ],
   judgeModel: 'claude-sonnet-4-20250514',
   judgePrompt: 'Evaluate this code.',
   minImprovementThreshold: 0.1,
@@ -55,7 +57,9 @@ function createMockApp(dbOverrides: Record<string, unknown> = {}) {
   });
   const selectFrom = mock(() => ({ where: selectWhere, limit: selectLimit }));
 
-  const updateReturning = mock(() => [{ ...rubricRow, name: 'Updated Rubric', updatedAt: new Date() }]);
+  const updateReturning = mock(() => [
+    { ...rubricRow, name: 'Updated Rubric', updatedAt: new Date() },
+  ]);
   const updateWhere = mock(() => ({ returning: updateReturning }));
   const updateSet = mock(() => ({ where: updateWhere }));
   const updateFn = mock(() => ({ set: updateSet }));
@@ -98,7 +102,9 @@ describe('Quality Routes', () => {
         name: 'Code Quality',
         role: 'engineer',
         taskType: 'code_review',
-        criteria: [{ name: 'correctness', description: 'Is it correct?', weight: 0.5, passThreshold: 0.7 }],
+        criteria: [
+          { name: 'correctness', description: 'Is it correct?', weight: 0.5, passThreshold: 0.7 },
+        ],
         judgePrompt: 'Evaluate this code.',
       }),
     });
@@ -142,9 +148,7 @@ describe('Quality Routes', () => {
   test('GET /rubrics supports ?role= filter', async () => {
     const { app } = createMockApp();
 
-    const res = await app.request(
-      `/api/companies/${COMPANY_ID}/quality/rubrics?role=engineer`,
-    );
+    const res = await app.request(`/api/companies/${COMPANY_ID}/quality/rubrics?role=engineer`);
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -154,9 +158,7 @@ describe('Quality Routes', () => {
   test('GET /rubrics/:id returns rubric detail', async () => {
     const { app } = createMockApp();
 
-    const res = await app.request(
-      `/api/companies/${COMPANY_ID}/quality/rubrics/${RUBRIC_ID}`,
-    );
+    const res = await app.request(`/api/companies/${COMPANY_ID}/quality/rubrics/${RUBRIC_ID}`);
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -182,14 +184,11 @@ describe('Quality Routes', () => {
   test('PATCH /rubrics/:id updates rubric', async () => {
     const { app, emitSpy } = createMockApp();
 
-    const res = await app.request(
-      `/api/companies/${COMPANY_ID}/quality/rubrics/${RUBRIC_ID}`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Updated Rubric' }),
-      },
-    );
+    const res = await app.request(`/api/companies/${COMPANY_ID}/quality/rubrics/${RUBRIC_ID}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: 'Updated Rubric' }),
+    });
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -210,31 +209,26 @@ describe('Quality Routes', () => {
 
     const { app, emitSpy } = createMockApp({ insert: insertFn });
 
-    const res = await app.request(
-      `/api/companies/${COMPANY_ID}/quality/evaluations`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          rubricId: RUBRIC_ID,
-          agentId: AGENT_ID,
-          heartbeatRunId: RUN_ID,
-          evaluatorType: 'judge',
-          scores: [{ criterion: 'correctness', score: 0.9, feedback: 'Good' }],
-          overallScore: 0.9,
-          passed: true,
-          feedback: 'Well done',
-        }),
-      },
-    );
+    const res = await app.request(`/api/companies/${COMPANY_ID}/quality/evaluations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        rubricId: RUBRIC_ID,
+        agentId: AGENT_ID,
+        heartbeatRunId: RUN_ID,
+        evaluatorType: 'judge',
+        scores: [{ criterion: 'correctness', score: 0.9, feedback: 'Good' }],
+        overallScore: 0.9,
+        passed: true,
+        feedback: 'Well done',
+      }),
+    });
 
     expect(res.status).toBe(201);
     const body = await res.json();
     expect(body.id).toBe(EVAL_ID);
     expect(body.overallScore).toBe(0.9);
-    expect(emitSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'quality.gate_passed' }),
-    );
+    expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'quality.gate_passed' }));
   });
 
   test('POST /evaluations emits quality.gate_failed when not passed', async () => {
@@ -245,28 +239,23 @@ describe('Quality Routes', () => {
 
     const { app, emitSpy } = createMockApp({ insert: insertFn });
 
-    const res = await app.request(
-      `/api/companies/${COMPANY_ID}/quality/evaluations`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          rubricId: RUBRIC_ID,
-          agentId: AGENT_ID,
-          heartbeatRunId: RUN_ID,
-          evaluatorType: 'self',
-          scores: [{ criterion: 'correctness', score: 0.3 }],
-          overallScore: 0.3,
-          passed: false,
-          feedback: 'Needs improvement',
-        }),
-      },
-    );
+    const res = await app.request(`/api/companies/${COMPANY_ID}/quality/evaluations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        rubricId: RUBRIC_ID,
+        agentId: AGENT_ID,
+        heartbeatRunId: RUN_ID,
+        evaluatorType: 'self',
+        scores: [{ criterion: 'correctness', score: 0.3 }],
+        overallScore: 0.3,
+        passed: false,
+        feedback: 'Needs improvement',
+      }),
+    });
 
     expect(res.status).toBe(201);
-    expect(emitSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'quality.gate_failed' }),
-    );
+    expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'quality.gate_failed' }));
   });
 
   test('GET /evaluations returns paginated list', async () => {
@@ -286,9 +275,7 @@ describe('Quality Routes', () => {
       }),
     });
 
-    const res = await app.request(
-      `/api/companies/${COMPANY_ID}/quality/evaluations`,
-    );
+    const res = await app.request(`/api/companies/${COMPANY_ID}/quality/evaluations`);
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -306,9 +293,7 @@ describe('Quality Routes', () => {
       select: mock(() => ({ from: selectFrom })),
     });
 
-    const res = await app.request(
-      `/api/companies/${COMPANY_ID}/quality/evaluations/${EVAL_ID}`,
-    );
+    const res = await app.request(`/api/companies/${COMPANY_ID}/quality/evaluations/${EVAL_ID}`);
 
     expect(res.status).toBe(200);
     const body = await res.json();

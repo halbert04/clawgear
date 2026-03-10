@@ -15,11 +15,13 @@ const createEvaluationSchema = z.object({
   issueId: uuidSchema.nullable().optional(),
   heartbeatRunId: uuidSchema.nullable().optional(),
   evaluatorType: z.enum(['self', 'judge', 'peer', 'deterministic']),
-  scores: z.array(z.object({
-    criterion: z.string(),
-    score: z.number().min(0).max(1),
-    feedback: z.string().nullable().optional(),
-  })),
+  scores: z.array(
+    z.object({
+      criterion: z.string(),
+      score: z.number().min(0).max(1),
+      feedback: z.string().nullable().optional(),
+    }),
+  ),
   overallScore: z.number().min(0).max(1),
   passed: z.boolean(),
   revisionNumber: z.number().int().min(1).default(1),
@@ -72,12 +74,7 @@ export function qualityRoutes(deps: AppDeps) {
 
     const where = and(...conditions);
 
-    const rows = await db
-      .select()
-      .from(qualityRubrics)
-      .where(where)
-      .limit(limit)
-      .offset(offset);
+    const rows = await db.select().from(qualityRubrics).where(where).limit(limit).offset(offset);
 
     const [countResult] = await db
       .select({ count: sql<number>`count(*)` })
@@ -239,10 +236,7 @@ export function qualityRoutes(deps: AppDeps) {
       .select()
       .from(qualityEvaluations)
       .where(
-        and(
-          eq(qualityEvaluations.companyId, companyId),
-          eq(qualityEvaluations.agentId, agentId),
-        ),
+        and(eq(qualityEvaluations.companyId, companyId), eq(qualityEvaluations.agentId, agentId)),
       );
 
     const totalCount = evaluations.length;
@@ -264,8 +258,7 @@ export function qualityRoutes(deps: AppDeps) {
 
     const countByEvaluatorType: Record<string, number> = {};
     for (const e of evaluations) {
-      countByEvaluatorType[e.evaluatorType] =
-        (countByEvaluatorType[e.evaluatorType] ?? 0) + 1;
+      countByEvaluatorType[e.evaluatorType] = (countByEvaluatorType[e.evaluatorType] ?? 0) + 1;
     }
 
     // Trend: last 10 evaluations ordered by createdAt

@@ -1,7 +1,11 @@
 import { agentConfigRevisions, agents } from '@clawgear/db/pg';
 import type { InProcessEventBus } from '@clawgear/kernel';
 import type { SystemEvent } from '@clawgear/shared/interfaces';
-import { createAgentSchema, paginationSchema, updateAgentSchema } from '@clawgear/shared/validators';
+import {
+  createAgentSchema,
+  paginationSchema,
+  updateAgentSchema,
+} from '@clawgear/shared/validators';
 import { and, eq, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { AppDeps } from '../app.js';
@@ -73,10 +77,7 @@ export function agentRoutes(deps: AppDeps) {
 
     if (includeTree) {
       // Fetch all agents for company to build org tree
-      const allRows = await db
-        .select()
-        .from(agents)
-        .where(eq(agents.companyId, companyId));
+      const allRows = await db.select().from(agents).where(eq(agents.companyId, companyId));
       return c.json({
         data: serializeRows(allRows),
         tree: buildTree(allRows),
@@ -140,7 +141,8 @@ export function agentRoutes(deps: AppDeps) {
     if (body.adapterConfig !== undefined) values.adapterConfig = body.adapterConfig;
     if (body.modelTier !== undefined) values.modelTier = body.modelTier;
     if (body.modelOverride !== undefined) values.modelOverride = body.modelOverride;
-    if (body.budgetMonthlyCents !== undefined) values.budgetMonthlyCents = BigInt(body.budgetMonthlyCents);
+    if (body.budgetMonthlyCents !== undefined)
+      values.budgetMonthlyCents = BigInt(body.budgetMonthlyCents);
     if (body.systemPrompt !== undefined) values.systemPrompt = body.systemPrompt;
 
     if (Object.keys(values).length === 0) {

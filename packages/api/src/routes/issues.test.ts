@@ -1,5 +1,5 @@
-import { InProcessEventBus } from '@clawgear/kernel';
 import { describe, expect, mock, test } from 'bun:test';
+import { InProcessEventBus } from '@clawgear/kernel';
 import { Hono } from 'hono';
 import { errorHandler } from '../middleware/error-handler.js';
 import { issueRoutes } from './issues.js';
@@ -245,7 +245,9 @@ describe('Issue Routes', () => {
 
     const { app } = createApp(db);
 
-    const res = await app.request(`/api/companies/${COMPANY_ID}/issues?assigneeAgentId=${AGENT_ID}`);
+    const res = await app.request(
+      `/api/companies/${COMPANY_ID}/issues?assigneeAgentId=${AGENT_ID}`,
+    );
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.data).toBeArray();
@@ -394,7 +396,11 @@ describe('Issue Routes', () => {
 
   test('PATCH /:id allows any -> cancelled', async () => {
     const currentRow = makeIssueRow({ status: 'in_progress' });
-    const updatedRow = makeIssueRow({ status: 'cancelled', cancelledAt: new Date(), updatedAt: new Date() });
+    const updatedRow = makeIssueRow({
+      status: 'cancelled',
+      cancelledAt: new Date(),
+      updatedAt: new Date(),
+    });
 
     const updateReturning = mock(() => [updatedRow]);
     const updateWhere = mock(() => ({ returning: updateReturning }));

@@ -161,7 +161,9 @@ export function fetchBudgetSummary(companyId: string): Promise<BudgetSummary> {
   return get(`/companies/${companyId}/budget/summary`);
 }
 
-export function fetchQualityEvaluations(companyId: string): Promise<PaginatedResponse<QualityEvaluation>> {
+export function fetchQualityEvaluations(
+  companyId: string,
+): Promise<PaginatedResponse<QualityEvaluation>> {
   return get(`/companies/${companyId}/quality/evaluations?limit=50`);
 }
 

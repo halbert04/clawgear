@@ -1,8 +1,8 @@
 import type { Database } from '@clawgear/db';
 import type { InProcessEventBus } from '@clawgear/kernel';
 import { Hono } from 'hono';
-import { cors } from 'hono/cors';
 import { createBunWebSocket } from 'hono/bun';
+import { cors } from 'hono/cors';
 import { errorHandler } from './middleware/error-handler.js';
 import { requestLogger } from './middleware/logger.js';
 import { activityRoutes } from './routes/activity.js';

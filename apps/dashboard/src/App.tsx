@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
+  type ActivityEntry,
   type Agent,
   type Approval,
-  type ActivityEntry,
   type BudgetSummary,
   type Company,
-  type Issue,
-  type QualityEvaluation,
+  fetchActivity,
   fetchAgents,
   fetchApprovals,
-  fetchActivity,
   fetchBudgetSummary,
   fetchCompanies,
   fetchIssues,
   fetchQualityEvaluations,
+  type Issue,
+  type QualityEvaluation,
 } from './api';
 import { AgentList } from './components/AgentList';
 import { AttentionQueue } from './components/AttentionQueue';
@@ -146,6 +146,7 @@ export function App() {
       <div className="tab-bar">
         {TABS.map((t) => (
           <button
+            type="button"
             key={t.key}
             className={`tab-btn ${tab === t.key ? 'active' : ''}`}
             onClick={() => setTab(t.key)}
@@ -173,24 +174,10 @@ export function App() {
               />
             )}
             {tab === 'agents' && (
-              <AgentList
-                companyId={selectedCompanyId}
-                agents={agents}
-                onRefresh={loadData}
-              />
+              <AgentList companyId={selectedCompanyId} agents={agents} onRefresh={loadData} />
             )}
-            {tab === 'issues' && (
-              <IssueBoard
-                issues={issues}
-                agents={agents}
-              />
-            )}
-            {tab === 'budget' && (
-              <BudgetOverview
-                budgetSummary={budgetSummary}
-                agents={agents}
-              />
-            )}
+            {tab === 'issues' && <IssueBoard issues={issues} agents={agents} />}
+            {tab === 'budget' && <BudgetOverview budgetSummary={budgetSummary} agents={agents} />}
           </>
         )}
       </main>

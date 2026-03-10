@@ -1,5 +1,5 @@
-import { InProcessEventBus } from '@clawgear/kernel';
 import { describe, expect, mock, test } from 'bun:test';
+import { InProcessEventBus } from '@clawgear/kernel';
 import { EventBridge } from './event-bridge.js';
 
 interface MockWs {

@@ -53,9 +53,7 @@ export function IssueBoard({ issues, agents }: Props) {
               <span className="column-count">{columnIssues.length}</span>
             </div>
             {columnIssues.map((issue) => {
-              const assignee = issue.assigneeAgentId
-                ? agentMap.get(issue.assigneeAgentId)
-                : null;
+              const assignee = issue.assigneeAgentId ? agentMap.get(issue.assigneeAgentId) : null;
               return (
                 <div key={issue.id} className="board-card">
                   <div className="card-id">{issue.identifier}</div>
@@ -69,9 +67,7 @@ export function IssueBoard({ issues, agents }: Props) {
                 </div>
               );
             })}
-            {columnIssues.length === 0 && (
-              <div className="empty-state">--</div>
-            )}
+            {columnIssues.length === 0 && <div className="empty-state">--</div>}
           </div>
         );
       })}

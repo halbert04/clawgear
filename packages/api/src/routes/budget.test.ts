@@ -1,5 +1,5 @@
-import { InProcessEventBus } from '@clawgear/kernel';
 import { describe, expect, mock, test } from 'bun:test';
+import { InProcessEventBus } from '@clawgear/kernel';
 import { Hono } from 'hono';
 import { errorHandler } from '../middleware/error-handler.js';
 import { budgetRoutes } from './budget.js';
@@ -19,18 +19,15 @@ function createCostEventPayload(overrides: Record<string, unknown> = {}) {
   };
 }
 
-function createMockDb(opts: {
-  companyBudget?: bigint;
-  companySpent?: bigint;
-  agentBudget?: bigint;
-  agentSpent?: bigint;
-} = {}) {
-  const {
-    companyBudget = 10000n,
-    companySpent = 0n,
-    agentBudget = 5000n,
-    agentSpent = 0n,
-  } = opts;
+function createMockDb(
+  opts: {
+    companyBudget?: bigint;
+    companySpent?: bigint;
+    agentBudget?: bigint;
+    agentSpent?: bigint;
+  } = {},
+) {
+  const { companyBudget = 10000n, companySpent = 0n, agentBudget = 5000n, agentSpent = 0n } = opts;
 
   const costEventRow = {
     id: '550e8400-e29b-41d4-a716-446655440010',
@@ -126,7 +123,15 @@ function createMockDb(opts: {
     execute: mock(() => Promise.resolve([{ '?column?': 1 }])),
   };
 
-  return { db, costEventRow, companyRow, agentRow, setCompanySpent: (v: bigint) => { currentCompanySpent = v; } };
+  return {
+    db,
+    costEventRow,
+    companyRow,
+    agentRow,
+    setCompanySpent: (v: bigint) => {
+      currentCompanySpent = v;
+    },
+  };
 }
 
 function buildApp(db: unknown, eventBus: InProcessEventBus) {
@@ -174,9 +179,7 @@ describe('Budget Routes', () => {
     });
 
     expect(res.status).toBe(201);
-    expect(emitSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'budget.warning' }),
-    );
+    expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'budget.warning' }));
   });
 
   test('POST /cost-events emits budget.exceeded at 100% and auto-pauses agent', async () => {
@@ -196,9 +199,7 @@ describe('Budget Routes', () => {
     });
 
     expect(res.status).toBe(201);
-    expect(emitSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'budget.exceeded' }),
-    );
+    expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'budget.exceeded' }));
     // update called 3 times: agent spent increment, company spent increment, agent pause
     expect(db.update).toHaveBeenCalledTimes(3);
   });

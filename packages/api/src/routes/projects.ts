@@ -2,7 +2,7 @@ import { companies, projects } from '@clawgear/db/pg';
 import type { InProcessEventBus } from '@clawgear/kernel';
 import type { SystemEvent } from '@clawgear/shared/interfaces';
 import { createProjectSchema, paginationSchema } from '@clawgear/shared/validators';
-import { eq, and, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { AppDeps } from '../app.js';
 import { notFound } from '../lib/errors.js';

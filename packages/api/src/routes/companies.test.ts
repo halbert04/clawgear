@@ -1,5 +1,5 @@
-import { InProcessEventBus } from '@clawgear/kernel';
 import { describe, expect, mock, test } from 'bun:test';
+import { InProcessEventBus } from '@clawgear/kernel';
 import { createApp } from '../app.js';
 
 // Mock DB that tracks insert/select/update calls
@@ -27,7 +27,9 @@ function createMockDb() {
   const selectWhere = mock(() => [companyRow]);
   const selectFrom = mock(() => ({ where: selectWhere, limit: selectLimit }));
 
-  const updateReturning = mock(() => [{ ...companyRow, name: 'Updated Corp', updatedAt: new Date() }]);
+  const updateReturning = mock(() => [
+    { ...companyRow, name: 'Updated Corp', updatedAt: new Date() },
+  ]);
   const updateWhere = mock(() => ({ returning: updateReturning }));
   const updateSet = mock(() => ({ where: updateWhere }));
   const updateFn = mock(() => ({ set: updateSet }));

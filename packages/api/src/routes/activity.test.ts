@@ -1,5 +1,5 @@
-import { InProcessEventBus } from '@clawgear/kernel';
 import { describe, expect, mock, test } from 'bun:test';
+import { InProcessEventBus } from '@clawgear/kernel';
 import { Hono } from 'hono';
 import { errorHandler } from '../middleware/error-handler.js';
 import { activityRoutes } from './activity.js';
@@ -72,7 +72,9 @@ function createMockDb() {
         })),
       };
     }),
-    update: mock(() => ({ set: mock(() => ({ where: mock(() => ({ returning: mock(() => []) })) })) })),
+    update: mock(() => ({
+      set: mock(() => ({ where: mock(() => ({ returning: mock(() => []) })) })),
+    })),
     execute: mock(() => Promise.resolve([{ '?column?': 1 }])),
   };
 
@@ -82,7 +84,10 @@ function createMockDb() {
 function buildApp(db: unknown, eventBus: InProcessEventBus) {
   const wrapper = new Hono();
   wrapper.onError(errorHandler);
-  wrapper.route('/api/companies/:companyId/activity', activityRoutes({ db: db as never, eventBus }));
+  wrapper.route(
+    '/api/companies/:companyId/activity',
+    activityRoutes({ db: db as never, eventBus }),
+  );
   return wrapper;
 }
 
@@ -106,9 +111,7 @@ describe('Activity Routes', () => {
     expect(body.action).toBe('issue.created');
     expect(body.entityType).toBe('issue');
     expect(db.insert).toHaveBeenCalled();
-    expect(emitSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'activity.logged' }),
-    );
+    expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'activity.logged' }));
   });
 
   test('GET / returns paginated activity feed', async () => {

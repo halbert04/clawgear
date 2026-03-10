@@ -1,5 +1,5 @@
-import { InProcessEventBus } from '@clawgear/kernel';
 import { describe, expect, mock, test } from 'bun:test';
+import { InProcessEventBus } from '@clawgear/kernel';
 import { Hono } from 'hono';
 import { errorHandler } from '../middleware/error-handler.js';
 import { approvalRoutes } from './approvals.js';
@@ -85,7 +85,10 @@ function createMockDb(opts: { approvalStatus?: string } = {}) {
 function buildApp(db: unknown, eventBus: InProcessEventBus) {
   const wrapper = new Hono();
   wrapper.onError(errorHandler);
-  wrapper.route('/api/companies/:companyId/approvals', approvalRoutes({ db: db as never, eventBus }));
+  wrapper.route(
+    '/api/companies/:companyId/approvals',
+    approvalRoutes({ db: db as never, eventBus }),
+  );
   return wrapper;
 }
 
@@ -107,9 +110,7 @@ describe('Approval Routes', () => {
     const body = await res.json();
     expect(body.type).toBe('hire_agent');
     expect(body.status).toBe('pending');
-    expect(emitSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'approval.requested' }),
-    );
+    expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'approval.requested' }));
   });
 
   test('GET / lists pending approvals', async () => {
@@ -160,9 +161,7 @@ describe('Approval Routes', () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.status).toBe('approved');
-    expect(emitSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'approval.decided' }),
-    );
+    expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'approval.decided' }));
   });
 
   test('POST /:id/decide returns 409 for already decided approval', async () => {
@@ -205,13 +204,16 @@ describe('Approval Routes', () => {
     const eventBus = new InProcessEventBus();
     const app = buildApp(db, eventBus);
 
-    const res = await app.request(`/api/companies/${COMPANY_ID}/approvals/550e8400-e29b-41d4-a716-446655440099/decide`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        status: 'approved',
-      }),
-    });
+    const res = await app.request(
+      `/api/companies/${COMPANY_ID}/approvals/550e8400-e29b-41d4-a716-446655440099/decide`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'approved',
+        }),
+      },
+    );
 
     expect(res.status).toBe(404);
   });

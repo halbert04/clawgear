@@ -1,7 +1,11 @@
 import { companies } from '@clawgear/db/pg';
 import type { InProcessEventBus } from '@clawgear/kernel';
 import type { SystemEvent } from '@clawgear/shared/interfaces';
-import { createCompanySchema, paginationSchema, updateCompanySchema } from '@clawgear/shared/validators';
+import {
+  createCompanySchema,
+  paginationSchema,
+  updateCompanySchema,
+} from '@clawgear/shared/validators';
 import { eq, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { AppDeps } from '../app.js';
@@ -60,8 +64,10 @@ export function companyRoutes(deps: AppDeps) {
     if (body.name !== undefined) values.name = body.name;
     if (body.description !== undefined) values.description = body.description;
     if (body.status !== undefined) values.status = body.status;
-    if (body.budgetMonthlyCents !== undefined) values.budgetMonthlyCents = BigInt(body.budgetMonthlyCents);
-    if (body.requireBoardApproval !== undefined) values.requireBoardApproval = body.requireBoardApproval;
+    if (body.budgetMonthlyCents !== undefined)
+      values.budgetMonthlyCents = BigInt(body.budgetMonthlyCents);
+    if (body.requireBoardApproval !== undefined)
+      values.requireBoardApproval = body.requireBoardApproval;
 
     if (Object.keys(values).length === 0) {
       const [existing] = await db.select().from(companies).where(eq(companies.id, id));
@@ -70,7 +76,11 @@ export function companyRoutes(deps: AppDeps) {
     }
 
     values.updatedAt = new Date();
-    const [updated] = await db.update(companies).set(values).where(eq(companies.id, id)).returning();
+    const [updated] = await db
+      .update(companies)
+      .set(values)
+      .where(eq(companies.id, id))
+      .returning();
     if (!updated) throw notFound('Company', id);
 
     emitCompanyEvent(eventBus, 'company.updated', updated);

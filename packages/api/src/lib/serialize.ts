@@ -11,6 +11,8 @@ export function serializeRow<T extends Record<string, unknown>>(row: T): Record<
   return result;
 }
 
-export function serializeRows<T extends Record<string, unknown>>(rows: T[]): Record<string, unknown>[] {
+export function serializeRows<T extends Record<string, unknown>>(
+  rows: T[],
+): Record<string, unknown>[] {
   return rows.map(serializeRow);
 }

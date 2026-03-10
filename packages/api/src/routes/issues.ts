@@ -1,13 +1,13 @@
-import { companies, issues, issueComments } from '@clawgear/db/pg';
+import { companies, issueComments, issues } from '@clawgear/db/pg';
 import type { InProcessEventBus } from '@clawgear/kernel';
 import type { SystemEvent } from '@clawgear/shared/interfaces';
 import {
-  createIssueSchema,
   createIssueCommentSchema,
+  createIssueSchema,
   paginationSchema,
   updateIssueSchema,
 } from '@clawgear/shared/validators';
-import { eq, and, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { AppDeps } from '../app.js';
 import { badRequest, conflict, notFound } from '../lib/errors.js';
@@ -126,9 +126,7 @@ export function issueRoutes(deps: AppDeps) {
 
       const allowed = STATUS_TRANSITIONS[current.status];
       if (!allowed || !allowed.has(body.status)) {
-        throw badRequest(
-          `Invalid status transition: ${current.status} -> ${body.status}`,
-        );
+        throw badRequest(`Invalid status transition: ${current.status} -> ${body.status}`);
       }
     }
 

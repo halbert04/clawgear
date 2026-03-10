@@ -1,5 +1,5 @@
-import { InProcessEventBus } from '@clawgear/kernel';
 import { describe, expect, mock, test } from 'bun:test';
+import { InProcessEventBus } from '@clawgear/kernel';
 import { Hono } from 'hono';
 import { errorHandler } from '../middleware/error-handler.js';
 import { goalRoutes } from './goals.js';
@@ -39,7 +39,9 @@ function createMockDb(selectResults?: unknown[][]) {
   const insertValues = mock(() => ({ returning: insertReturning }));
   const insertFn = mock(() => ({ values: insertValues }));
 
-  const updateReturning = mock(() => [{ ...goalRow, title: 'Updated Goal', updatedAt: new Date() }]);
+  const updateReturning = mock(() => [
+    { ...goalRow, title: 'Updated Goal', updatedAt: new Date() },
+  ]);
   const updateWhere = mock(() => ({ returning: updateReturning }));
   const updateSet = mock(() => ({ where: updateWhere }));
   const updateFn = mock(() => ({ set: updateSet }));
@@ -62,10 +64,7 @@ function createMockDb(selectResults?: unknown[][]) {
 function createTestApp(db: unknown, eventBus: InProcessEventBus) {
   const app = new Hono();
   app.onError(errorHandler);
-  app.route(
-    `/api/companies/:companyId/goals`,
-    goalRoutes({ db: db as never, eventBus }),
-  );
+  app.route(`/api/companies/:companyId/goals`, goalRoutes({ db: db as never, eventBus }));
   return app;
 }
 
@@ -87,9 +86,7 @@ describe('Goal Routes', () => {
     const body = await res.json();
     expect(body.title).toBe('Ship v2');
     expect(body.level).toBe('team');
-    expect(emitSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'goal.created' }),
-    );
+    expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'goal.created' }));
   });
 
   test('POST validates level relative to parent', async () => {
@@ -132,9 +129,7 @@ describe('Goal Routes', () => {
     const eventBus = new InProcessEventBus();
     const app = createTestApp(db, eventBus);
 
-    const res = await app.request(
-      `/api/companies/${COMPANY_ID}/goals?parentId=${PARENT_GOAL_ID}`,
-    );
+    const res = await app.request(`/api/companies/${COMPANY_ID}/goals?parentId=${PARENT_GOAL_ID}`);
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -146,9 +141,7 @@ describe('Goal Routes', () => {
     const eventBus = new InProcessEventBus();
     const app = createTestApp(db, eventBus);
 
-    const res = await app.request(
-      `/api/companies/${COMPANY_ID}/goals/${goalRow.id}`,
-    );
+    const res = await app.request(`/api/companies/${COMPANY_ID}/goals/${goalRow.id}`);
 
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -174,21 +167,16 @@ describe('Goal Routes', () => {
     eventBus.emit = emitSpy;
     const app = createTestApp(db, eventBus);
 
-    const res = await app.request(
-      `/api/companies/${COMPANY_ID}/goals/${GOAL_ID}`,
-      {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'Updated Goal' }),
-      },
-    );
+    const res = await app.request(`/api/companies/${COMPANY_ID}/goals/${GOAL_ID}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Updated Goal' }),
+    });
 
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body.title).toBe('Updated Goal');
-    expect(emitSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'goal.updated' }),
-    );
+    expect(emitSpy).toHaveBeenCalledWith(expect.objectContaining({ type: 'goal.updated' }));
   });
 
   test('PATCH /:id returns 404 for missing goal', async () => {
@@ -238,9 +226,7 @@ describe('Goal Routes', () => {
     const eventBus = new InProcessEventBus();
     const app = createTestApp(db, eventBus);
 
-    const res = await app.request(
-      `/api/companies/${COMPANY_ID}/goals/${GOAL_ID}/ancestry`,
-    );
+    const res = await app.request(`/api/companies/${COMPANY_ID}/goals/${GOAL_ID}/ancestry`);
 
     expect(res.status).toBe(200);
     const body = await res.json();

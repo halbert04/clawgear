@@ -75,9 +75,7 @@ export function AgentList({ companyId, agents, onRefresh }: Props) {
                     {agent.icon ? `${agent.icon} ` : ''}
                     {agent.name}
                   </div>
-                  {agent.title && (
-                    <div className="agent-role">{agent.title}</div>
-                  )}
+                  {agent.title && <div className="agent-role">{agent.title}</div>}
                 </td>
                 <td>{agent.role}</td>
                 <td>
@@ -88,17 +86,18 @@ export function AgentList({ companyId, agents, onRefresh }: Props) {
                 </td>
                 <td>{agent.modelTier}</td>
                 <td>
-                  <span className={`budget-cell ${budgetClass(agent.spentMonthlyCents, agent.budgetMonthlyCents)}`}>
+                  <span
+                    className={`budget-cell ${budgetClass(agent.spentMonthlyCents, agent.budgetMonthlyCents)}`}
+                  >
                     {centsToUsd(agent.spentMonthlyCents)}
-                    {agent.budgetMonthlyCents > 0 && (
-                      <> / {centsToUsd(agent.budgetMonthlyCents)}</>
-                    )}
+                    {agent.budgetMonthlyCents > 0 && <> / {centsToUsd(agent.budgetMonthlyCents)}</>}
                   </span>
                 </td>
                 <td>
                   <div className="action-cell">
                     {agent.status === 'paused' ? (
                       <button
+                        type="button"
                         className="btn"
                         disabled={isLoading || isTerminated}
                         onClick={() => handleAction(agent.id, resumeAgent)}
@@ -107,6 +106,7 @@ export function AgentList({ companyId, agents, onRefresh }: Props) {
                       </button>
                     ) : (
                       <button
+                        type="button"
                         className="btn"
                         disabled={isLoading || isTerminated || agent.status === 'paused'}
                         onClick={() => handleAction(agent.id, pauseAgent)}
@@ -115,6 +115,7 @@ export function AgentList({ companyId, agents, onRefresh }: Props) {
                       </button>
                     )}
                     <button
+                      type="button"
                       className="btn btn-danger"
                       disabled={isLoading || isTerminated}
                       onClick={() => handleAction(agent.id, terminateAgent)}

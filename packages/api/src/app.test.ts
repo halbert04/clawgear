@@ -5,7 +5,7 @@ import { createApp } from './app.js';
 // Mock database that returns a result for SELECT 1
 const mockDb = {
   execute: mock(() => Promise.resolve([{ '?column?': 1 }])),
-} as any;
+} as never;
 
 describe('API Server', () => {
   const eventBus = new InProcessEventBus();
@@ -43,7 +43,7 @@ describe('API Server', () => {
   test('GET /api/health/detail returns degraded when db is down', async () => {
     const failDb = {
       execute: mock(() => Promise.reject(new Error('connection refused'))),
-    } as any;
+    } as never;
     const failApp = createApp({ db: failDb, eventBus });
 
     const res = await failApp.request('/api/health/detail');
