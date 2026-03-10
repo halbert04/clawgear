@@ -12,10 +12,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@clawgear/shared": "workspace:*",
     "@clawgear/api": "workspace:*",
     "@clawgear/db": "workspace:*",
-    "commander": "catalog:"
+    "@clawgear/shared": "workspace:*",
+    "commander": "catalog:",
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
