@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  ActorType,
   AdapterType,
   AgentRole,
   AgentStatus,
@@ -204,6 +205,21 @@ export const createCostEventSchema = z.object({
   outputTokens: z.number().int().min(0),
   costCents: z.number().int().min(0),
   billingCode: z.string().max(100).nullable().optional(),
+});
+
+// ============================================================
+// ACTIVITY LOG
+// ============================================================
+
+export const createActivityLogSchema = z.object({
+  actorType: z.enum(ActorType),
+  actorId: z.string().min(1),
+  action: z.string().min(1).max(255),
+  entityType: z.string().min(1).max(100),
+  entityId: uuidSchema.nullable().optional(),
+  agentId: uuidSchema.nullable().optional(),
+  runId: uuidSchema.nullable().optional(),
+  details: z.record(z.unknown()).nullable().optional(),
 });
 
 // ============================================================
