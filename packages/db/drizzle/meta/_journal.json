@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1773113883993,
+      "tag": "0000_vengeful_fat_cobra",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773113884000,
+      "tag": "0001_extensions_rls_indexes",
+      "breakpoints": true
+    }
+  ]
+}
