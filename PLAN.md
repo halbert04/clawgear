@@ -588,45 +588,45 @@ ALTER TABLE quality_rubrics ADD CONSTRAINT uq_rubric_name UNIQUE(company_id, nam
 Set up the monorepo, database, basic API server, and CLI skeleton.
 
 ### 0.1 Monorepo Setup
-- [ ] Initialize pnpm workspace with the V1 package structure
-- [ ] Configure TypeScript (strict mode, path aliases)
-- [ ] Configure Bun as the runtime
-- [ ] Set up shared tsconfig, eslint, prettier
-- [ ] Set up Biome or ESLint for linting
-- [ ] Add Docker Compose for local dev (PostgreSQL + pgvector)
+- [x] Initialize pnpm workspace with the V1 package structure
+- [x] Configure TypeScript (strict mode, path aliases)
+- [x] Configure Bun as the runtime
+- [x] Set up shared tsconfig, eslint, prettier
+- [x] Set up Biome or ESLint for linting
+- [x] Add Docker Compose for local dev (PostgreSQL + pgvector)
 
 ### 0.2 Database Layer (`@clawgear/db`)
-- [ ] Install Drizzle ORM + drizzle-kit
-- [ ] Define all PostgreSQL schemas listed above (core + quality + learning + shared knowledge)
-- [ ] Write initial migration
-- [ ] Set up pgvector extension in migration
-- [ ] Add seed script for development (creates a sample company, CEO agent, goals)
-- [ ] SQLite schema for agent-local data (sessions, scratch KV)
+- [x] Install Drizzle ORM + drizzle-kit
+- [x] Define all PostgreSQL schemas listed above (core + quality + learning + shared knowledge)
+- [x] Write initial migration
+- [x] Set up pgvector extension in migration
+- [x] Add seed script for development (creates a sample company, CEO agent, goals)
+- [x] SQLite schema for agent-local data (sessions, scratch KV)
 
 ### 0.3 API Server (`@clawgear/api`)
-- [ ] Hono server with CORS, request logging, error handling middleware
-- [ ] Health check endpoints (`GET /api/health`, `GET /api/health/detail`)
-- [ ] API key authentication middleware (company-scoped)
-- [ ] Request validation with Zod
+- [x] Hono server with CORS, request logging, error handling middleware
+- [x] Health check endpoints (`GET /api/health`, `GET /api/health/detail`)
+- [x] API key authentication middleware (company-scoped)
+- [x] Request validation with Zod
 - [ ] WebSocket upgrade support (for future dashboard live updates)
 
 ### 0.4 Shared Types (`@clawgear/shared`)
-- [ ] Define all entity types matching the database schema
-- [ ] Define API request/response types
-- [ ] Zod validators for all inputs
-- [ ] Event types for the internal event bus
-- [ ] Status enums and state machine types
+- [x] Define all entity types matching the database schema
+- [x] Define API request/response types
+- [x] Zod validators for all inputs
+- [x] Event types for the internal event bus
+- [x] Status enums and state machine types
 
 ### 0.5 CLI Skeleton (`@clawgear/cli`)
-- [ ] `clawgear init` -- interactive setup (creates config, runs migrations)
-- [ ] `clawgear start` -- launches API server
-- [ ] `clawgear status` -- system health check
+- [x] `clawgear init` -- interactive setup (creates config, runs migrations)
+- [x] `clawgear start` -- launches API server
+- [x] `clawgear status` -- system health check
 
 ### 0.6 Development Infrastructure
-- [ ] Test setup (Bun test for packages, Vitest for dashboard)
-- [ ] CI pipeline (lint, type-check, test, build)
-- [ ] `.env.example` with all required config vars
-- [ ] Docker Compose for full stack (API + PostgreSQL + pgvector)
+- [x] Test setup (Bun test for packages, Vitest for dashboard)
+- [x] CI pipeline (lint, type-check, test, build)
+- [x] `.env.example` with all required config vars
+- [x] Docker Compose for full stack (API + PostgreSQL + pgvector)
 
 **Exit criteria:** `clawgear init && clawgear start` boots the API server, connects to PostgreSQL, runs migrations, and responds to health checks.
 
