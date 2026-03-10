@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "references": [
+    { "path": "./packages/shared" },
+    { "path": "./packages/kernel" },
+    { "path": "./packages/db" },
+    { "path": "./packages/api" },
+    { "path": "./packages/runtime" },
+    { "path": "./packages/memory" },
+    { "path": "./packages/quality" },
+    { "path": "./packages/learning" },
+    { "path": "./packages/security" },
+    { "path": "./packages/cli" }
+  ]
+}
