@@ -63,12 +63,16 @@ export function createApp(deps: AppDeps) {
     );
   }
 
-  // WebSocket event bridge
+  // WebSocket event bridge (JSON-RPC gateway)
   app.get(
     '/api/ws',
     upgradeWebSocket(() => ({
       onOpen(_evt, ws) {
         eventBridge.addClient(ws);
+      },
+      onMessage(evt, ws) {
+        const data = typeof evt.data === 'string' ? evt.data : '';
+        eventBridge.handleMessage(ws, data);
       },
       onClose(_evt, ws) {
         eventBridge.removeClient(ws);
