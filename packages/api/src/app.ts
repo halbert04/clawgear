@@ -1,5 +1,5 @@
 import type { Database } from '@clawgear/db';
-import type { InProcessEventBus } from '@clawgear/kernel';
+import type { HeartbeatEngine, InProcessEventBus } from '@clawgear/kernel';
 import { Hono } from 'hono';
 import { createBunWebSocket } from 'hono/bun';
 import { cors } from 'hono/cors';
@@ -10,9 +10,12 @@ import { agentRoutes } from './routes/agents.js';
 import { approvalRoutes } from './routes/approvals.js';
 import { budgetRoutes } from './routes/budget.js';
 import { companyRoutes } from './routes/companies.js';
+import { factRoutes } from './routes/facts.js';
 import { goalRoutes } from './routes/goals.js';
 import { healthRoutes } from './routes/health.js';
+import { heartbeatRoutes } from './routes/heartbeats.js';
 import { issueRoutes } from './routes/issues.js';
+import { memoryRoutes } from './routes/memory.js';
 import { projectRoutes } from './routes/projects.js';
 import { qualityRoutes } from './routes/quality.js';
 import { EventBridge } from './ws/event-bridge.js';
@@ -20,6 +23,7 @@ import { EventBridge } from './ws/event-bridge.js';
 export interface AppDeps {
   db: Database;
   eventBus: InProcessEventBus;
+  heartbeatEngine?: HeartbeatEngine;
 }
 
 const { upgradeWebSocket, websocket } = createBunWebSocket();
@@ -46,6 +50,16 @@ export function createApp(deps: AppDeps) {
   app.route('/api/companies/:companyId/approvals', approvalRoutes(deps));
   app.route('/api/companies/:companyId/activity', activityRoutes(deps));
   app.route('/api/companies/:companyId/quality', qualityRoutes(deps));
+  app.route('/api/companies/:companyId/facts', factRoutes(deps));
+  app.route('/api/companies/:companyId/memory', memoryRoutes(deps));
+
+  // Heartbeat routes (requires heartbeat engine)
+  if (deps.heartbeatEngine) {
+    app.route(
+      '/api/companies/:companyId/agents/:agentId/heartbeats',
+      heartbeatRoutes({ ...deps, heartbeatEngine: deps.heartbeatEngine }),
+    );
+  }
 
   // WebSocket event bridge
   app.get(

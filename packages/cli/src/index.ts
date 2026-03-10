@@ -1,6 +1,8 @@
 #!/usr/bin/env bun
 import { program } from 'commander';
+import { registerAgentCommands } from './commands/agent.js';
 import { initCommand } from './commands/init.js';
+import { registerIssueCommands } from './commands/issue.js';
 import { startCommand } from './commands/start.js';
 import { statusCommand } from './commands/status.js';
 
@@ -22,5 +24,8 @@ program
   .description('Check system health')
   .option('-u, --url <url>', 'API base URL', 'http://localhost:3000')
   .action(statusCommand);
+
+registerAgentCommands(program);
+registerIssueCommands(program);
 
 program.parse();

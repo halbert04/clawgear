@@ -853,9 +853,9 @@ Where `severity_weight`: URGENT=100, APPROVAL=80, WARNING=60, STUCK=40, INFO=10.
 Build the execution engine, adapter system, and learning loop.
 
 ### 2.1 Heartbeat Execution Engine (`@clawgear/kernel`)
-- [ ] Heartbeat scheduler (cron-based, configurable per agent)
-- [ ] **Hybrid wake model**: scheduled heartbeats + event-driven wake (for assignments, mentions)
-- [ ] Heartbeat procedure orchestration:
+- [x] Heartbeat scheduler (cron-based, configurable per agent)
+- [x] **Hybrid wake model**: scheduled heartbeats + event-driven wake (for assignments, mentions)
+- [x] Heartbeat procedure orchestration:
   1. Load agent config + runtime state
   2. Resolve context (tiered goal ancestry, recent lessons, current assignments)
   3. Execute via adapter
@@ -864,24 +864,24 @@ Build the execution engine, adapter system, and learning loop.
   6. Post-run reflection (learning system)
   7. Persist runtime state
   8. Update competence tracking
-- [ ] Heartbeat run recording (status, timing, usage, result)
-- [ ] Concurrent heartbeat guard (prevent double-execution)
-- [ ] Heartbeat timeout with automatic cancellation
+- [x] Heartbeat run recording (status, timing, usage, result)
+- [x] Concurrent heartbeat guard (prevent double-execution)
+- [x] Heartbeat timeout with automatic cancellation
 
 ### 2.2 Context Assembly
-- [ ] **Agent identity block**: name, role, title, capabilities, permissions
-- [ ] **Current task block**: issue details, comments, acceptance criteria
-- [ ] **Goal constraints block** (tiered):
+- [x] **Agent identity block**: name, role, title, capabilities, permissions
+- [x] **Current task block**: issue details, comments, acceptance criteria
+- [x] **Goal constraints block** (tiered):
   - CEO/CTO: full goal ancestry
   - Workers: immediate goal + constraints (budget remaining, deadline, dependencies)
-- [ ] **Relevant lessons block**: top-5 lessons from `lessons_learned` for this task type
-- [ ] **Recent competence block**: "You have completed 12 similar tasks with 83% success rate"
-- [ ] **Available tools block**: tool descriptions for the adapter
-- [ ] **Skill injection**: relevant SKILL.md content for the current task
-- [ ] Token budget tracking: ensure assembled context fits the model window
+- [x] **Relevant lessons block**: top-5 lessons from `lessons_learned` for this task type
+- [x] **Recent competence block**: "You have completed 12 similar tasks with 83% success rate"
+- [x] **Available tools block**: tool descriptions for the adapter
+- [ ] **Skill injection**: relevant SKILL.md content for the current task *(deferred to Phase 5)*
+- [x] Token budget tracking: ensure assembled context fits the model window
 
 ### 2.3 Adapter System (`@clawgear/runtime`)
-- [ ] Adapter interface:
+- [x] Adapter interface:
   ```typescript
   interface Adapter {
     execute(ctx: AdapterContext): Promise<AdapterResult>
@@ -891,23 +891,23 @@ Build the execution engine, adapter system, and learning loop.
     deserializeSession?(data: string): unknown
   }
   ```
-- [ ] **Claude Code adapter**: spawn `claude` CLI, pass context, collect output
+- [x] **Claude Code adapter**: spawn `claude` CLI, pass context, collect output
   - Session persistence (resume sessions across heartbeats)
   - Tool result parsing
   - Cost extraction from usage output
-- [ ] **Process adapter**: generic subprocess spawner
-- [ ] **HTTP adapter**: webhook-based execution
-- [ ] Adapter registry and configuration
-- [ ] Environment testing (`clawgear agent test-env <name>`)
+- [x] **Process adapter**: generic subprocess spawner
+- [x] **HTTP adapter**: webhook-based execution
+- [x] Adapter registry and configuration
+- [x] Environment testing (`clawgear agent test-env <name>`)
 
-### 2.4 Model Routing
+### 2.4 Model Routing *(deferred to Phase 3)*
 - [ ] 4-tier model configuration: frontier / smart / fast / lightweight
 - [ ] Per-agent tier assignment (from agent config)
 - [ ] Provider failover: try primary provider, fall back to secondary
 - [ ] Rate limit backoff (short cooldown for rate limits, exponential for billing errors)
 - [ ] Usage tracking per model/provider
 
-### 2.5 Docker Sandbox (`@clawgear/security`)
+### 2.5 Docker Sandbox (`@clawgear/security`) *(deferred to Phase 3)*
 - [ ] Docker container management for agent tool execution
 - [ ] Sandbox image with common tools (git, node, python, etc.)
 - [ ] Per-agent workspace volume mounting
@@ -917,12 +917,12 @@ Build the execution engine, adapter system, and learning loop.
 - [ ] Timeout enforcement
 
 ### 2.6 Session Persistence
-- [ ] Session key resolution (hierarchical: `agent:{id}:main`, etc.)
-- [ ] SQLite-based session transcript storage (JSONL)
-- [ ] Runtime state persistence across heartbeats (PostgreSQL `agent_runtime_state`)
-- [ ] Session cleanup policy (prune after configurable TTL)
+- [x] Session key resolution (hierarchical: `agent:{id}:main`, etc.)
+- [x] SQLite-based session transcript storage (JSONL)
+- [x] Runtime state persistence across heartbeats (PostgreSQL `agent_runtime_state`)
+- [x] Session cleanup policy (prune after configurable TTL)
 
-### 2.7 Skill Injection System
+### 2.7 Skill Injection System *(deferred to Phase 5)*
 - [ ] SKILL.md format parser (frontmatter + markdown body)
 - [ ] Skill directory resolution (workspace > company > bundled)
 - [ ] Skill manifest injection (names, descriptions) into system prompt
@@ -930,16 +930,16 @@ Build the execution engine, adapter system, and learning loop.
 - [ ] Environment variable injection (`CLAWGEAR_AGENT_ID`, `CLAWGEAR_COMPANY_ID`, etc.)
 
 ### 2.8 Learning System (NEW -- `@clawgear/learning`)
-- [ ] **Post-run reflection**: after every heartbeat, agent writes structured reflection
+- [x] **Post-run reflection**: after every heartbeat, agent writes structured reflection
   - Prompt: "What did you do? What worked? What failed? What's the key lesson?"
   - Output: `{taskType, approach, whatWorked, whatFailed, lesson, outcome, confidence}`
   - Stored in `lessons_learned` table (PostgreSQL, shared)
   - Embedding generated for semantic retrieval
-- [ ] **Experience-indexed retrieval**: before each heartbeat, retrieve relevant lessons
+- [x] **Experience-indexed retrieval**: before each heartbeat, retrieve relevant lessons
   - Query: semantic search on task description + task type filter
   - Top-5 lessons injected into context: "Here's what the team learned about tasks like this..."
   - Track retrieval count (`times_retrieved`) for lesson utility scoring
-- [ ] **Competence tracking**: per agent, per task type
+- [x] **Competence tracking**: per agent, per task type
   - Update after every quality evaluation
   - Track: total_runs, success_rate, avg_cost, avg_duration, avg_quality_score
   - Compute quality_trend (compare last 10 runs to previous 10)
@@ -947,58 +947,58 @@ Build the execution engine, adapter system, and learning loop.
     - `supervised`: every output needs peer review
     - `semi_auto`: only failures or high-impact tasks need review
     - `auto`: quality gate only, no peer review (earned through consistent quality)
-- [ ] **Cross-agent learning**: any agent can retrieve lessons from any other agent in the company
+- [x] **Cross-agent learning**: any agent can retrieve lessons from any other agent in the company
   - Lessons are company-scoped, not agent-scoped
   - Filter by task_type and outcome for relevance
 
 ### 2.9 Shared Knowledge Store (NEW -- `@clawgear/memory`)
-- [ ] **Typed fact store**: agents can store structured facts
+- [x] **Typed fact store**: agents can store structured facts
   - API: `POST /api/companies/:cid/facts` (agent creates a fact)
   - Types: decision, entity, relationship, observation
   - Subject-predicate-object triples with confidence scores
   - Validity tracking (valid_from, invalidated_at)
   - Embedding for semantic retrieval
-- [ ] **Shared embedding store**: company-wide vector search
+- [x] **Shared embedding store**: company-wide vector search
   - Content types: lesson, fact, document, code
   - Hybrid search: pgvector cosine similarity + full-text search
   - Deduplication via content_hash
-- [ ] **Memory tools for agents**: agents can call these during heartbeats
+- [x] **Memory tools for agents**: agents can call these during heartbeats
   - `memory_store(content, type)` -- persist a memory
   - `memory_retrieve(query, type_filter)` -- semantic search
   - `fact_store(subject, predicate, object)` -- store a typed fact
   - `fact_query(subject?, predicate?, object?)` -- query facts
-- [ ] **Context compaction** (improved):
+- [ ] **Context compaction** (improved) *(deferred to Phase 6)*:
   - Structured extraction: extract facts, decisions, learnings before compacting
   - MemGPT-style paging: agent explicitly manages what's in context
   - Always-present core context (identity, current task, constraints) -- never compacted
   - Compaction as graceful degradation, not primary strategy
 
 ### 2.10 Semantic Progress Events (NEW)
-- [ ] Agent progress reporting during heartbeats:
+- [x] Agent progress reporting during heartbeats:
   ```json
   {"phase": "research", "step": 2, "totalSteps": 5,
    "description": "Analyzing competitor data", "confidence": 0.7}
   ```
-- [ ] Enhanced stuck detection:
+- [x] Enhanced stuck detection:
   - Time-per-progress tracking (flag at 3x P95 duration)
   - Budget-proportional progress (80% budget spent + 20% progress = escalate)
   - Cosine similarity on recent actions (detect semantic loops)
-- [ ] Progress events streamed to dashboard via WebSocket
+- [x] Progress events streamed to dashboard via WebSocket
 
 ### 2.11 Agent-to-Agent Communication
-- [ ] Internal messaging: agent can message other agents (respecting org chart permissions)
-- [ ] `POST /api/companies/:cid/agents/:id/message` -- send message to agent (triggers wake)
-- [ ] Message routing: respect `agent_messaging` capability in agent config
-- [ ] Peer-to-peer for collaboration, not forced through chain-of-command (critique #3)
+- [x] Internal messaging: agent can message other agents (respecting org chart permissions)
+- [x] `POST /api/companies/:cid/agents/:id/message` -- send message to agent (triggers wake)
+- [x] Message routing: respect `agent_messaging` capability in agent config
+- [x] Peer-to-peer for collaboration, not forced through chain-of-command (critique #3)
 
 ### 2.12 CLI Extensions
-- [ ] `clawgear agent spawn <role> --company <id>` -- create agent (from template or custom)
-- [ ] `clawgear agent list --company <id>` -- list agents with status
-- [ ] `clawgear agent chat <name>` -- interactive chat session
-- [ ] `clawgear agent heartbeat <name>` -- manually trigger heartbeat
-- [ ] `clawgear issue create <title> --company <id> --goal <id>`
-- [ ] `clawgear issue list --company <id>` -- list with filters
-- [ ] `clawgear issue assign <id> --agent <name>`
+- [x] `clawgear agent spawn <role> --company <id>` -- create agent (from template or custom)
+- [x] `clawgear agent list --company <id>` -- list agents with status
+- [x] `clawgear agent chat <name>` -- interactive chat session
+- [x] `clawgear agent heartbeat <name>` -- manually trigger heartbeat
+- [x] `clawgear issue create <title> --company <id> --goal <id>`
+- [x] `clawgear issue list --company <id>` -- list with filters
+- [x] `clawgear issue assign <id> --agent <name>`
 
 **Exit criteria:** An agent wakes up (scheduled or event-driven), assembles context with goal constraints + relevant lessons, executes via Claude Code adapter in a Docker sandbox, self-reflects, passes quality gate, stores a lesson learned, and updates its competence score. The second time it encounters a similar task, it retrieves the lesson from the first run.
 
