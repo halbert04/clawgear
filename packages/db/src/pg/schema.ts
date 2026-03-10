@@ -594,3 +594,96 @@ export const sharedEmbeddings = pgTable(
     ),
   ],
 );
+
+// ============================================================
+// COMMUNICATION + CHANNELS
+// ============================================================
+
+export const channelBindings = pgTable(
+  'channel_bindings',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => companies.id, { onDelete: 'cascade' }),
+    channelName: text('channel_name').notNull(), // webchat | slack | discord | etc.
+    agentId: uuid('agent_id')
+      .notNull()
+      .references(() => agents.id, { onDelete: 'cascade' }),
+    externalChannelId: text('external_channel_id'), // Slack channel ID, etc.
+    bindingType: text('binding_type').notNull().default('default'), // default | dm | channel | thread
+    priority: integer('priority').notNull().default(0), // higher = more specific
+    config: jsonb('config').notNull().default({}),
+    isActive: boolean('is_active').notNull().default(true),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('idx_channel_bindings_company').on(t.companyId, t.channelName),
+    index('idx_channel_bindings_agent').on(t.agentId),
+    check(
+      'channel_bindings_type_check',
+      sql`${t.bindingType} IN ('default', 'dm', 'channel', 'thread')`,
+    ),
+  ],
+);
+
+export const conversations = pgTable(
+  'conversations',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => companies.id, { onDelete: 'cascade' }),
+    agentId: uuid('agent_id')
+      .notNull()
+      .references(() => agents.id, { onDelete: 'cascade' }),
+    channelName: text('channel_name').notNull(), // webchat | slack | etc.
+    externalThreadId: text('external_thread_id'), // Slack thread TS, etc.
+    title: text('title'),
+    status: text('status').notNull().default('active'), // active | archived | closed
+    participantId: text('participant_id'), // human user or external sender ID
+    participantName: text('participant_name'),
+    metadata: jsonb('metadata').notNull().default({}),
+    lastMessageAt: timestamp('last_message_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('idx_conversations_company').on(t.companyId, t.status),
+    index('idx_conversations_agent').on(t.agentId, t.status),
+    index('idx_conversations_last_message').on(t.companyId, t.lastMessageAt),
+    check(
+      'conversations_status_check',
+      sql`${t.status} IN ('active', 'archived', 'closed')`,
+    ),
+  ],
+);
+
+export const conversationMessages = pgTable(
+  'conversation_messages',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => companies.id, { onDelete: 'cascade' }),
+    conversationId: uuid('conversation_id')
+      .notNull()
+      .references(() => conversations.id, { onDelete: 'cascade' }),
+    role: text('role').notNull(), // user | agent | system
+    content: text('content').notNull(),
+    agentId: uuid('agent_id').references(() => agents.id, { onDelete: 'set null' }),
+    senderId: text('sender_id'), // external user ID
+    senderName: text('sender_name'),
+    runId: uuid('run_id').references(() => heartbeatRuns.id, { onDelete: 'set null' }),
+    metadata: jsonb('metadata').notNull().default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('idx_conversation_messages_conversation').on(t.conversationId, t.createdAt),
+    check(
+      'conversation_messages_role_check',
+      sql`${t.role} IN ('user', 'agent', 'system')`,
+    ),
+  ],
+);

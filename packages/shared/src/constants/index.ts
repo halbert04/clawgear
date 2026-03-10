@@ -96,6 +96,18 @@ export type ActorType = (typeof ActorType)[number];
 export const ConfigSource = ['patch', 'rollback'] as const;
 export type ConfigSource = (typeof ConfigSource)[number];
 
+export const ConversationStatus = ['active', 'archived', 'closed'] as const;
+export type ConversationStatus = (typeof ConversationStatus)[number];
+
+export const MessageRole = ['user', 'agent', 'system'] as const;
+export type MessageRole = (typeof MessageRole)[number];
+
+export const ChannelBindingType = ['default', 'dm', 'channel', 'thread'] as const;
+export type ChannelBindingType = (typeof ChannelBindingType)[number];
+
+export const ChannelName = ['webchat', 'slack', 'discord', 'telegram', 'email'] as const;
+export type ChannelName = (typeof ChannelName)[number];
+
 // Trigger priority ordering (higher index = higher priority)
 export const TriggerPriority = [
   'scheduled',

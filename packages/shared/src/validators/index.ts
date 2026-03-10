@@ -7,8 +7,11 @@ import {
   type ApprovalStatus,
   ApprovalType,
   type AutonomyLevel,
+  ChannelBindingType,
+  ChannelName,
   CompanyStatus,
   type ContentType,
+  ConversationStatus,
   type EvaluatorType,
   type FactType,
   GoalLevel,
@@ -18,6 +21,7 @@ import {
   IssuePriority,
   IssueStatus,
   type LessonOutcome,
+  MessageRole,
   ModelTier,
   type PromptType,
   type QualityTrend,
@@ -243,13 +247,66 @@ export const createRubricSchema = z.object({
   minImprovementThreshold: z.number().min(0).max(1).default(0.1),
 });
 
+// ============================================================
+// CHANNEL BINDING
+// ============================================================
+
+export const createChannelBindingSchema = z.object({
+  channelName: z.enum(ChannelName),
+  agentId: uuidSchema,
+  externalChannelId: z.string().max(255).nullable().optional(),
+  bindingType: z.enum(ChannelBindingType).default('default'),
+  priority: z.number().int().min(0).max(100).default(0),
+  config: z.record(z.unknown()).default({}),
+});
+
+export const updateChannelBindingSchema = z.object({
+  agentId: uuidSchema.optional(),
+  externalChannelId: z.string().max(255).nullable().optional(),
+  bindingType: z.enum(ChannelBindingType).optional(),
+  priority: z.number().int().min(0).max(100).optional(),
+  config: z.record(z.unknown()).optional(),
+  isActive: z.boolean().optional(),
+});
+
+// ============================================================
+// CONVERSATION
+// ============================================================
+
+export const createConversationSchema = z.object({
+  agentId: uuidSchema,
+  channelName: z.enum(ChannelName).default('webchat'),
+  title: z.string().max(255).nullable().optional(),
+  participantId: z.string().max(255).nullable().optional(),
+  participantName: z.string().max(255).nullable().optional(),
+  metadata: z.record(z.unknown()).default({}),
+});
+
+export const updateConversationSchema = z.object({
+  title: z.string().max(255).nullable().optional(),
+  status: z.enum(ConversationStatus).optional(),
+});
+
+// ============================================================
+// CONVERSATION MESSAGE
+// ============================================================
+
+export const createConversationMessageSchema = z.object({
+  content: z.string().min(1).max(100000),
+  senderId: z.string().max(255).nullable().optional(),
+  senderName: z.string().max(255).nullable().optional(),
+});
+
 // Re-export for convenience
 export type {
   ApprovalStatus,
   ApprovalType,
   AutonomyLevel,
+  ChannelBindingType,
+  ChannelName,
   CompanyStatus,
   ContentType,
+  ConversationStatus,
   EvaluatorType,
   FactType,
   GoalLevel,
@@ -259,6 +316,7 @@ export type {
   IssuePriority,
   IssueStatus,
   LessonOutcome,
+  MessageRole,
   ModelTier,
   PromptType,
   QualityTrend,

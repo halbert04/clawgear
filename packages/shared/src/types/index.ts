@@ -6,8 +6,11 @@ import type {
   ApprovalStatus,
   ApprovalType,
   AutonomyLevel,
+  ChannelBindingType,
+  ChannelName,
   CompanyStatus,
   ConfigSource,
+  ConversationStatus,
   ContentType,
   EvaluatorType,
   FactType,
@@ -18,6 +21,7 @@ import type {
   IssuePriority,
   IssueStatus,
   LessonOutcome,
+  MessageRole,
   ModelTier,
   PromptType,
   QualityTrend,
@@ -336,6 +340,58 @@ export interface SharedEmbedding {
   contentHash: string;
   embeddingModel: string | null;
   metadata: Record<string, unknown> | null;
+  createdAt: Date;
+}
+
+// ============================================================
+// CAPABILITIES
+// ============================================================
+
+// ============================================================
+// COMMUNICATION + CHANNELS
+// ============================================================
+
+export interface ChannelBinding {
+  id: string;
+  companyId: string;
+  channelName: ChannelName;
+  agentId: string;
+  externalChannelId: string | null;
+  bindingType: ChannelBindingType;
+  priority: number;
+  config: Record<string, unknown>;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Conversation {
+  id: string;
+  companyId: string;
+  agentId: string;
+  channelName: ChannelName;
+  externalThreadId: string | null;
+  title: string | null;
+  status: ConversationStatus;
+  participantId: string | null;
+  participantName: string | null;
+  metadata: Record<string, unknown>;
+  lastMessageAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ConversationMessage {
+  id: string;
+  companyId: string;
+  conversationId: string;
+  role: MessageRole;
+  content: string;
+  agentId: string | null;
+  senderId: string | null;
+  senderName: string | null;
+  runId: string | null;
+  metadata: Record<string, unknown>;
   createdAt: Date;
 }
 
