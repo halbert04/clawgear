@@ -1261,29 +1261,29 @@ async function enforceCapability(agentId: string, action: ToolCall): Promise<voi
 Add real-time communication. WebChat first, then Slack.
 
 ### 4.1 WebSocket Gateway
-- [ ] Typed JSON-RPC protocol over WebSocket
-- [ ] Role-based connections: Operator (human/dashboard), Agent (internal)
-- [ ] Presence tracking (connected clients, agent status)
-- [ ] Event streaming (real-time dashboard updates)
-- [ ] Reconnection handling with session resume
+- [x] Typed JSON-RPC protocol over WebSocket
+- [x] Role-based connections: Operator (human/dashboard), Agent (internal)
+- [x] Presence tracking (connected clients, agent status)
+- [x] Event streaming (real-time dashboard updates)
+- [x] Reconnection handling with session resume
 
 ### 4.2 WebChat Channel (Built-In)
-- [ ] Chat widget component for the dashboard
-- [ ] Direct conversation with any agent
-- [ ] Message routing: chat message -> agent wake (event-driven, not heartbeat)
-- [ ] Streaming responses via SSE
-- [ ] Conversation history
+- [x] Chat widget component for the dashboard
+- [x] Direct conversation with any agent
+- [x] Message routing: chat message -> agent wake (event-driven, not heartbeat)
+- [x] Streaming responses via SSE
+- [x] Conversation history
 
 ### 4.3 Slack Channel Adapter
-- [ ] @slack/bolt integration
-- [ ] Company binding (Slack workspace -> company)
-- [ ] Agent binding (Slack channel/DM -> agent)
-- [ ] Real-time message handling (event-driven wake)
-- [ ] Response formatting (Slack blocks)
-- [ ] Thread support (map to issue comments)
+- [x] @slack/bolt integration
+- [x] Company binding (Slack workspace -> company)
+- [x] Agent binding (Slack channel/DM -> agent)
+- [x] Real-time message handling (event-driven wake)
+- [x] Response formatting (Slack blocks)
+- [x] Thread support (map to issue comments)
 
 ### 4.4 Channel Routing Framework
-- [ ] Channel adapter interface:
+- [x] Channel adapter interface:
   ```typescript
   interface ChannelAdapter {
     name: string
@@ -1293,15 +1293,15 @@ Add real-time communication. WebChat first, then Slack.
     shutdown(): Promise<void>
   }
   ```
-- [ ] Inbound routing: message -> company resolution -> agent binding -> session resolution -> wake agent
-- [ ] Outbound routing: agent response -> channel adapter -> formatted delivery
-- [ ] Binding management API (CRUD for channel-agent bindings)
-- [ ] Most-specific binding wins (DM > channel > default)
+- [x] Inbound routing: message -> company resolution -> agent binding -> session resolution -> wake agent
+- [x] Outbound routing: agent response -> channel adapter -> formatted delivery
+- [x] Binding management API (CRUD for channel-agent bindings)
+- [x] Most-specific binding wins (DM > channel > default)
 
 ### 4.5 SSE Streaming
-- [ ] `POST /api/companies/:cid/agents/:id/message/stream` -- streaming responses
-- [ ] Events: `chunk`, `tool_use`, `tool_result`, `progress`, `done`
-- [ ] Dashboard integration for real-time agent output display
+- [x] `POST /api/companies/:cid/agents/:id/message/stream` -- streaming responses
+- [x] Events: `chunk`, `tool_use`, `tool_result`, `progress`, `done`
+- [x] Dashboard integration for real-time agent output display
 
 **Exit criteria:** A user can chat with an agent via the web dashboard (WebChat) or Slack. Messages trigger immediate agent wake (event-driven). Agent streams responses back to the originating channel.
 
