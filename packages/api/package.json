@@ -15,6 +15,7 @@
   "dependencies": {
     "@clawgear/db": "workspace:*",
     "@clawgear/kernel": "workspace:*",
+    "@clawgear/runtime": "workspace:*",
     "@clawgear/shared": "workspace:*",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",

@@ -1,4 +1,13 @@
-// @clawgear/runtime - Agent execution, Docker sandbox, adapters
-// Implementation in Phase 2
-
-export {};
+export { AdapterRegistry } from './adapter-registry.js';
+export { type AssembleContextInput, assembleContext } from './context-assembler.js';
+export {
+  type ProgressRecord,
+  ProgressTracker,
+  type StuckDetectionConfig,
+} from './progress-events.js';
+export { SessionManager, type SessionManagerConfig } from './session-manager.js';
+export {
+  executeKernelTool,
+  getKernelToolDefinitions,
+  type ToolContext,
+} from './tool-implementations.js';

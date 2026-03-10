@@ -1,5 +1,15 @@
 import { createConnection } from '@clawgear/db';
-import { InProcessEventBus } from '@clawgear/kernel';
+import { agents, costEvents } from '@clawgear/db/pg';
+import {
+  HeartbeatEngine,
+  HeartbeatScheduler,
+  InProcessEventBus,
+  WakeHandler,
+} from '@clawgear/kernel';
+import { AdapterRegistry } from '@clawgear/runtime';
+import type { BudgetStatus, KernelHandle } from '@clawgear/shared/interfaces';
+import type { CostEvent } from '@clawgear/shared/types';
+import { eq, sql } from 'drizzle-orm';
 import { createApp, websocket } from './app.js';
 
 const port = Number(process.env.CLAWGEAR_PORT ?? 3000);
@@ -8,7 +18,85 @@ const host = process.env.CLAWGEAR_HOST ?? '0.0.0.0';
 const { db } = createConnection();
 const eventBus = new InProcessEventBus();
 
-const app = createApp({ db, eventBus });
+// Adapter registry (adapters registered lazily on first use or at boot)
+const adapterRegistry = new AdapterRegistry();
+
+// Kernel handle: budget checking + cost recording
+const kernelHandle: KernelHandle = {
+  async checkBudget(agentId: string): Promise<BudgetStatus> {
+    const [agent] = await db.select().from(agents).where(eq(agents.id, agentId));
+    if (!agent) {
+      return {
+        budgetCents: 0n,
+        spentCents: 0n,
+        remainingCents: 0n,
+        percentUsed: 0,
+        isExhausted: true,
+        isWarning: false,
+      };
+    }
+    const budget = agent.budgetMonthlyCents;
+    const spent = agent.spentMonthlyCents;
+    const remaining = budget - spent;
+    const percentUsed = budget > 0n ? Number(spent) / Number(budget) : 0;
+    return {
+      budgetCents: budget,
+      spentCents: spent,
+      remainingCents: remaining > 0n ? remaining : 0n,
+      percentUsed,
+      isExhausted: budget > 0n && remaining <= 0n,
+      isWarning: percentUsed >= 0.8,
+    };
+  },
+  async checkCapability() {
+    return true;
+  },
+  emitEvent(event) {
+    eventBus.emit(event);
+  },
+  async recordCost(event: Omit<CostEvent, 'id' | 'occurredAt'>) {
+    await db.insert(costEvents).values({
+      companyId: event.companyId,
+      agentId: event.agentId,
+      issueId: event.issueId,
+      projectId: event.projectId,
+      goalId: event.goalId,
+      provider: event.provider,
+      model: event.model,
+      inputTokens: event.inputTokens,
+      outputTokens: event.outputTokens,
+      costCents: event.costCents,
+      billingCode: event.billingCode,
+    });
+    // Also update agent's spent counter
+    await db
+      .update(agents)
+      .set({
+        spentMonthlyCents: sql`${agents.spentMonthlyCents} + ${event.costCents}`,
+      })
+      .where(eq(agents.id, event.agentId));
+  },
+};
+
+// Heartbeat engine
+const heartbeatEngine = new HeartbeatEngine({
+  db,
+  eventBus,
+  adapterRegistry,
+  kernelHandle,
+});
+
+// Scheduler + wake handler
+const scheduler = new HeartbeatScheduler({ db, heartbeatEngine });
+const wakeHandler = new WakeHandler({ eventBus, heartbeatEngine });
+
+const app = createApp({ db, eventBus, heartbeatEngine });
+
+// Start scheduler and wake handler
+scheduler.start().catch((err) => {
+  console.error('Failed to start scheduler:', err);
+});
+wakeHandler.start();
 
 console.log(
   JSON.stringify({

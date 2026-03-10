@@ -1,4 +1,1 @@
-// @clawgear/security - RBAC, prompt injection defense, subprocess sandbox
-// Implementation in Phase 3
-
-export {};
+export { BasicSecurityGate } from './basic-security-gate.js';

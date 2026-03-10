@@ -1,4 +1,16 @@
-// @clawgear/learning - Reflection, lessons, competence, prompt optimization
-// Implementation in Phase 2
-
-export {};
+export {
+  CompetenceTracker,
+  type CompetenceTrackerConfig,
+  type CompetenceUpdateInput,
+} from './competence-tracker.js';
+export {
+  LessonStore,
+  type LessonStoreConfig,
+  type StoreLessonInput,
+} from './lesson-store.js';
+export {
+  buildReflectionPrompt,
+  type ExtractedReflection,
+  parseReflectionOutput,
+  type ReflectionInput,
+} from './reflection-extractor.js';

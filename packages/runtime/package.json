@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "@clawgear/shared": "workspace:*",
-    "@clawgear/kernel": "workspace:*"
+    "@clawgear/kernel": "workspace:*",
+    "@clawgear/db": "workspace:*",
+    "drizzle-orm": "catalog:"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
