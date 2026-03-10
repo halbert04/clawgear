@@ -5,6 +5,7 @@ import { createBunWebSocket } from 'hono/bun';
 import { cors } from 'hono/cors';
 import { errorHandler } from './middleware/error-handler.js';
 import { requestLogger } from './middleware/logger.js';
+import { securityHeaders } from './middleware/security-headers.js';
 import { activityRoutes } from './routes/activity.js';
 import { agentRoutes } from './routes/agents.js';
 import { approvalRoutes } from './routes/approvals.js';
@@ -36,6 +37,7 @@ export function createApp(deps: AppDeps) {
 
   // Global middleware
   app.use('*', cors());
+  app.use('*', securityHeaders);
   app.use('*', requestLogger);
   app.onError(errorHandler);
 

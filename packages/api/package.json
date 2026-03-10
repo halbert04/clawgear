@@ -16,6 +16,7 @@
     "@clawgear/db": "workspace:*",
     "@clawgear/kernel": "workspace:*",
     "@clawgear/runtime": "workspace:*",
+    "@clawgear/security": "workspace:*",
     "@clawgear/shared": "workspace:*",
     "drizzle-orm": "catalog:",
     "hono": "catalog:",

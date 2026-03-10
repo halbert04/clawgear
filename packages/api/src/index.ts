@@ -7,8 +7,9 @@ import {
   WakeHandler,
 } from '@clawgear/kernel';
 import { AdapterRegistry } from '@clawgear/runtime';
+import { EnhancedSecurityGate } from '@clawgear/security';
 import type { BudgetStatus, KernelHandle } from '@clawgear/shared/interfaces';
-import type { CostEvent } from '@clawgear/shared/types';
+import type { Capability, CostEvent } from '@clawgear/shared/types';
 import { eq, sql } from 'drizzle-orm';
 import { createApp, websocket } from './app.js';
 
@@ -21,7 +22,26 @@ const eventBus = new InProcessEventBus();
 // Adapter registry (adapters registered lazily on first use or at boot)
 const adapterRegistry = new AdapterRegistry();
 
-// Kernel handle: budget checking + cost recording
+// Security gate with RBAC capability enforcement
+const securityGate = new EnhancedSecurityGate({
+  async getAgentCapabilities(agentId: string): Promise<Capability[]> {
+    const [agent] = await db
+      .select({ capabilities: agents.capabilities })
+      .from(agents)
+      .where(eq(agents.id, agentId));
+    return (agent?.capabilities as Capability[]) ?? [];
+  },
+  eventBus,
+  async getAgentCompanyId(agentId: string): Promise<string> {
+    const [agent] = await db
+      .select({ companyId: agents.companyId })
+      .from(agents)
+      .where(eq(agents.id, agentId));
+    return agent?.companyId ?? 'unknown';
+  },
+});
+
+// Kernel handle: budget checking + capability enforcement + cost recording
 const kernelHandle: KernelHandle = {
   async checkBudget(agentId: string): Promise<BudgetStatus> {
     const [agent] = await db.select().from(agents).where(eq(agents.id, agentId));
@@ -48,8 +68,8 @@ const kernelHandle: KernelHandle = {
       isWarning: percentUsed >= 0.8,
     };
   },
-  async checkCapability() {
-    return true;
+  async checkCapability(agentId: string, capability: Capability) {
+    return securityGate.validateToolCall(agentId, capability.type, capability);
   },
   emitEvent(event) {
     eventBus.emit(event);
