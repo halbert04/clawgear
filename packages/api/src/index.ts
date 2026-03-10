@@ -1,6 +1,6 @@
 import { createConnection } from '@clawgear/db';
 import { InProcessEventBus } from '@clawgear/kernel';
-import { createApp } from './app.js';
+import { createApp, websocket } from './app.js';
 
 const port = Number(process.env.CLAWGEAR_PORT ?? 3000);
 const host = process.env.CLAWGEAR_HOST ?? '0.0.0.0';
@@ -22,6 +22,7 @@ export default {
   port,
   hostname: host,
   fetch: app.fetch,
+  websocket,
 };
 
 export { createApp } from './app.js';

@@ -2,6 +2,7 @@ import type { Database } from '@clawgear/db';
 import type { InProcessEventBus } from '@clawgear/kernel';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { createBunWebSocket } from 'hono/bun';
 import { errorHandler } from './middleware/error-handler.js';
 import { requestLogger } from './middleware/logger.js';
 import { activityRoutes } from './routes/activity.js';
@@ -14,14 +15,20 @@ import { healthRoutes } from './routes/health.js';
 import { issueRoutes } from './routes/issues.js';
 import { projectRoutes } from './routes/projects.js';
 import { qualityRoutes } from './routes/quality.js';
+import { EventBridge } from './ws/event-bridge.js';
 
 export interface AppDeps {
   db: Database;
   eventBus: InProcessEventBus;
 }
 
+const { upgradeWebSocket, websocket } = createBunWebSocket();
+
+export { websocket };
+
 export function createApp(deps: AppDeps) {
   const app = new Hono();
+  const eventBridge = new EventBridge(deps.eventBus);
 
   // Global middleware
   app.use('*', cors());
@@ -39,6 +46,19 @@ export function createApp(deps: AppDeps) {
   app.route('/api/companies/:companyId/approvals', approvalRoutes(deps));
   app.route('/api/companies/:companyId/activity', activityRoutes(deps));
   app.route('/api/companies/:companyId/quality', qualityRoutes(deps));
+
+  // WebSocket event bridge
+  app.get(
+    '/api/ws',
+    upgradeWebSocket(() => ({
+      onOpen(_evt, ws) {
+        eventBridge.addClient(ws);
+      },
+      onClose(_evt, ws) {
+        eventBridge.removeClient(ws);
+      },
+    })),
+  );
 
   app.get('/api', (c) => {
     return c.json({
