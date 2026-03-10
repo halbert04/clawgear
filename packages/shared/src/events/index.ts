@@ -55,6 +55,16 @@ export const EventTypes = {
   HAND_ACTIVATED: 'hand.activated',
   HAND_DEACTIVATED: 'hand.deactivated',
 
+  // Evolution
+  SKILL_PROPOSED: 'evolution.skill_proposed',
+  SKILL_APPROVED: 'evolution.skill_approved',
+  SKILL_DEPRECATED: 'evolution.skill_deprecated',
+  PROMPT_OPTIMIZED: 'evolution.prompt_optimized',
+  PROMPT_ROLLBACK: 'evolution.prompt_rollback',
+  COMPETENCE_DECAYED: 'evolution.competence_decayed',
+  STRATEGY_REINFORCED: 'evolution.strategy_reinforced',
+  MEMORY_CONSOLIDATED: 'evolution.memory_consolidated',
+
   // System
   SYSTEM_HEALTH_CHANGED: 'system.health_changed',
   SYSTEM_DEGRADED: 'system.degraded',
@@ -180,6 +190,64 @@ export interface HandDeactivatedEvent extends SystemEvent {
   };
 }
 
+export interface SkillProposedEvent extends SystemEvent {
+  type: typeof EventTypes.SKILL_PROPOSED;
+  payload: {
+    skillId: string;
+    agentId: string;
+    skillName: string;
+    version: number;
+  };
+}
+
+export interface SkillApprovedEvent extends SystemEvent {
+  type: typeof EventTypes.SKILL_APPROVED;
+  payload: {
+    skillId: string;
+    skillName: string;
+    approvedBy: string;
+  };
+}
+
+export interface PromptOptimizedEvent extends SystemEvent {
+  type: typeof EventTypes.PROMPT_OPTIMIZED;
+  payload: {
+    promptVersionId: string;
+    agentRole: string;
+    version: number;
+    evaluationScore: number;
+  };
+}
+
+export interface CompetenceDecayedEvent extends SystemEvent {
+  type: typeof EventTypes.COMPETENCE_DECAYED;
+  payload: {
+    agentId: string;
+    taskType: string;
+    previousLevel: string;
+    newLevel: string;
+  };
+}
+
+export interface StrategyReinforcedEvent extends SystemEvent {
+  type: typeof EventTypes.STRATEGY_REINFORCED;
+  payload: {
+    patternId: string;
+    agentId: string;
+    patternType: string;
+    confidence: number;
+  };
+}
+
+export interface MemoryConsolidatedEvent extends SystemEvent {
+  type: typeof EventTypes.MEMORY_CONSOLIDATED;
+  payload: {
+    lessonsMerged: number;
+    factsValidated: number;
+    lessonsArchived: number;
+  };
+}
+
 export type TypedSystemEvent =
   | AgentStatusChangedEvent
   | IssueStatusChangedEvent
@@ -191,4 +259,10 @@ export type TypedSystemEvent =
   | ChannelMessageSentEvent
   | ConversationCreatedEvent
   | HandActivatedEvent
-  | HandDeactivatedEvent;
+  | HandDeactivatedEvent
+  | SkillProposedEvent
+  | SkillApprovedEvent
+  | PromptOptimizedEvent
+  | CompetenceDecayedEvent
+  | StrategyReinforcedEvent
+  | MemoryConsolidatedEvent;

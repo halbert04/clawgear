@@ -62,9 +62,9 @@ describe('HandScheduler', () => {
     eventBus = createMockEventBus();
     heartbeatEngine = createMockHeartbeatEngine();
     scheduler = new HandScheduler({
-      db: createMockDb() as any,
-      heartbeatEngine: heartbeatEngine as any,
-      eventBus: eventBus as any,
+      db: createMockDb() as never,
+      heartbeatEngine: heartbeatEngine as never,
+      eventBus: eventBus as never,
     });
   });
 

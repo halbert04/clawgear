@@ -94,6 +94,7 @@ function createMockDeps() {
     ),
   };
 
+  // biome-ignore lint/suspicious/noExplicitAny: mock deps
   return { db, eventBus, handScheduler, heartbeatEngine } as any;
 }
 

@@ -24,8 +24,10 @@ import {
   type LessonOutcome,
   type MessageRole,
   ModelTier,
-  type PromptType,
+  PromptType,
   type QualityTrend,
+  SkillStatus,
+  StrategyPatternType,
 } from '../constants/index.js';
 
 // ============================================================
@@ -333,6 +335,45 @@ export const activateHandSchema = z.object({
     .optional(),
 });
 
+// ============================================================
+// EVOLVED SKILL
+// ============================================================
+
+export const createEvolvedSkillSchema = z.object({
+  name: z.string().min(1).max(255),
+  description: z.string().min(1).max(5000),
+  content: z.string().min(1).max(100000),
+  triggerConditions: z.string().min(1).max(5000),
+  exampleInvocations: z.array(z.string().max(5000)).min(1).max(10),
+  parentSkillId: uuidSchema.nullable().optional(),
+});
+
+export const updateSkillStatusSchema = z.object({
+  status: z.enum(SkillStatus),
+});
+
+// ============================================================
+// PROMPT VERSION
+// ============================================================
+
+export const createPromptVersionSchema = z.object({
+  agentRole: z.string().min(1).max(100),
+  promptType: z.enum(PromptType),
+  content: z.string().min(1).max(100000),
+  parentVersionId: uuidSchema.nullable().optional(),
+});
+
+// ============================================================
+// STRATEGY PATTERN
+// ============================================================
+
+export const createStrategyPatternSchema = z.object({
+  agentId: uuidSchema,
+  patternType: z.enum(StrategyPatternType),
+  description: z.string().min(1).max(5000),
+  contextJson: z.record(z.unknown()).default({}),
+});
+
 // Re-export for convenience
 export type {
   ApprovalStatus,
@@ -356,4 +397,6 @@ export type {
   ModelTier,
   PromptType,
   QualityTrend,
+  SkillStatus,
+  StrategyPatternType,
 };

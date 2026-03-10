@@ -18,6 +18,7 @@ import { budgetRoutes } from './routes/budget.js';
 import { channelBindingRoutes } from './routes/channel-bindings.js';
 import { companyRoutes } from './routes/companies.js';
 import { conversationRoutes } from './routes/conversations.js';
+import { evolutionRoutes } from './routes/evolution.js';
 import { factRoutes } from './routes/facts.js';
 import { goalRoutes } from './routes/goals.js';
 import { handRoutes } from './routes/hands.js';
@@ -67,6 +68,7 @@ export function createApp(deps: AppDeps) {
   app.route('/api/companies/:companyId/conversations', conversationRoutes(deps));
   app.route('/api/companies/:companyId/channel-bindings', channelBindingRoutes(deps));
   app.route('/api/companies/:companyId/hands', handRoutes(deps));
+  app.route('/api/companies/:companyId/evolution', evolutionRoutes(deps));
 
   // Heartbeat routes (requires heartbeat engine)
   if (deps.heartbeatEngine) {

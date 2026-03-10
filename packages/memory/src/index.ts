@@ -6,3 +6,8 @@ export {
   type FactStoreConfig,
 } from './fact-store.js';
 export { HybridSearch, type HybridSearchConfig, type SearchResult } from './hybrid-search.js';
+export {
+  type ConsolidationResult,
+  MemoryConsolidator,
+  type MemoryConsolidatorConfig,
+} from './memory-consolidator.js';

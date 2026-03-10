@@ -318,6 +318,9 @@ importers:
       '@clawgear/shared':
         specifier: workspace:*
         version: link:../shared
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.39.3(bun-types@1.3.10)(postgres@3.4.8)
     devDependencies:
       '@types/bun':
         specifier: 'catalog:'

@@ -69,9 +69,9 @@ function createMockEventBus() {
 describe('HandAdapter', () => {
   it('has correct name', () => {
     const adapter = new HandAdapter({
-      adapterRegistry: createMockAdapterRegistry() as any,
-      db: createMockDb() as any,
-      eventBus: createMockEventBus() as any,
+      adapterRegistry: createMockAdapterRegistry() as never,
+      db: createMockDb() as never,
+      eventBus: createMockEventBus() as never,
     });
     expect(adapter.name).toBe('hand');
   });
@@ -79,9 +79,9 @@ describe('HandAdapter', () => {
   it('delegates to inner adapter', async () => {
     const registry = createMockAdapterRegistry();
     const adapter = new HandAdapter({
-      adapterRegistry: registry as any,
-      db: createMockDb() as any,
-      eventBus: createMockEventBus() as any,
+      adapterRegistry: registry as never,
+      db: createMockDb() as never,
+      eventBus: createMockEventBus() as never,
     });
 
     const result = await adapter.execute({
@@ -119,9 +119,9 @@ describe('HandAdapter', () => {
     const db = createMockDb();
     const eventBus = createMockEventBus();
     const adapter = new HandAdapter({
-      adapterRegistry: createMockAdapterRegistry() as any,
-      db: db as any,
-      eventBus: eventBus as any,
+      adapterRegistry: createMockAdapterRegistry() as never,
+      db: db as never,
+      eventBus: eventBus as never,
     });
 
     const result = await adapter.execute({
@@ -158,9 +158,9 @@ describe('HandAdapter', () => {
   it('processes fact output mode', async () => {
     const db = createMockDb();
     const adapter = new HandAdapter({
-      adapterRegistry: createMockAdapterRegistry() as any,
-      db: db as any,
-      eventBus: createMockEventBus() as any,
+      adapterRegistry: createMockAdapterRegistry() as never,
+      db: db as never,
+      eventBus: createMockEventBus() as never,
     });
 
     await adapter.execute({
@@ -191,14 +191,14 @@ describe('HandAdapter', () => {
 
     // The mock inner adapter returns output with FACT lines,
     // so storeFacts should have been called
-    expect((db as any).insert).toHaveBeenCalled();
+    expect((db as Record<string, unknown>).insert).toHaveBeenCalled();
   });
 
   it('throws on missing handConfig', async () => {
     const adapter = new HandAdapter({
-      adapterRegistry: createMockAdapterRegistry() as any,
-      db: createMockDb() as any,
-      eventBus: createMockEventBus() as any,
+      adapterRegistry: createMockAdapterRegistry() as never,
+      db: createMockDb() as never,
+      eventBus: createMockEventBus() as never,
     });
 
     expect(
@@ -217,9 +217,9 @@ describe('HandAdapter', () => {
 
   it('passes testEnvironment check', async () => {
     const adapter = new HandAdapter({
-      adapterRegistry: createMockAdapterRegistry() as any,
-      db: createMockDb() as any,
-      eventBus: createMockEventBus() as any,
+      adapterRegistry: createMockAdapterRegistry() as never,
+      db: createMockDb() as never,
+      eventBus: createMockEventBus() as never,
     });
 
     const result = await adapter.testEnvironment();

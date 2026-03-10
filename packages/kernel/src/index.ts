@@ -8,4 +8,5 @@ export {
   type HeartbeatResult,
 } from './heartbeat-engine.js';
 export { HeartbeatScheduler, type HeartbeatSchedulerConfig } from './scheduler.js';
+export { type RouteResult, TaskRouter, type TaskRouterConfig } from './task-router.js';
 export { WakeHandler, type WakeHandlerConfig } from './wake-handler.js';

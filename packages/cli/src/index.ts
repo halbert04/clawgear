@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 import { program } from 'commander';
 import { registerAgentCommands } from './commands/agent.js';
+import { registerEvolutionCommands } from './commands/evolution.js';
 import { registerHandCommands } from './commands/hand.js';
 import { initCommand } from './commands/init.js';
 import { registerIssueCommands } from './commands/issue.js';
@@ -29,5 +30,6 @@ program
 registerAgentCommands(program);
 registerIssueCommands(program);
 registerHandCommands(program);
+registerEvolutionCommands(program);
 
 program.parse();
