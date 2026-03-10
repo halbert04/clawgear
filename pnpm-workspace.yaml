@@ -6,13 +6,13 @@ packages:
 
 catalog:
   # Runtime
-  hono: ^4.7.0
-  zod: ^3.24.0
+  
+  # Testing
+  "@types/bun": ^1.2.0
   commander: ^13.1.0
 
   # Database
-  drizzle-orm: ^0.39.0
+  drizzle-orm: ^0.39.3
+  hono: ^4.7.0
   postgres: ^3.4.0
-
-  # Testing
-  "@types/bun": ^1.2.0
+  zod: ^3.24.0

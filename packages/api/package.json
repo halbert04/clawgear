@@ -13,9 +13,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@clawgear/shared": "workspace:*",
     "@clawgear/db": "workspace:*",
     "@clawgear/kernel": "workspace:*",
+    "@clawgear/shared": "workspace:*",
+    "drizzle-orm": "catalog:",
     "hono": "catalog:",
     "zod": "catalog:"
   },
