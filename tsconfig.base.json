@@ -13,12 +13,9 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "exactOptionalPropertyTypes": false,
-    "declaration": true,
-    "declarationMap": true,
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "composite": true,
     "types": ["bun"]
   }
 }
