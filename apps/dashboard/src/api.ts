@@ -139,6 +139,19 @@ async function post<T>(path: string, body?: unknown): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+async function patch<T>(path: string, body?: unknown): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`PATCH ${path} failed (${res.status}): ${text}`);
+  }
+  return res.json() as Promise<T>;
+}
+
 // --- API functions ---
 
 export function fetchCompanies(): Promise<PaginatedResponse<Company>> {
@@ -215,6 +228,62 @@ export function activateHand(companyId: string, handId: string): Promise<unknown
 
 export function deactivateHand(companyId: string, handId: string): Promise<unknown> {
   return post(`/companies/${companyId}/hands/${handId}/deactivate`);
+}
+
+// --- Evolution types and functions ---
+
+export interface EvolvedSkill {
+  id: string;
+  name: string;
+  description: string;
+  version: number;
+  status: string;
+  usageCount: number;
+  proposedByAgentId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TeamCompetence {
+  taskType: string;
+  totalAgents: number;
+  avgSuccessRate: number | null;
+  avgQuality: number | null;
+  totalRuns: number;
+}
+
+export interface StrategyPattern {
+  id: string;
+  patternType: string;
+  description: string;
+  confidence: number;
+  successCount: number;
+  failureCount: number;
+  agentId: string;
+}
+
+export function fetchEvolvedSkills(companyId: string): Promise<PaginatedResponse<EvolvedSkill>> {
+  return get(`/companies/${companyId}/evolution/skills?limit=100`);
+}
+
+export function fetchTeamCompetence(companyId: string): Promise<{ data: TeamCompetence[] }> {
+  return get(`/companies/${companyId}/evolution/competence/team`);
+}
+
+export function fetchStrategies(companyId: string): Promise<PaginatedResponse<StrategyPattern>> {
+  return get(`/companies/${companyId}/evolution/strategies?limit=50`);
+}
+
+export function approveSkill(companyId: string, skillId: string): Promise<EvolvedSkill> {
+  return patch(`/companies/${companyId}/evolution/skills/${skillId}/status`, {
+    status: 'active',
+  });
+}
+
+export function deprecateSkill(companyId: string, skillId: string): Promise<EvolvedSkill> {
+  return patch(`/companies/${companyId}/evolution/skills/${skillId}/status`, {
+    status: 'deprecated',
+  });
 }
 
 // --- Approval actions ---

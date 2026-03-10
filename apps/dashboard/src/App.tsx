@@ -5,26 +5,33 @@ import {
   type Approval,
   type BudgetSummary,
   type Company,
+  type EvolvedSkill,
   fetchActivity,
   fetchAgents,
   fetchApprovals,
   fetchBudgetSummary,
   fetchCompanies,
+  fetchEvolvedSkills,
   fetchHands,
   fetchIssues,
   fetchQualityEvaluations,
+  fetchStrategies,
+  fetchTeamCompetence,
   type Hand,
   type Issue,
   type QualityEvaluation,
+  type StrategyPattern,
+  type TeamCompetence,
 } from './api';
 import { AgentList } from './components/AgentList';
 import { AttentionQueue } from './components/AttentionQueue';
 import { BudgetOverview } from './components/BudgetOverview';
+import { EvolutionDashboard } from './components/EvolutionDashboard';
 import { HandList } from './components/HandList';
 import { IssueBoard } from './components/IssueBoard';
 import { useWebSocket } from './hooks/useWebSocket';
 
-type Tab = 'attention' | 'agents' | 'issues' | 'budget' | 'hands';
+type Tab = 'attention' | 'agents' | 'issues' | 'budget' | 'hands' | 'evolution';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'attention', label: 'Attention Queue' },
@@ -32,6 +39,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'issues', label: 'Issues' },
   { key: 'budget', label: 'Budget' },
   { key: 'hands', label: 'Hands' },
+  { key: 'evolution', label: 'Evolution' },
 ];
 
 const POLL_INTERVAL_MS = 15_000;
@@ -47,6 +55,9 @@ export function App() {
   const [evaluations, setEvaluations] = useState<QualityEvaluation[]>([]);
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
   const [hands, setHands] = useState<Hand[]>([]);
+  const [evolvedSkills, setEvolvedSkills] = useState<EvolvedSkill[]>([]);
+  const [teamCompetence, setTeamCompetence] = useState<TeamCompetence[]>([]);
+  const [strategyPatterns, setStrategyPatterns] = useState<StrategyPattern[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,16 +79,29 @@ export function App() {
   const loadData = useCallback(async () => {
     if (!selectedCompanyId) return;
     try {
-      const [agentsRes, issuesRes, approvalsRes, budgetRes, evalsRes, activityRes, handsRes] =
-        await Promise.all([
-          fetchAgents(selectedCompanyId),
-          fetchIssues(selectedCompanyId),
-          fetchApprovals(selectedCompanyId),
-          fetchBudgetSummary(selectedCompanyId),
-          fetchQualityEvaluations(selectedCompanyId),
-          fetchActivity(selectedCompanyId),
-          fetchHands(selectedCompanyId),
-        ]);
+      const [
+        agentsRes,
+        issuesRes,
+        approvalsRes,
+        budgetRes,
+        evalsRes,
+        activityRes,
+        handsRes,
+        skillsRes,
+        competenceRes,
+        strategiesRes,
+      ] = await Promise.all([
+        fetchAgents(selectedCompanyId),
+        fetchIssues(selectedCompanyId),
+        fetchApprovals(selectedCompanyId),
+        fetchBudgetSummary(selectedCompanyId),
+        fetchQualityEvaluations(selectedCompanyId),
+        fetchActivity(selectedCompanyId),
+        fetchHands(selectedCompanyId),
+        fetchEvolvedSkills(selectedCompanyId),
+        fetchTeamCompetence(selectedCompanyId),
+        fetchStrategies(selectedCompanyId),
+      ]);
       setAgents(agentsRes.data);
       setIssues(issuesRes.data);
       setApprovals(approvalsRes.data);
@@ -85,6 +109,9 @@ export function App() {
       setEvaluations(evalsRes.data);
       setActivity(activityRes.data);
       setHands(handsRes.data);
+      setEvolvedSkills(skillsRes.data);
+      setTeamCompetence(competenceRes.data);
+      setStrategyPatterns(strategiesRes.data);
       setError(null);
     } catch (err) {
       setError(String(err));
@@ -119,7 +146,8 @@ export function App() {
       type.startsWith('budget.') ||
       type.startsWith('quality.') ||
       type.startsWith('activity.') ||
-      type.startsWith('hand.')
+      type.startsWith('hand.') ||
+      type.startsWith('evolution.')
     ) {
       loadData();
     }
@@ -188,6 +216,15 @@ export function App() {
             {tab === 'budget' && <BudgetOverview budgetSummary={budgetSummary} agents={agents} />}
             {tab === 'hands' && (
               <HandList companyId={selectedCompanyId} hands={hands} onRefresh={loadData} />
+            )}
+            {tab === 'evolution' && (
+              <EvolutionDashboard
+                companyId={selectedCompanyId}
+                skills={evolvedSkills}
+                competence={teamCompetence}
+                strategies={strategyPatterns}
+                onRefresh={loadData}
+              />
             )}
           </>
         )}

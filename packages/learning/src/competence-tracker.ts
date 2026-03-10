@@ -1,7 +1,7 @@
 import type { Database } from '@clawgear/db';
 import { agentCompetence } from '@clawgear/db/pg';
 import type { AutonomyLevel, QualityTrend } from '@clawgear/shared/constants';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 
 export interface CompetenceUpdateInput {
   companyId: string;
@@ -56,6 +56,7 @@ export class CompetenceTracker {
         avgQualityScore: input.qualityScore,
         qualityTrend: 'stable',
         autonomyLevel: 'supervised',
+        lastUsedAt: new Date(),
         updatedAt: new Date(),
       });
       return;
@@ -98,6 +99,7 @@ export class CompetenceTracker {
         avgQualityScore: newAvgQuality,
         qualityTrend: trend,
         autonomyLevel: autonomy,
+        lastUsedAt: new Date(),
         updatedAt: new Date(),
       })
       .where(eq(agentCompetence.id, existing.id));
@@ -120,6 +122,11 @@ export class CompetenceTracker {
     avgQuality: number,
     currentLevel: AutonomyLevel,
   ): AutonomyLevel {
+    // Recover from degraded → supervised after demonstrating improvement
+    if (currentLevel === 'degraded' && successRate >= 0.5 && avgQuality >= 0.3) {
+      return 'supervised';
+    }
+
     // Graduate from supervised → semi_auto after threshold runs with >70% success
     if (
       currentLevel === 'supervised' &&
@@ -156,5 +163,81 @@ export class CompetenceTracker {
       .select()
       .from(agentCompetence)
       .where(and(eq(agentCompetence.companyId, companyId), eq(agentCompetence.agentId, agentId)));
+  }
+
+  /**
+   * Apply competence decay: agents that haven't used a task type recently
+   * get downgraded. Returns the number of records decayed.
+   */
+  async applyDecay(decayAfterDays = 30): Promise<number> {
+    const cutoff = new Date(Date.now() - decayAfterDays * 24 * 60 * 60 * 1000);
+
+    // Find competence records where lastUsedAt is before cutoff
+    // and the autonomy level is above supervised
+    const staleRecords = await this.db
+      .select()
+      .from(agentCompetence)
+      .where(
+        and(
+          sql`${agentCompetence.lastUsedAt} < ${cutoff}`,
+          sql`${agentCompetence.autonomyLevel} IN ('semi_auto', 'auto')`,
+        ),
+      );
+
+    let decayedCount = 0;
+    for (const record of staleRecords) {
+      const newLevel: AutonomyLevel = record.autonomyLevel === 'auto' ? 'semi_auto' : 'supervised';
+      await this.db
+        .update(agentCompetence)
+        .set({ autonomyLevel: newLevel, updatedAt: new Date() })
+        .where(eq(agentCompetence.id, record.id));
+      decayedCount++;
+    }
+
+    return decayedCount;
+  }
+
+  /**
+   * Get team competence summary across all agents for a company.
+   */
+  async getTeamCompetence(companyId: string) {
+    return this.db
+      .select({
+        taskType: agentCompetence.taskType,
+        totalAgents: sql<number>`count(DISTINCT ${agentCompetence.agentId})`,
+        avgSuccessRate: sql<number>`avg(${agentCompetence.successfulRuns}::float / NULLIF(${agentCompetence.totalRuns}, 0))`,
+        avgQuality: sql<number>`avg(${agentCompetence.avgQualityScore})`,
+        totalRuns: sql<number>`sum(${agentCompetence.totalRuns})`,
+      })
+      .from(agentCompetence)
+      .where(eq(agentCompetence.companyId, companyId))
+      .groupBy(agentCompetence.taskType);
+  }
+
+  /**
+   * Find the most competent agent for a given task type.
+   */
+  async findBestAgent(companyId: string, taskType: string, excludeAgentIds: string[] = []) {
+    const conditions = [
+      eq(agentCompetence.companyId, companyId),
+      eq(agentCompetence.taskType, taskType),
+      sql`${agentCompetence.autonomyLevel} != 'degraded'`,
+    ];
+
+    if (excludeAgentIds.length > 0) {
+      conditions.push(sql`${agentCompetence.agentId} != ALL(${excludeAgentIds})`);
+    }
+
+    const [best] = await this.db
+      .select()
+      .from(agentCompetence)
+      .where(and(...conditions))
+      .orderBy(
+        sql`${agentCompetence.avgQualityScore} DESC`,
+        sql`${agentCompetence.successfulRuns}::float / NULLIF(${agentCompetence.totalRuns}, 0) DESC`,
+      )
+      .limit(1);
+
+    return best ?? null;
   }
 }

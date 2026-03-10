@@ -67,6 +67,7 @@ export const ApprovalType = [
   'publish',
   'budget_increase',
   'hand_action',
+  'skill_proposal',
 ] as const;
 export type ApprovalType = (typeof ApprovalType)[number];
 
@@ -82,8 +83,18 @@ export type LessonOutcome = (typeof LessonOutcome)[number];
 export const QualityTrend = ['improving', 'stable', 'degrading'] as const;
 export type QualityTrend = (typeof QualityTrend)[number];
 
-export const AutonomyLevel = ['supervised', 'semi_auto', 'auto'] as const;
+export const AutonomyLevel = ['supervised', 'semi_auto', 'auto', 'degraded'] as const;
 export type AutonomyLevel = (typeof AutonomyLevel)[number];
+
+export const SkillStatus = ['proposed', 'approved', 'active', 'deprecated'] as const;
+export type SkillStatus = (typeof SkillStatus)[number];
+
+export const StrategyPatternType = [
+  'goal_decomposition',
+  'delegation',
+  'resource_allocation',
+] as const;
+export type StrategyPatternType = (typeof StrategyPatternType)[number];
 
 export const FactType = ['decision', 'entity', 'relationship', 'observation'] as const;
 export type FactType = (typeof FactType)[number];

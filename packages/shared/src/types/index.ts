@@ -26,6 +26,8 @@ import type {
   ModelTier,
   PromptType,
   QualityTrend,
+  SkillStatus,
+  StrategyPatternType,
 } from '../constants/index.js';
 
 // ============================================================
@@ -295,6 +297,7 @@ export interface AgentCompetence {
   avgQualityScore: number;
   qualityTrend: QualityTrend;
   autonomyLevel: AutonomyLevel;
+  lastUsedAt: Date | null;
   updatedAt: Date;
 }
 
@@ -307,6 +310,9 @@ export interface PromptVersion {
   content: string;
   evaluationScore: number | null;
   isActive: boolean;
+  isAbTesting: boolean;
+  abTrafficPercent: number;
+  sampleCount: number;
   parentVersionId: string | null;
   createdAt: Date;
 }
@@ -364,8 +370,44 @@ export interface HandConfig {
 }
 
 // ============================================================
-// CAPABILITIES
+// SKILL EVOLUTION
 // ============================================================
+
+export interface EvolvedSkill {
+  id: string;
+  companyId: string;
+  proposedByAgentId: string;
+  name: string;
+  description: string;
+  version: number;
+  content: string;
+  triggerConditions: string;
+  exampleInvocations: string[];
+  status: SkillStatus;
+  parentSkillId: string | null;
+  usageCount: number;
+  embeddingModel: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ============================================================
+// STRATEGY LEARNING
+// ============================================================
+
+export interface StrategyPattern {
+  id: string;
+  companyId: string;
+  agentId: string;
+  patternType: StrategyPatternType;
+  description: string;
+  successCount: number;
+  failureCount: number;
+  confidence: number;
+  contextJson: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 // ============================================================
 // COMMUNICATION + CHANNELS

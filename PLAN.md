@@ -1370,37 +1370,37 @@ Self-running capability packages for background tasks.
 Systems that make agents measurably better over time.
 
 ### 6.1 Skill Evolution (Voyager Pattern)
-- [ ] After N successful runs of a pattern, agent proposes a new SKILL.md
-- [ ] Skill approval gate (manager or board reviews)
-- [ ] Approved skills added to company skill library
-- [ ] Other agents can discover and use evolved skills
-- [ ] Skill versioning and deprecation
+- [x] After N successful runs of a pattern, agent proposes a new SKILL.md
+- [x] Skill approval gate (manager or board reviews)
+- [x] Approved skills added to company skill library
+- [x] Other agents can discover and use evolved skills
+- [x] Skill versioning and deprecation
 
 ### 6.2 Prompt Optimization Pipeline (DSPy-Inspired)
-- [ ] Collect successful vs. failed runs with their prompts and outputs
-- [ ] After 100+ runs: use successful runs as few-shot examples
-- [ ] Generate optimized prompts using quality gate scores as the objective
-- [ ] A/B testing: 10% of tasks use optimized prompt
-- [ ] Auto-rollback if quality regresses
-- [ ] Prompt version tracking (prompt_versions table)
+- [x] Collect successful vs. failed runs with their prompts and outputs
+- [x] After 100+ runs: use successful runs as few-shot examples
+- [x] Generate optimized prompts using quality gate scores as the objective
+- [x] A/B testing: 10% of tasks use optimized prompt
+- [x] Auto-rollback if quality regresses
+- [x] Prompt version tracking (prompt_versions table)
 
 ### 6.3 Advanced Competence Tracking
-- [ ] Curriculum learning: start agents on simple tasks, graduate to complex
-- [ ] Task routing optimization: assign to most competent available agent (not just chain-of-command)
-- [ ] Competence decay: agents that haven't done a task type recently lose autonomy level
-- [ ] Team competence dashboard: which task types are the team strong/weak at?
+- [x] Curriculum learning: start agents on simple tasks, graduate to complex
+- [x] Task routing optimization: assign to most competent available agent (not just chain-of-command)
+- [x] Competence decay: agents that haven't done a task type recently lose autonomy level
+- [x] Team competence dashboard: which task types are the team strong/weak at?
 
 ### 6.4 Strategy Learning
-- [ ] CEO agent tracks which strategies produce good outcomes
-- [ ] Goal decomposition patterns that worked get reinforced
-- [ ] Delegation patterns that worked get reinforced
-- [ ] Strategic reflection: "Are we pursuing the right goals?"
+- [x] CEO agent tracks which strategies produce good outcomes
+- [x] Goal decomposition patterns that worked get reinforced
+- [x] Delegation patterns that worked get reinforced
+- [x] Strategic reflection: "Are we pursuing the right goals?"
 
 ### 6.5 Memory Consolidation
-- [ ] Periodic consolidation job: merge duplicate lessons, resolve conflicts, generalize patterns
-- [ ] Fact validation: check if stored facts are still current
-- [ ] Lesson utility scoring: lessons retrieved more often + associated with success get higher confidence
-- [ ] Archive low-confidence, low-retrieval lessons
+- [x] Periodic consolidation job: merge duplicate lessons, resolve conflicts, generalize patterns
+- [x] Fact validation: check if stored facts are still current
+- [x] Lesson utility scoring: lessons retrieved more often + associated with success get higher confidence
+- [x] Archive low-confidence, low-retrieval lessons
 
 **Exit criteria:** After 100+ heartbeats, the system has: generated at least one evolved skill, optimized at least one agent's prompt with measurable improvement, and graduated at least one agent from supervised to semi_auto autonomy.
 

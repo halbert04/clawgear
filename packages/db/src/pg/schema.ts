@@ -311,7 +311,7 @@ export const approvals = pgTable(
   (t) => [
     check(
       'approvals_type_check',
-      sql`${t.type} IN ('hire_agent', 'strategy', 'purchase', 'publish', 'budget_increase', 'hand_action')`,
+      sql`${t.type} IN ('hire_agent', 'strategy', 'purchase', 'publish', 'budget_increase', 'hand_action', 'skill_proposal')`,
     ),
     check(
       'approvals_status_check',
@@ -496,6 +496,7 @@ export const agentCompetence = pgTable(
     avgQualityScore: doublePrecision('avg_quality_score').notNull().default(0),
     qualityTrend: text('quality_trend').notNull().default('stable'),
     autonomyLevel: text('autonomy_level').notNull().default('supervised'),
+    lastUsedAt: timestamp('last_used_at', { withTimezone: true }),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
@@ -504,7 +505,7 @@ export const agentCompetence = pgTable(
     check('competence_trend_check', sql`${t.qualityTrend} IN ('improving', 'stable', 'degrading')`),
     check(
       'competence_autonomy_check',
-      sql`${t.autonomyLevel} IN ('supervised', 'semi_auto', 'auto')`,
+      sql`${t.autonomyLevel} IN ('supervised', 'semi_auto', 'auto', 'degraded')`,
     ),
     check('competence_runs_check', sql`${t.successfulRuns} + ${t.failedRuns} <= ${t.totalRuns}`),
     check('competence_quality_check', sql`${t.avgQualityScore} >= 0 AND ${t.avgQualityScore} <= 1`),
@@ -524,11 +525,95 @@ export const promptVersions = pgTable(
     content: text('content').notNull(),
     evaluationScore: doublePrecision('evaluation_score'),
     isActive: boolean('is_active').notNull().default(false),
+    isAbTesting: boolean('is_ab_testing').notNull().default(false),
+    abTrafficPercent: integer('ab_traffic_percent').notNull().default(0),
+    sampleCount: integer('sample_count').notNull().default(0),
     parentVersionId: uuid('parent_version_id'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [
     check('prompt_versions_type_check', sql`${t.promptType} IN ('heartbeat', 'system', 'skill')`),
+    check(
+      'prompt_versions_ab_traffic_check',
+      sql`${t.abTrafficPercent} >= 0 AND ${t.abTrafficPercent} <= 100`,
+    ),
+  ],
+);
+
+// ============================================================
+// SKILL EVOLUTION
+// ============================================================
+
+export const evolvedSkills = pgTable(
+  'evolved_skills',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => companies.id, { onDelete: 'cascade' }),
+    proposedByAgentId: uuid('proposed_by_agent_id')
+      .notNull()
+      .references(() => agents.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    description: text('description').notNull(),
+    version: integer('version').notNull().default(1),
+    content: text('content').notNull(),
+    triggerConditions: text('trigger_conditions').notNull(),
+    exampleInvocations: jsonb('example_invocations').notNull().default([]),
+    status: text('status').notNull().default('proposed'),
+    parentSkillId: uuid('parent_skill_id').references((): AnyPgColumn => evolvedSkills.id, {
+      onDelete: 'set null',
+    }),
+    usageCount: integer('usage_count').notNull().default(0),
+    embedding: vector('embedding'),
+    embeddingModel: text('embedding_model'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    unique('evolved_skills_company_name_version').on(t.companyId, t.name, t.version),
+    index('idx_evolved_skills_company').on(t.companyId, t.status),
+    check(
+      'evolved_skills_status_check',
+      sql`${t.status} IN ('proposed', 'approved', 'active', 'deprecated')`,
+    ),
+    check('evolved_skills_version_check', sql`${t.version} >= 1`),
+    check('evolved_skills_usage_check', sql`${t.usageCount} >= 0`),
+  ],
+);
+
+// ============================================================
+// STRATEGY LEARNING
+// ============================================================
+
+export const strategyPatterns = pgTable(
+  'strategy_patterns',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => companies.id, { onDelete: 'cascade' }),
+    agentId: uuid('agent_id')
+      .notNull()
+      .references(() => agents.id, { onDelete: 'cascade' }),
+    patternType: text('pattern_type').notNull(),
+    description: text('description').notNull(),
+    successCount: integer('success_count').notNull().default(0),
+    failureCount: integer('failure_count').notNull().default(0),
+    confidence: doublePrecision('confidence').notNull().default(0.5),
+    contextJson: jsonb('context_json').notNull().default({}),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('idx_strategy_patterns_company').on(t.companyId, t.agentId),
+    check(
+      'strategy_patterns_type_check',
+      sql`${t.patternType} IN ('goal_decomposition', 'delegation', 'resource_allocation')`,
+    ),
+    check('strategy_patterns_confidence_check', sql`${t.confidence} >= 0 AND ${t.confidence} <= 1`),
+    check('strategy_patterns_success_check', sql`${t.successCount} >= 0`),
+    check('strategy_patterns_failure_check', sql`${t.failureCount} >= 0`),
   ],
 );
 
