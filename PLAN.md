@@ -678,62 +678,62 @@ export interface SecurityGate {
 Build the business logic and quality gate system together. The quality gates are built alongside the core, not bolted on later.
 
 ### 1.1 Company CRUD
-- [ ] `POST /api/companies` -- create company
-- [ ] `GET /api/companies` -- list companies
-- [ ] `GET /api/companies/:id` -- get company detail
-- [ ] `PATCH /api/companies/:id` -- update company
-- [ ] Budget tracking (monthly reset logic)
+- [x] `POST /api/companies` -- create company
+- [x] `GET /api/companies` -- list companies
+- [x] `GET /api/companies/:id` -- get company detail
+- [x] `PATCH /api/companies/:id` -- update company
+- [x] Budget tracking (monthly reset logic)
 
 ### 1.2 Agent CRUD + Org Chart
-- [ ] `POST /api/companies/:cid/agents` -- create agent (with approval gate if configured)
-- [ ] `GET /api/companies/:cid/agents` -- list agents with hierarchy
-- [ ] `GET /api/companies/:cid/agents/:id` -- agent detail
-- [ ] `PATCH /api/companies/:cid/agents/:id` -- update agent config (creates revision)
-- [ ] `POST /api/companies/:cid/agents/:id/pause` -- pause agent
-- [ ] `POST /api/companies/:cid/agents/:id/resume` -- resume agent
-- [ ] `POST /api/companies/:cid/agents/:id/terminate` -- irreversible termination
-- [ ] Config revision history + rollback
-- [ ] Org chart tree query (agents with their reports)
+- [x] `POST /api/companies/:cid/agents` -- create agent (with approval gate if configured)
+- [x] `GET /api/companies/:cid/agents` -- list agents with hierarchy
+- [x] `GET /api/companies/:cid/agents/:id` -- agent detail
+- [x] `PATCH /api/companies/:cid/agents/:id` -- update agent config (creates revision)
+- [x] `POST /api/companies/:cid/agents/:id/pause` -- pause agent
+- [x] `POST /api/companies/:cid/agents/:id/resume` -- resume agent
+- [x] `POST /api/companies/:cid/agents/:id/terminate` -- irreversible termination
+- [x] Config revision history + rollback
+- [x] Org chart tree query (agents with their reports)
 
 ### 1.3 Goal System
-- [ ] Goal CRUD with hierarchical parent-child
-- [ ] Goal level enforcement (company -> team -> agent -> task)
-- [ ] **Tiered ancestry resolution** (critique #8): full ancestry for CEO/CTO, actionable constraints for workers
-- [ ] `GET /api/companies/:cid/goals/:id/ancestry` -- returns the full chain
-- [ ] Goal ancestry transformation: convert hierarchy to actionable constraints format
+- [x] Goal CRUD with hierarchical parent-child
+- [x] Goal level enforcement (company -> team -> agent -> task)
+- [x] **Tiered ancestry resolution** (critique #8): full ancestry for CEO/CTO, actionable constraints for workers
+- [x] `GET /api/companies/:cid/goals/:id/ancestry` -- returns the full chain
+- [x] Goal ancestry transformation: convert hierarchy to actionable constraints format
 
 ### 1.4 Project + Issue System
-- [ ] Project CRUD linked to goals
-- [ ] Issue CRUD with issue numbering (prefix + counter)
-- [ ] Issue status state machine: `backlog -> todo -> in_progress -> in_review -> done`
-- [ ] **Atomic checkout** (PostgreSQL single-UPDATE pattern from Paperclip)
-- [ ] Checkout timeout with automatic release (critique recommendation)
-- [ ] Issue comments (agent + human authoring)
-- [ ] Issue assignment with agent wake-up trigger
+- [x] Project CRUD linked to goals
+- [x] Issue CRUD with issue numbering (prefix + counter)
+- [x] Issue status state machine: `backlog -> todo -> in_progress -> in_review -> done`
+- [x] **Atomic checkout** (PostgreSQL single-UPDATE pattern from Paperclip)
+- [x] Checkout timeout with automatic release (critique recommendation)
+- [x] Issue comments (agent + human authoring)
+- [x] Issue assignment with agent wake-up trigger
 
 ### 1.5 Budget Enforcement
-- [ ] Cost event ingestion (`POST /api/companies/:cid/cost-events`)
-- [ ] Atomic increment of agent + company `spent_monthly_cents`
-- [ ] Auto-pause at 100% budget
-- [ ] Warning events at 80% budget
+- [x] Cost event ingestion (`POST /api/companies/:cid/cost-events`)
+- [x] Atomic increment of agent + company `spent_monthly_cents`
+- [x] Auto-pause at 100% budget
+- [x] Warning events at 80% budget
 - [ ] Monthly budget reset (scheduled job)
 - [ ] Cost attribution to issue/project/goal
 
 ### 1.6 Approval Gates
-- [ ] Approval request creation (agent requests approval)
-- [ ] `GET /api/companies/:cid/approvals` -- list pending approvals
-- [ ] `POST /api/companies/:cid/approvals/:id/approve` -- approve
-- [ ] `POST /api/companies/:cid/approvals/:id/reject` -- reject
-- [ ] Configurable approval types: hire_agent, strategy, purchase, budget_increase
+- [x] Approval request creation (agent requests approval)
+- [x] `GET /api/companies/:cid/approvals` -- list pending approvals
+- [x] `POST /api/companies/:cid/approvals/:id/approve` -- approve
+- [x] `POST /api/companies/:cid/approvals/:id/reject` -- reject
+- [x] Configurable approval types: hire_agent, strategy, purchase, budget_increase
 
 ### 1.7 Activity Log
-- [ ] Append-only activity_log table (NOT Merkle-chained yet -- critique #9)
-- [ ] Log all CRUD operations, status changes, approvals
-- [ ] `GET /api/companies/:cid/activity` -- paginated activity feed
-- [ ] WebSocket event streaming for real-time dashboard updates
+- [x] Append-only activity_log table (NOT Merkle-chained yet -- critique #9)
+- [x] Log all CRUD operations, status changes, approvals
+- [x] `GET /api/companies/:cid/activity` -- paginated activity feed
+- [x] WebSocket event streaming for real-time dashboard updates
 
 ### 1.8 Quality Gate System (NEW)
-- [ ] Quality rubric CRUD (per role, per task type)
+- [x] Quality rubric CRUD (per role, per task type)
 - [ ] Default rubrics for common roles (engineer, researcher, writer)
 - [ ] **Self-reflection step**: after every heartbeat output, agent critiques its own work
   - Structured prompt: "Does this meet the acceptance criteria? What could be wrong? Rate 1-5."
@@ -751,33 +751,33 @@ Build the business logic and quality gate system together. The quality gates are
   - JSON Schema validation for structured outputs
   - Code outputs: optionally run test commands
   - Text: assertion checks (contains X, length < Y)
-- [ ] Quality evaluation API
+- [x] Quality evaluation API
   - `GET /api/companies/:cid/quality/evaluations` -- list evaluations
   - `GET /api/companies/:cid/agents/:id/quality` -- agent quality summary
 - [ ] Graduated response: minor issues -> agent self-fixes; major issues -> escalate to manager
 
 ### 1.9 Attention Queue Dashboard (NEW)
-- [ ] React + Vite project setup
-- [ ] **Single prioritized queue** as the primary view:
+- [x] React + Vite project setup
+- [x] **Single prioritized queue** as the primary view:
   - `[URGENT]` -- quality gate failures
   - `[APPROVAL]` -- pending approval requests
   - `[WARNING]` -- budget alerts (80%+)
   - `[STUCK]` -- agents exceeding expected time
   - `[INFO]` -- daily summary (issues completed, spend, health)
-- [ ] Priority scoring algorithm (severity x recency x impact)
-- [ ] Quick action buttons (approve, reject, reassign, pause agent)
-- [ ] WebSocket live updates
-- [ ] Secondary views:
+- [x] Priority scoring algorithm (severity x recency x impact)
+- [x] Quick action buttons (approve, reject, reassign, pause agent)
+- [x] WebSocket live updates
+- [x] Secondary views:
   - Org chart visualization (agent hierarchy with status indicators)
   - Issue board (kanban by status)
   - Agent detail (runs, quality scores, cost breakdown)
   - Budget overview (per-agent and per-company)
 
 ### 1.10 Internal Event Bus
-- [ ] Typed event bus (in-process, pub/sub)
-- [ ] Event types: agent_status_changed, issue_status_changed, budget_warning, budget_exceeded, approval_requested, quality_gate_result, heartbeat_completed
-- [ ] WebSocket bridge: events -> dashboard in real-time
-- [ ] Event persistence to activity_log
+- [x] Typed event bus (in-process, pub/sub)
+- [x] Event types: agent_status_changed, issue_status_changed, budget_warning, budget_exceeded, approval_requested, quality_gate_result, heartbeat_completed
+- [x] WebSocket bridge: events -> dashboard in real-time
+- [x] Event persistence to activity_log
 
 **Exit criteria:** Create a company with a CEO and engineer agent. CEO creates a goal and issue. Engineer checks out the issue. After work, self-reflection + quality gate evaluate output. Pass -> issue done. Fail -> sent back with feedback. All actions visible in the attention queue dashboard.
 
