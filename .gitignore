@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+coverage/
+
+# Docker volumes
+pgdata/
+
+# Bun
+bun.lockb
+
+# Drizzle
+drizzle/meta/
+
+# SQLite agent data
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
