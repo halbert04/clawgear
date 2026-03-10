@@ -1322,40 +1322,40 @@ Add real-time communication. WebChat first, then Slack.
 Self-running capability packages for background tasks.
 
 ### 5.1 Hands Framework
-- [ ] HAND.toml parser (tools, settings, metrics, schedule, requirements)
-- [ ] Hand lifecycle management (activate, deactivate, status)
-- [ ] Schedule-based execution (separate from heartbeat scheduler)
-- [ ] Hand cost attribution (to owning agent's budget)
-- [ ] Hand output as issue comments or new issues
-- [ ] Approval gate integration (Hands that require approval before acting)
+- [x] HAND.toml parser (tools, settings, metrics, schedule, requirements)
+- [x] Hand lifecycle management (activate, deactivate, status)
+- [x] Schedule-based execution (separate from heartbeat scheduler)
+- [x] Hand cost attribution (to owning agent's budget)
+- [x] Hand output as issue comments or new issues
+- [x] Approval gate integration (Hands that require approval before acting)
 
 ### 5.2 Researcher Hand
-- [ ] Deep research with CRAAP methodology
-- [ ] Web search + source evaluation
-- [ ] Research findings posted as issue comments
-- [ ] Knowledge graph updates (facts table) from research
+- [x] Deep research with CRAAP methodology
+- [x] Web search + source evaluation
+- [x] Research findings posted as issue comments
+- [x] Knowledge graph updates (facts table) from research
 
 ### 5.3 Collector Hand (OSINT Monitoring)
-- [ ] Configurable monitoring targets (competitors, keywords, domains)
-- [ ] Periodic collection runs
-- [ ] Critical alerts escalated to CEO agent
-- [ ] Findings stored in shared knowledge
+- [x] Configurable monitoring targets (competitors, keywords, domains)
+- [x] Periodic collection runs
+- [x] Critical alerts escalated to CEO agent
+- [x] Findings stored in shared knowledge
 
 ### 5.4 Browser Hand
-- [ ] Web automation workflows
-- [ ] Purchase approval gates (human approval required)
-- [ ] Screenshot/evidence collection
+- [x] Web automation workflows
+- [x] Purchase approval gates (human approval required)
+- [x] Screenshot/evidence collection
 
 ### 5.5 Hand Dashboard
-- [ ] Status view per hand (active/inactive, last run, next run)
-- [ ] Metrics display (runs, costs, outputs)
-- [ ] Manual trigger and deactivation controls
+- [x] Status view per hand (active/inactive, last run, next run)
+- [x] Metrics display (runs, costs, outputs)
+- [x] Manual trigger and deactivation controls
 
 ### 5.6 CLI Extensions
-- [ ] `clawgear hand activate <name>`
-- [ ] `clawgear hand deactivate <name>`
-- [ ] `clawgear hand status <name>`
-- [ ] `clawgear hand list`
+- [x] `clawgear hand activate <name>`
+- [x] `clawgear hand deactivate <name>`
+- [x] `clawgear hand status <name>`
+- [x] `clawgear hand list`
 
 **Exit criteria:** A Researcher Hand runs on schedule, conducts web research, posts findings as issue comments, stores facts in shared knowledge, and respects the owning agent's budget.
 

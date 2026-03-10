@@ -108,7 +108,10 @@ export const agents = pgTable(
       'agents_model_tier_check',
       sql`${t.modelTier} IN ('frontier', 'smart', 'fast', 'lightweight')`,
     ),
-    check('agents_adapter_type_check', sql`${t.adapterType} IN ('claude_code', 'process', 'http')`),
+    check(
+      'agents_adapter_type_check',
+      sql`${t.adapterType} IN ('claude_code', 'process', 'http', 'hand')`,
+    ),
     check('agents_budget_check', sql`${t.budgetMonthlyCents} >= 0`),
     check('agents_spent_check', sql`${t.spentMonthlyCents} >= 0`),
   ],
@@ -308,7 +311,7 @@ export const approvals = pgTable(
   (t) => [
     check(
       'approvals_type_check',
-      sql`${t.type} IN ('hire_agent', 'strategy', 'purchase', 'publish', 'budget_increase')`,
+      sql`${t.type} IN ('hire_agent', 'strategy', 'purchase', 'publish', 'budget_increase', 'hand_action')`,
     ),
     check(
       'approvals_status_check',

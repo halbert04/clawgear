@@ -8,6 +8,7 @@ export interface AssembleContextInput {
   sessionId: string | null;
   timeout: number;
   tools?: ToolDefinition[];
+  adapterConfig?: Record<string, unknown>;
   // Rich context fields (Sub-Phase 2B)
   agentName?: string;
   agentRole?: string;
@@ -102,5 +103,6 @@ export function assembleContext(input: AssembleContextInput): AdapterContext {
     tools: input.tools ?? [],
     sessionId: input.sessionId,
     timeout: input.timeout,
+    adapterConfig: input.adapterConfig,
   };
 }

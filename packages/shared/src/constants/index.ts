@@ -22,8 +22,11 @@ export type AgentRole = (typeof AgentRole)[number];
 export const ModelTier = ['frontier', 'smart', 'fast', 'lightweight'] as const;
 export type ModelTier = (typeof ModelTier)[number];
 
-export const AdapterType = ['claude_code', 'process', 'http'] as const;
+export const AdapterType = ['claude_code', 'process', 'http', 'hand'] as const;
 export type AdapterType = (typeof AdapterType)[number];
+
+export const HandOutputMode = ['comment', 'issue', 'fact', 'silent'] as const;
+export type HandOutputMode = (typeof HandOutputMode)[number];
 
 export const GoalLevel = ['company', 'team', 'agent', 'task'] as const;
 export type GoalLevel = (typeof GoalLevel)[number];
@@ -63,6 +66,7 @@ export const ApprovalType = [
   'purchase',
   'publish',
   'budget_increase',
+  'hand_action',
 ] as const;
 export type ApprovalType = (typeof ApprovalType)[number];
 

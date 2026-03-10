@@ -1,0 +1,29 @@
+[hand]
+name = "researcher"
+description = "Deep research hand using CRAAP methodology for source evaluation and knowledge synthesis"
+schedule = "0 */6 * * *"
+task_prompt = """
+Conduct deep research on assigned topics using the CRAAP methodology (Currency, Relevance, Authority, Accuracy, Purpose).
+
+1. Identify 3-5 high-quality sources for the research topic
+2. Evaluate each source using CRAAP criteria
+3. Synthesize findings into a structured research brief
+4. Store key facts as SPO triples for the knowledge graph
+5. Post findings as an issue comment with source citations
+
+Format any discovered facts as:
+FACT: subject | predicate | object
+"""
+requires_approval = false
+output_mode = "comment"
+
+[adapter]
+type = "claude_code"
+
+[settings]
+methodology = "CRAAP"
+max_sources = 5
+min_source_quality = 0.6
+
+[metrics]
+track = ["sources_evaluated", "facts_discovered", "research_quality_score"]

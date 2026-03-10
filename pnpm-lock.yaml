@@ -52,6 +52,28 @@ importers:
         specifier: ^5.8.0
         version: 5.9.3
 
+  adapters/hand:
+    dependencies:
+      '@clawgear/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@clawgear/runtime':
+        specifier: workspace:*
+        version: link:../../packages/runtime
+      '@clawgear/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.39.3(bun-types@1.3.10)(postgres@3.4.8)
+    devDependencies:
+      '@types/bun':
+        specifier: 'catalog:'
+        version: 1.3.10
+      typescript:
+        specifier: ^5.8.0
+        version: 5.9.3
+
   adapters/http:
     dependencies:
       '@clawgear/runtime':
@@ -135,8 +157,17 @@ importers:
         specifier: ^5.8.0
         version: 5.9.3
 
+  hands/browser: {}
+
+  hands/collector: {}
+
+  hands/researcher: {}
+
   packages/api:
     dependencies:
+      '@clawgear/adapter-hand':
+        specifier: workspace:*
+        version: link:../../adapters/hand
       '@clawgear/db':
         specifier: workspace:*
         version: link:../db
@@ -227,6 +258,9 @@ importers:
       '@clawgear/shared':
         specifier: workspace:*
         version: link:../shared
+      cron-parser:
+        specifier: ^5.5.0
+        version: 5.5.0
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.39.3(bun-types@1.3.10)(postgres@3.4.8)
@@ -306,6 +340,9 @@ importers:
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.39.3(bun-types@1.3.10)(postgres@3.4.8)
+      smol-toml:
+        specifier: ^1.6.0
+        version: 1.6.0
     devDependencies:
       '@types/bun':
         specifier: 'catalog:'
@@ -1140,6 +1177,10 @@ packages:
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
+  cron-parser@5.5.0:
+    resolution: {integrity: sha512-oML4lKUXxizYswqmxuOCpgFS8BNUJpIu6k/2HVHyaL8Ynnf3wdf9tkns0yRdJLSIjkJ+b0DXHMZEHGpMwjnPww==}
+    engines: {node: '>=18'}
+
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
@@ -1323,6 +1364,10 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
+  luxon@3.7.2:
+    resolution: {integrity: sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==}
+    engines: {node: '>=12'}
+
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
@@ -1385,6 +1430,10 @@ packages:
   shell-quote@1.8.3:
     resolution: {integrity: sha512-ObmnIF4hXNg1BqhnHmgbDETF8dLPCggZWBjkQfhZpbszZnYur5DUljTcCHii5LC3J5E0yeO/1LIMyH+UvHQgyw==}
     engines: {node: '>= 0.4'}
+
+  smol-toml@1.6.0:
+    resolution: {integrity: sha512-4zemZi0HvTnYwLfrpk/CF9LOd9Lt87kAt50GnqhMpyF9U3poDAP2+iukq2bZsO/ufegbYehBkqINbsWxj4l4cw==}
+    engines: {node: '>= 18'}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -2011,6 +2060,10 @@ snapshots:
 
   convert-source-map@2.0.0: {}
 
+  cron-parser@5.5.0:
+    dependencies:
+      luxon: 3.7.2
+
   csstype@3.2.3: {}
 
   debug@4.4.3:
@@ -2163,6 +2216,8 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
+  luxon@3.7.2: {}
+
   ms@2.1.3: {}
 
   nanoid@3.3.11: {}
@@ -2230,6 +2285,8 @@ snapshots:
   semver@7.7.4: {}
 
   shell-quote@1.8.3: {}
+
+  smol-toml@1.6.0: {}
 
   source-map-js@1.2.1: {}
 

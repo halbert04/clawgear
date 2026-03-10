@@ -1,0 +1,28 @@
+[hand]
+name = "browser"
+description = "Web automation hand for browser-based tasks with human approval gates"
+schedule = "0 9 * * 1-5"
+task_prompt = """
+Execute the assigned web automation task.
+
+1. Navigate to the target URL
+2. Perform the specified actions (form fills, clicks, data extraction)
+3. Capture screenshots as evidence of actions taken
+4. Report results and any errors encountered
+
+IMPORTANT: This hand requires approval before executing any actions.
+All browser actions are logged for audit purposes.
+"""
+requires_approval = true
+output_mode = "comment"
+
+[adapter]
+type = "claude_code"
+
+[settings]
+headless = true
+timeout_seconds = 120
+screenshot_on_error = true
+
+[metrics]
+track = ["pages_visited", "actions_performed", "errors_encountered"]

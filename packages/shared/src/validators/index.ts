@@ -16,6 +16,7 @@ import {
   type FactType,
   GoalLevel,
   GoalStatus,
+  HandOutputMode,
   type HeartbeatRunStatus,
   type InvocationSource,
   IssuePriority,
@@ -295,6 +296,41 @@ export const createConversationMessageSchema = z.object({
   content: z.string().min(1).max(100000),
   senderId: z.string().max(255).nullable().optional(),
   senderName: z.string().max(255).nullable().optional(),
+});
+
+// ============================================================
+// HAND CONFIG
+// ============================================================
+
+export const handConfigSchema = z.object({
+  name: z.string().min(1).max(255),
+  description: z.string().max(5000),
+  schedule: z.string().min(1).max(100),
+  innerAdapter: z.enum(AdapterType),
+  innerAdapterConfig: z.record(z.unknown()).default({}),
+  taskPrompt: z.string().min(1).max(50000),
+  tools: z.array(z.string()).default([]),
+  settings: z.record(z.unknown()).default({}),
+  metrics: z.array(z.string()).default([]),
+  requiresApproval: z.boolean().default(false),
+  outputMode: z.enum(HandOutputMode).default('comment'),
+  ownerAgentId: uuidSchema.nullable().default(null),
+});
+
+export const activateHandSchema = z.object({
+  name: z.string().min(1).max(255),
+  companyId: uuidSchema,
+  ownerAgentId: uuidSchema.nullable().optional(),
+  overrides: z
+    .object({
+      schedule: z.string().min(1).max(100).optional(),
+      innerAdapter: z.enum(AdapterType).optional(),
+      innerAdapterConfig: z.record(z.unknown()).optional(),
+      settings: z.record(z.unknown()).optional(),
+      requiresApproval: z.boolean().optional(),
+      outputMode: z.enum(HandOutputMode).optional(),
+    })
+    .optional(),
 });
 
 // Re-export for convenience

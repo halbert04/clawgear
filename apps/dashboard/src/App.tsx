@@ -10,24 +10,28 @@ import {
   fetchApprovals,
   fetchBudgetSummary,
   fetchCompanies,
+  fetchHands,
   fetchIssues,
   fetchQualityEvaluations,
+  type Hand,
   type Issue,
   type QualityEvaluation,
 } from './api';
 import { AgentList } from './components/AgentList';
 import { AttentionQueue } from './components/AttentionQueue';
 import { BudgetOverview } from './components/BudgetOverview';
+import { HandList } from './components/HandList';
 import { IssueBoard } from './components/IssueBoard';
 import { useWebSocket } from './hooks/useWebSocket';
 
-type Tab = 'attention' | 'agents' | 'issues' | 'budget';
+type Tab = 'attention' | 'agents' | 'issues' | 'budget' | 'hands';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'attention', label: 'Attention Queue' },
   { key: 'agents', label: 'Agents' },
   { key: 'issues', label: 'Issues' },
   { key: 'budget', label: 'Budget' },
+  { key: 'hands', label: 'Hands' },
 ];
 
 const POLL_INTERVAL_MS = 15_000;
@@ -42,6 +46,7 @@ export function App() {
   const [budgetSummary, setBudgetSummary] = useState<BudgetSummary | null>(null);
   const [evaluations, setEvaluations] = useState<QualityEvaluation[]>([]);
   const [activity, setActivity] = useState<ActivityEntry[]>([]);
+  const [hands, setHands] = useState<Hand[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,7 +68,7 @@ export function App() {
   const loadData = useCallback(async () => {
     if (!selectedCompanyId) return;
     try {
-      const [agentsRes, issuesRes, approvalsRes, budgetRes, evalsRes, activityRes] =
+      const [agentsRes, issuesRes, approvalsRes, budgetRes, evalsRes, activityRes, handsRes] =
         await Promise.all([
           fetchAgents(selectedCompanyId),
           fetchIssues(selectedCompanyId),
@@ -71,6 +76,7 @@ export function App() {
           fetchBudgetSummary(selectedCompanyId),
           fetchQualityEvaluations(selectedCompanyId),
           fetchActivity(selectedCompanyId),
+          fetchHands(selectedCompanyId),
         ]);
       setAgents(agentsRes.data);
       setIssues(issuesRes.data);
@@ -78,6 +84,7 @@ export function App() {
       setBudgetSummary(budgetRes);
       setEvaluations(evalsRes.data);
       setActivity(activityRes.data);
+      setHands(handsRes.data);
       setError(null);
     } catch (err) {
       setError(String(err));
@@ -111,7 +118,8 @@ export function App() {
       type.startsWith('approval.') ||
       type.startsWith('budget.') ||
       type.startsWith('quality.') ||
-      type.startsWith('activity.')
+      type.startsWith('activity.') ||
+      type.startsWith('hand.')
     ) {
       loadData();
     }
@@ -178,6 +186,9 @@ export function App() {
             )}
             {tab === 'issues' && <IssueBoard issues={issues} agents={agents} />}
             {tab === 'budget' && <BudgetOverview budgetSummary={budgetSummary} agents={agents} />}
+            {tab === 'hands' && (
+              <HandList companyId={selectedCompanyId} hands={hands} onRefresh={loadData} />
+            )}
           </>
         )}
       </main>

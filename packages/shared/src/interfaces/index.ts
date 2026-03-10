@@ -65,6 +65,7 @@ export interface AdapterContext {
   tools: ToolDefinition[];
   sessionId: string | null;
   timeout: number;
+  adapterConfig?: Record<string, unknown>;
 }
 
 export interface AdapterResult {
