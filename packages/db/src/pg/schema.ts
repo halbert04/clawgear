@@ -653,10 +653,7 @@ export const conversations = pgTable(
     index('idx_conversations_company').on(t.companyId, t.status),
     index('idx_conversations_agent').on(t.agentId, t.status),
     index('idx_conversations_last_message').on(t.companyId, t.lastMessageAt),
-    check(
-      'conversations_status_check',
-      sql`${t.status} IN ('active', 'archived', 'closed')`,
-    ),
+    check('conversations_status_check', sql`${t.status} IN ('active', 'archived', 'closed')`),
   ],
 );
 
@@ -681,9 +678,6 @@ export const conversationMessages = pgTable(
   },
   (t) => [
     index('idx_conversation_messages_conversation').on(t.conversationId, t.createdAt),
-    check(
-      'conversation_messages_role_check',
-      sql`${t.role} IN ('user', 'agent', 'system')`,
-    ),
+    check('conversation_messages_role_check', sql`${t.role} IN ('user', 'agent', 'system')`),
   ],
 );

@@ -1,7 +1,7 @@
 import { conversationMessages, conversations } from '@clawgear/db/pg';
 import type { ChannelRouter } from '@clawgear/kernel';
-import type { SystemEvent } from '@clawgear/shared/interfaces';
 import { EventTypes } from '@clawgear/shared/events';
+import type { SystemEvent } from '@clawgear/shared/interfaces';
 import {
   createConversationMessageSchema,
   createConversationSchema,

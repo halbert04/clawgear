@@ -235,14 +235,8 @@ export class EventBridge {
     });
   }
 
-  private handlePresence(
-    ws: WSClient,
-    session: ClientSession,
-    id: string | number | null,
-  ): void {
-    const presence = session.companyId
-      ? this.getPresence(session.companyId)
-      : this.getPresence();
+  private handlePresence(ws: WSClient, session: ClientSession, id: string | number | null): void {
+    const presence = session.companyId ? this.getPresence(session.companyId) : this.getPresence();
 
     this.sendResult(ws, id, presence);
   }
@@ -272,10 +266,7 @@ export class EventBridge {
       }
 
       // Event type filtering
-      if (
-        !session.subscribedEvents.has('*') &&
-        !session.subscribedEvents.has(event.type)
-      ) {
+      if (!session.subscribedEvents.has('*') && !session.subscribedEvents.has(event.type)) {
         continue;
       }
 
@@ -335,12 +326,7 @@ export class EventBridge {
     }
   }
 
-  private sendError(
-    ws: WSClient,
-    id: string | number | null,
-    code: number,
-    message: string,
-  ): void {
+  private sendError(ws: WSClient, id: string | number | null, code: number, message: string): void {
     const response: WsRpcResponse = {
       jsonrpc: '2.0',
       id,

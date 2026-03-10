@@ -190,10 +190,7 @@ describe('EventBridge', () => {
     const ws = createMockWs();
     bridge.addClient(ws as never);
 
-    bridge.handleMessage(
-      ws as never,
-      JSON.stringify({ jsonrpc: '2.0', id: 99, method: 'ping' }),
-    );
+    bridge.handleMessage(ws as never, JSON.stringify({ jsonrpc: '2.0', id: 99, method: 'ping' }));
 
     const msg = parseLastCall(ws) as Record<string, unknown>;
     expect(msg.id).toBe(99);

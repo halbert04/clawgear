@@ -21,7 +21,7 @@ import {
   IssuePriority,
   IssueStatus,
   type LessonOutcome,
-  MessageRole,
+  type MessageRole,
   ModelTier,
   type PromptType,
   type QualityTrend,

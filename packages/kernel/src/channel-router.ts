@@ -1,8 +1,13 @@
 import type { Database } from '@clawgear/db';
 import { channelBindings, conversationMessages, conversations } from '@clawgear/db/pg';
-import type { EventBus, SystemEvent } from '@clawgear/shared/interfaces';
-import type { ChannelAdapter, InboundMessage, OutboundMessage } from '@clawgear/shared/interfaces';
 import { EventTypes } from '@clawgear/shared/events';
+import type {
+  ChannelAdapter,
+  EventBus,
+  InboundMessage,
+  OutboundMessage,
+  SystemEvent,
+} from '@clawgear/shared/interfaces';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import type { HeartbeatEngine } from './heartbeat-engine.js';
 
@@ -74,11 +79,7 @@ export class ChannelRouter {
     const agentId = binding.agentId;
 
     // 2. Find or create conversation
-    const conversation = await this.resolveConversation(
-      companyId,
-      agentId,
-      msg,
-    );
+    const conversation = await this.resolveConversation(companyId, agentId, msg);
 
     // 3. Store the inbound message
     const [message] = await this.db
@@ -125,10 +126,7 @@ export class ChannelRouter {
       await this.heartbeatEngine.executeHeartbeat(agentId, 'event');
     } catch (err) {
       // Non-fatal: agent might already be running
-      console.error(
-        `Failed to wake agent ${agentId} for channel message:`,
-        (err as Error).message,
-      );
+      console.error(`Failed to wake agent ${agentId} for channel message:`, (err as Error).message);
     }
 
     return {
@@ -232,10 +230,7 @@ export class ChannelRouter {
       .select()
       .from(channelBindings)
       .where(
-        and(
-          eq(channelBindings.channelName, msg.channelName),
-          eq(channelBindings.isActive, true),
-        ),
+        and(eq(channelBindings.channelName, msg.channelName), eq(channelBindings.isActive, true)),
       )
       .orderBy(desc(channelBindings.priority));
 
@@ -245,24 +240,21 @@ export class ChannelRouter {
     // 1. Thread-level binding (if threadId matches)
     if (msg.threadId) {
       const threadBinding = bindings.find(
-        (b) =>
-          b.bindingType === 'thread' && b.externalChannelId === msg.threadId,
+        (b) => b.bindingType === 'thread' && b.externalChannelId === msg.threadId,
       );
       if (threadBinding) return threadBinding;
     }
 
     // 2. DM-level binding (if senderId matches)
     const dmBinding = bindings.find(
-      (b) =>
-        b.bindingType === 'dm' && b.externalChannelId === msg.senderId,
+      (b) => b.bindingType === 'dm' && b.externalChannelId === msg.senderId,
     );
     if (dmBinding) return dmBinding;
 
     // 3. Channel-level binding (if externalId matches)
     if (msg.externalId) {
       const channelBinding = bindings.find(
-        (b) =>
-          b.bindingType === 'channel' && b.externalChannelId === msg.externalId,
+        (b) => b.bindingType === 'channel' && b.externalChannelId === msg.externalId,
       );
       if (channelBinding) return channelBinding;
     }
@@ -276,11 +268,7 @@ export class ChannelRouter {
   // CONVERSATION RESOLUTION
   // ----------------------------------------------------------
 
-  private async resolveConversation(
-    companyId: string,
-    agentId: string,
-    msg: InboundMessage,
-  ) {
+  private async resolveConversation(companyId: string, agentId: string, msg: InboundMessage) {
     // Try to find existing active conversation for this agent + participant + channel
     const existing = await this.db
       .select()
