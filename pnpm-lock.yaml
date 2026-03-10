@@ -133,6 +133,9 @@ importers:
       '@clawgear/runtime':
         specifier: workspace:*
         version: link:../runtime
+      '@clawgear/security':
+        specifier: workspace:*
+        version: link:../security
       '@clawgear/shared':
         specifier: workspace:*
         version: link:../shared

@@ -1118,59 +1118,59 @@ LIMIT 10;
 9 essential security layers. No Merkle chains, no Ed25519, no taint tracking.
 
 ### 3.1 RBAC Capability Gates
-- [ ] Capability definition per agent (capabilities JSONB)
-- [ ] Kernel-enforced capability checking before tool execution
-- [ ] Capability types: `FileRead(glob)`, `FileWrite(glob)`, `NetConnect(pattern)`, `ToolInvoke(tool_id)`, `AgentMessage(agent_id)`
-- [ ] No privilege escalation: agents cannot grant capabilities they don't have
-- [ ] Capability audit logging
+- [x] Capability definition per agent (capabilities JSONB)
+- [x] Kernel-enforced capability checking before tool execution
+- [x] Capability types: `FileRead(glob)`, `FileWrite(glob)`, `NetConnect(pattern)`, `ToolInvoke(tool_id)`, `AgentMessage(agent_id)`
+- [x] No privilege escalation: agents cannot grant capabilities they don't have
+- [x] Capability audit logging
 
 ### 3.2 Subprocess Sandbox
-- [ ] `env_clear()` -- subprocess starts with clean environment
-- [ ] Selective passthrough of safe env vars only
-- [ ] Process tree isolation (kill entire tree on timeout)
-- [ ] Direct argv execution via argument parsing (no shell interpreter, prevents injection)
-- [ ] Working directory confinement
+- [x] `env_clear()` -- subprocess starts with clean environment
+- [x] Selective passthrough of safe env vars only
+- [x] Process tree isolation (kill entire tree on timeout)
+- [x] Direct argv execution via argument parsing (no shell interpreter, prevents injection)
+- [x] Working directory confinement
 
 ### 3.3 Prompt Injection Defense (COMPREHENSIVE -- critique #8)
-- [ ] **Input sanitization**: all external data (web scrapes, API responses, user messages) sanitized before entering agent context
+- [x] **Input sanitization**: all external data (web scrapes, API responses, user messages) sanitized before entering agent context
   - Escape system prompt markers and override patterns
   - Strip encoded exfiltration patterns
-- [ ] **Output filtering**: scan agent responses for data exfiltration
+- [x] **Output filtering**: scan agent responses for data exfiltration
   - Detect encoded data, suspicious URLs, credential patterns
-- [ ] **Tool call validation**: anomaly detection on tool call patterns
+- [x] **Tool call validation**: anomaly detection on tool call patterns
   - Is the agent calling tools consistent with its current task?
   - Flag unexpected tool calls for review
-- [ ] **Context isolation**: untrusted inputs in a clearly delimited section
+- [x] **Context isolation**: untrusted inputs in a clearly delimited section
   - User data marked as `<user-data>` blocks, not mixed with instructions
-- [ ] **Injection attempt logging**: log detected injection attempts to activity_log
-- [ ] Configurable strictness levels per agent/role
+- [x] **Injection attempt logging**: log detected injection attempts to activity_log
+- [ ] Configurable strictness levels per agent/role *(deferred — current gate handles all roles uniformly)*
 
 ### 3.4 SSRF Protection
-- [ ] Block requests to private IP ranges (10.x, 172.16-31.x, 192.168.x)
-- [ ] Block cloud metadata endpoints (169.254.169.254)
-- [ ] DNS rebinding protection
-- [ ] Configurable allowlist for agent HTTP egress
+- [x] Block requests to private IP ranges (10.x, 172.16-31.x, 192.168.x)
+- [x] Block cloud metadata endpoints (169.254.169.254)
+- [ ] DNS rebinding protection *(deferred — requires async DNS resolution layer)*
+- [x] Configurable allowlist for agent HTTP egress
 
 ### 3.5 Security Headers
-- [ ] CSP, HSTS, X-Frame-Options, X-Content-Type-Options
-- [ ] Applied to all API and dashboard responses
+- [x] CSP, HSTS, X-Frame-Options, X-Content-Type-Options
+- [x] Applied to all API and dashboard responses
 
 ### 3.6 Loop Guard (Enhanced)
-- [ ] SHA256 tool call deduplication with circuit breaker
-- [ ] **Semantic loop detection**: cosine similarity on recent N actions
-- [ ] Configurable max iterations per heartbeat
-- [ ] Automatic escalation when loop detected (pause agent, notify dashboard)
+- [x] SHA256 tool call deduplication with circuit breaker
+- [ ] **Semantic loop detection**: cosine similarity on recent N actions *(deferred to Phase 6 with neural reranking)*
+- [x] Configurable max iterations per heartbeat
+- [x] Automatic escalation when loop detected (pause agent, notify dashboard)
 
 ### 3.7 Secret Management
-- [ ] Company secrets stored encrypted at rest (AES-256-GCM)
-- [ ] Agent API keys stored as SHA-256 hashes (plaintext shown once at creation)
-- [ ] Secret redaction in all logs and API responses
-- [ ] Secret rotation support
+- [x] Company secrets stored encrypted at rest (AES-256-GCM)
+- [x] Agent API keys stored as SHA-256 hashes (plaintext shown once at creation)
+- [x] Secret redaction in all logs and API responses
+- [x] Secret rotation support
 
 ### 3.8 API Authentication
-- [ ] API key authentication for external access
-- [ ] Rate limiting per API key (GCRA algorithm)
-- [ ] Request signing for agent-to-API calls
+- [x] API key authentication for external access
+- [x] Rate limiting per API key (token bucket algorithm)
+- [ ] Request signing for agent-to-API calls *(deferred — agents use internal event bus, not HTTP)*
 
 **Exit criteria:** An agent in a Docker sandbox cannot: access private IPs, invoke tools outside its capability set, spawn uncontrolled subprocesses, exfiltrate data via output, or bypass rate limits. Injection attempts are detected and logged.
 
