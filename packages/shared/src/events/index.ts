@@ -45,6 +45,12 @@ export const EventTypes = {
   COMPETENCE_UPDATED: 'learning.competence_updated',
   AUTONOMY_CHANGED: 'learning.autonomy_changed',
 
+  // Channel / Communication
+  CHANNEL_MESSAGE_RECEIVED: 'channel.message_received',
+  CHANNEL_MESSAGE_SENT: 'channel.message_sent',
+  CONVERSATION_CREATED: 'conversation.created',
+  CONVERSATION_CLOSED: 'conversation.closed',
+
   // System
   SYSTEM_HEALTH_CHANGED: 'system.health_changed',
   SYSTEM_DEGRADED: 'system.degraded',
@@ -118,10 +124,48 @@ export interface QualityGateResultEvent extends SystemEvent {
   };
 }
 
+export interface ChannelMessageReceivedEvent extends SystemEvent {
+  type: typeof EventTypes.CHANNEL_MESSAGE_RECEIVED;
+  payload: {
+    conversationId: string;
+    messageId: string;
+    agentId: string;
+    channelName: string;
+    senderId: string;
+    senderName: string;
+    content: string;
+  };
+}
+
+export interface ChannelMessageSentEvent extends SystemEvent {
+  type: typeof EventTypes.CHANNEL_MESSAGE_SENT;
+  payload: {
+    conversationId: string;
+    messageId: string;
+    agentId: string;
+    channelName: string;
+    content: string;
+  };
+}
+
+export interface ConversationCreatedEvent extends SystemEvent {
+  type: typeof EventTypes.CONVERSATION_CREATED;
+  payload: {
+    conversationId: string;
+    agentId: string;
+    channelName: string;
+    participantId: string | null;
+    participantName: string | null;
+  };
+}
+
 export type TypedSystemEvent =
   | AgentStatusChangedEvent
   | IssueStatusChangedEvent
   | HeartbeatCompletedEvent
   | BudgetWarningEvent
   | ApprovalRequestedEvent
-  | QualityGateResultEvent;
+  | QualityGateResultEvent
+  | ChannelMessageReceivedEvent
+  | ChannelMessageSentEvent
+  | ConversationCreatedEvent;

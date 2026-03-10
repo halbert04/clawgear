@@ -1,4 +1,5 @@
 export { type AgentMessage, AgentMessaging, type AgentMessagingConfig } from './agent-messaging.js';
+export { ChannelRouter, type ChannelRouterConfig } from './channel-router.js';
 export { InProcessEventBus } from './event-bus.js';
 export {
   HeartbeatEngine,

@@ -109,6 +109,19 @@ importers:
         specifier: ^6.0.0
         version: 6.4.1(@types/node@25.4.0)
 
+  channels/slack:
+    dependencies:
+      '@clawgear/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+    devDependencies:
+      '@types/bun':
+        specifier: 'catalog:'
+        version: 1.3.10
+      typescript:
+        specifier: ^5.8.0
+        version: 5.9.3
+
   channels/webchat:
     dependencies:
       '@clawgear/shared':
