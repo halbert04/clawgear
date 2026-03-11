@@ -120,7 +120,15 @@ export type MessageRole = (typeof MessageRole)[number];
 export const ChannelBindingType = ['default', 'dm', 'channel', 'thread'] as const;
 export type ChannelBindingType = (typeof ChannelBindingType)[number];
 
-export const ChannelName = ['webchat', 'slack', 'discord', 'telegram', 'email'] as const;
+export const ChannelName = [
+  'webchat',
+  'slack',
+  'discord',
+  'telegram',
+  'whatsapp',
+  'teams',
+  'email',
+] as const;
 export type ChannelName = (typeof ChannelName)[number];
 
 // Trigger priority ordering (higher index = higher priority)
