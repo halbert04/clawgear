@@ -1435,11 +1435,11 @@ Systems that make agents measurably better over time.
 Expand the surface area. Only start this after Phases 0-4 are solid.
 
 ### 7.1 Additional Channel Adapters
-- [ ] Discord (discord.js)
-- [ ] Telegram (grammY)
-- [ ] WhatsApp (@whiskeysockets/baileys)
-- [ ] Microsoft Teams (Bot Framework)
-- [ ] Email (IMAP/SMTP)
+- [x] Discord (discord.js)
+- [x] Telegram (grammY)
+- [x] WhatsApp (@whiskeysockets/baileys)
+- [x] Microsoft Teams (Bot Framework)
+- [x] Email (IMAP/SMTP)
 
 ### 7.2 Workflow Engine
 - [x] Multi-step agent pipelines (JSON definition)

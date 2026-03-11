@@ -415,3 +415,25 @@ export function fetchWorkflowRunDetail(
 export function cancelWorkflowRun(companyId: string, runId: string): Promise<{ success: boolean }> {
   return post(`/companies/${companyId}/workflow-runs/${runId}/cancel`);
 }
+
+// --- Channel binding types and functions ---
+
+export interface ChannelBinding {
+  id: string;
+  companyId: string;
+  channelName: string;
+  agentId: string;
+  externalChannelId: string | null;
+  bindingType: string;
+  priority: number;
+  config: Record<string, unknown>;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function fetchChannelBindings(
+  companyId: string,
+): Promise<PaginatedResponse<ChannelBinding>> {
+  return get(`/companies/${companyId}/channel-bindings?limit=100`);
+}

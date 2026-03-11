@@ -4,12 +4,14 @@ import {
   type Agent,
   type Approval,
   type BudgetSummary,
+  type ChannelBinding,
   type Company,
   type EvolvedSkill,
   fetchActivity,
   fetchAgents,
   fetchApprovals,
   fetchBudgetSummary,
+  fetchChannelBindings,
   fetchCompanies,
   fetchEvolvedSkills,
   fetchHands,
@@ -30,6 +32,7 @@ import {
 import { AgentList } from './components/AgentList';
 import { AttentionQueue } from './components/AttentionQueue';
 import { BudgetOverview } from './components/BudgetOverview';
+import { ChannelStatus } from './components/ChannelStatus';
 import { EvolutionDashboard } from './components/EvolutionDashboard';
 import { HandList } from './components/HandList';
 import { IssueBoard } from './components/IssueBoard';
@@ -43,6 +46,7 @@ type Tab =
   | 'issues'
   | 'budget'
   | 'hands'
+  | 'channels'
   | 'triggers'
   | 'workflows'
   | 'evolution';
@@ -53,6 +57,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'issues', label: 'Issues' },
   { key: 'budget', label: 'Budget' },
   { key: 'hands', label: 'Hands' },
+  { key: 'channels', label: 'Channels' },
   { key: 'triggers', label: 'Triggers' },
   { key: 'workflows', label: 'Workflows' },
   { key: 'evolution', label: 'Evolution' },
@@ -76,6 +81,7 @@ export function App() {
   const [strategyPatterns, setStrategyPatterns] = useState<StrategyPattern[]>([]);
   const [triggersList, setTriggersList] = useState<Trigger[]>([]);
   const [workflowsList, setWorkflowsList] = useState<Workflow[]>([]);
+  const [channelBindings, setChannelBindings] = useState<ChannelBinding[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -110,6 +116,7 @@ export function App() {
         strategiesRes,
         triggersRes,
         workflowsRes,
+        channelBindingsRes,
       ] = await Promise.all([
         fetchAgents(selectedCompanyId),
         fetchIssues(selectedCompanyId),
@@ -123,6 +130,7 @@ export function App() {
         fetchStrategies(selectedCompanyId),
         fetchTriggers(selectedCompanyId),
         fetchWorkflows(selectedCompanyId),
+        fetchChannelBindings(selectedCompanyId),
       ]);
       setAgents(agentsRes.data);
       setIssues(issuesRes.data);
@@ -136,6 +144,7 @@ export function App() {
       setStrategyPatterns(strategiesRes.data);
       setTriggersList(triggersRes.data);
       setWorkflowsList(workflowsRes.data);
+      setChannelBindings(channelBindingsRes.data);
       setError(null);
     } catch (err) {
       setError(String(err));
@@ -171,6 +180,7 @@ export function App() {
       type.startsWith('quality.') ||
       type.startsWith('activity.') ||
       type.startsWith('hand.') ||
+      type.startsWith('channel.') ||
       type.startsWith('trigger.') ||
       type.startsWith('workflow.') ||
       type.startsWith('evolution.')
@@ -243,6 +253,7 @@ export function App() {
             {tab === 'hands' && (
               <HandList companyId={selectedCompanyId} hands={hands} onRefresh={loadData} />
             )}
+            {tab === 'channels' && <ChannelStatus bindings={channelBindings} agents={agents} />}
             {tab === 'triggers' && (
               <TriggerList
                 companyId={selectedCompanyId}
