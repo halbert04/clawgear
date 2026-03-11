@@ -17,11 +17,15 @@ import {
   fetchQualityEvaluations,
   fetchStrategies,
   fetchTeamCompetence,
+  fetchTriggers,
+  fetchWorkflows,
   type Hand,
   type Issue,
   type QualityEvaluation,
   type StrategyPattern,
   type TeamCompetence,
+  type Trigger,
+  type Workflow,
 } from './api';
 import { AgentList } from './components/AgentList';
 import { AttentionQueue } from './components/AttentionQueue';
@@ -29,9 +33,19 @@ import { BudgetOverview } from './components/BudgetOverview';
 import { EvolutionDashboard } from './components/EvolutionDashboard';
 import { HandList } from './components/HandList';
 import { IssueBoard } from './components/IssueBoard';
+import { TriggerList } from './components/TriggerList';
+import { WorkflowList } from './components/WorkflowList';
 import { useWebSocket } from './hooks/useWebSocket';
 
-type Tab = 'attention' | 'agents' | 'issues' | 'budget' | 'hands' | 'evolution';
+type Tab =
+  | 'attention'
+  | 'agents'
+  | 'issues'
+  | 'budget'
+  | 'hands'
+  | 'triggers'
+  | 'workflows'
+  | 'evolution';
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'attention', label: 'Attention Queue' },
@@ -39,6 +53,8 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'issues', label: 'Issues' },
   { key: 'budget', label: 'Budget' },
   { key: 'hands', label: 'Hands' },
+  { key: 'triggers', label: 'Triggers' },
+  { key: 'workflows', label: 'Workflows' },
   { key: 'evolution', label: 'Evolution' },
 ];
 
@@ -58,6 +74,8 @@ export function App() {
   const [evolvedSkills, setEvolvedSkills] = useState<EvolvedSkill[]>([]);
   const [teamCompetence, setTeamCompetence] = useState<TeamCompetence[]>([]);
   const [strategyPatterns, setStrategyPatterns] = useState<StrategyPattern[]>([]);
+  const [triggersList, setTriggersList] = useState<Trigger[]>([]);
+  const [workflowsList, setWorkflowsList] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -90,6 +108,8 @@ export function App() {
         skillsRes,
         competenceRes,
         strategiesRes,
+        triggersRes,
+        workflowsRes,
       ] = await Promise.all([
         fetchAgents(selectedCompanyId),
         fetchIssues(selectedCompanyId),
@@ -101,6 +121,8 @@ export function App() {
         fetchEvolvedSkills(selectedCompanyId),
         fetchTeamCompetence(selectedCompanyId),
         fetchStrategies(selectedCompanyId),
+        fetchTriggers(selectedCompanyId),
+        fetchWorkflows(selectedCompanyId),
       ]);
       setAgents(agentsRes.data);
       setIssues(issuesRes.data);
@@ -112,6 +134,8 @@ export function App() {
       setEvolvedSkills(skillsRes.data);
       setTeamCompetence(competenceRes.data);
       setStrategyPatterns(strategiesRes.data);
+      setTriggersList(triggersRes.data);
+      setWorkflowsList(workflowsRes.data);
       setError(null);
     } catch (err) {
       setError(String(err));
@@ -147,6 +171,8 @@ export function App() {
       type.startsWith('quality.') ||
       type.startsWith('activity.') ||
       type.startsWith('hand.') ||
+      type.startsWith('trigger.') ||
+      type.startsWith('workflow.') ||
       type.startsWith('evolution.')
     ) {
       loadData();
@@ -216,6 +242,20 @@ export function App() {
             {tab === 'budget' && <BudgetOverview budgetSummary={budgetSummary} agents={agents} />}
             {tab === 'hands' && (
               <HandList companyId={selectedCompanyId} hands={hands} onRefresh={loadData} />
+            )}
+            {tab === 'triggers' && (
+              <TriggerList
+                companyId={selectedCompanyId}
+                triggers={triggersList}
+                onRefresh={loadData}
+              />
+            )}
+            {tab === 'workflows' && (
+              <WorkflowList
+                companyId={selectedCompanyId}
+                workflows={workflowsList}
+                onRefresh={loadData}
+              />
             )}
             {tab === 'evolution' && (
               <EvolutionDashboard

@@ -6,7 +6,9 @@ import {
   HeartbeatEngine,
   HeartbeatScheduler,
   InProcessEventBus,
+  TriggerEngine,
   WakeHandler,
+  WorkflowEngine,
 } from '@clawgear/kernel';
 import { AdapterRegistry } from '@clawgear/runtime';
 import { EnhancedSecurityGate } from '@clawgear/security';
@@ -119,7 +121,21 @@ const wakeHandler = new WakeHandler({ eventBus, heartbeatEngine });
 // Hand scheduler (cron-based, separate from heartbeat scheduler)
 const handScheduler = new HandScheduler({ db, heartbeatEngine, eventBus });
 
-const app = createApp({ db, eventBus, heartbeatEngine, handScheduler });
+// Workflow engine
+const workflowEngine = new WorkflowEngine({ db, eventBus, heartbeatEngine });
+
+// Trigger engine (reactive automation)
+const triggerEngine = new TriggerEngine({ db, eventBus, heartbeatEngine });
+triggerEngine.setWorkflowEngine(workflowEngine);
+
+const app = createApp({
+  db,
+  eventBus,
+  heartbeatEngine,
+  handScheduler,
+  triggerEngine,
+  workflowEngine,
+});
 
 // Start scheduler and wake handler
 scheduler.start().catch((err) => {
@@ -128,6 +144,9 @@ scheduler.start().catch((err) => {
 wakeHandler.start();
 handScheduler.start().catch((err) => {
   console.error('Failed to start hand scheduler:', err);
+});
+triggerEngine.start().catch((err) => {
+  console.error('Failed to start trigger engine:', err);
 });
 
 console.log(

@@ -28,6 +28,9 @@ import {
   type QualityTrend,
   SkillStatus,
   StrategyPatternType,
+  TriggerActionType,
+  TriggerPatternType,
+  WorkflowStepMode,
 } from '../constants/index.js';
 
 // ============================================================
@@ -374,6 +377,79 @@ export const createStrategyPatternSchema = z.object({
   contextJson: z.record(z.unknown()).default({}),
 });
 
+// ============================================================
+// TRIGGER
+// ============================================================
+
+export const createTriggerSchema = z.object({
+  name: z.string().min(1).max(255),
+  description: z.string().max(5000).nullable().optional(),
+  patternType: z.enum(TriggerPatternType),
+  patternConfig: z.record(z.unknown()),
+  actionType: z.enum(TriggerActionType),
+  actionConfig: z.record(z.unknown()),
+  isActive: z.boolean().default(true),
+  maxFireCount: z.number().int().min(1).nullable().optional(),
+  cooldownMs: z.number().int().min(0).default(10000),
+  createdByAgentId: uuidSchema.nullable().optional(),
+});
+
+export const updateTriggerSchema = z.object({
+  name: z.string().min(1).max(255).optional(),
+  description: z.string().max(5000).nullable().optional(),
+  patternConfig: z.record(z.unknown()).optional(),
+  actionConfig: z.record(z.unknown()).optional(),
+  isActive: z.boolean().optional(),
+  maxFireCount: z.number().int().min(1).nullable().optional(),
+  cooldownMs: z.number().int().min(0).optional(),
+});
+
+// ============================================================
+// WORKFLOW
+// ============================================================
+
+const workflowStepSchema: z.ZodType<unknown> = z.lazy(() =>
+  z.object({
+    name: z.string().min(1).max(255),
+    mode: z.enum(WorkflowStepMode),
+    agentRole: z.string().max(100).optional(),
+    agentId: uuidSchema.optional(),
+    prompt: z.string().max(50000).optional(),
+    onError: z.enum(['fail', 'skip', 'retry']).optional(),
+    maxRetries: z.number().int().min(0).max(10).optional(),
+    timeoutMs: z.number().int().min(1000).optional(),
+    subSteps: z.array(workflowStepSchema).optional(),
+    condition: z.string().max(5000).optional(),
+    ifTrue: workflowStepSchema.optional(),
+    ifFalse: workflowStepSchema.optional(),
+  }),
+);
+
+export const createWorkflowSchema = z.object({
+  name: z.string().min(1).max(255),
+  description: z.string().max(5000).nullable().optional(),
+  definition: z.object({
+    steps: z.array(workflowStepSchema).min(1),
+  }),
+  isActive: z.boolean().default(true),
+  createdByAgentId: uuidSchema.nullable().optional(),
+});
+
+export const updateWorkflowSchema = z.object({
+  name: z.string().min(1).max(255).optional(),
+  description: z.string().max(5000).nullable().optional(),
+  definition: z
+    .object({
+      steps: z.array(workflowStepSchema).min(1),
+    })
+    .optional(),
+  isActive: z.boolean().optional(),
+});
+
+export const executeWorkflowSchema = z.object({
+  inputVars: z.record(z.unknown()).default({}),
+});
+
 // Re-export for convenience
 export type {
   ApprovalStatus,
@@ -399,4 +475,7 @@ export type {
   QualityTrend,
   SkillStatus,
   StrategyPatternType,
+  TriggerActionType,
+  TriggerPatternType,
+  WorkflowStepMode,
 };

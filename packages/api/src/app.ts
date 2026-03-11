@@ -4,6 +4,8 @@ import type {
   HandScheduler,
   HeartbeatEngine,
   InProcessEventBus,
+  TriggerEngine,
+  WorkflowEngine,
 } from '@clawgear/kernel';
 import { Hono } from 'hono';
 import { createBunWebSocket } from 'hono/bun';
@@ -28,6 +30,8 @@ import { issueRoutes } from './routes/issues.js';
 import { memoryRoutes } from './routes/memory.js';
 import { projectRoutes } from './routes/projects.js';
 import { qualityRoutes } from './routes/quality.js';
+import { triggerRoutes } from './routes/triggers.js';
+import { workflowRoutes, workflowRunRoutes } from './routes/workflows.js';
 import { EventBridge } from './ws/event-bridge.js';
 
 export interface AppDeps {
@@ -36,6 +40,8 @@ export interface AppDeps {
   heartbeatEngine?: HeartbeatEngine;
   channelRouter?: ChannelRouter;
   handScheduler?: HandScheduler;
+  triggerEngine?: TriggerEngine;
+  workflowEngine?: WorkflowEngine;
 }
 
 const { upgradeWebSocket, websocket } = createBunWebSocket();
@@ -69,6 +75,9 @@ export function createApp(deps: AppDeps) {
   app.route('/api/companies/:companyId/channel-bindings', channelBindingRoutes(deps));
   app.route('/api/companies/:companyId/hands', handRoutes(deps));
   app.route('/api/companies/:companyId/evolution', evolutionRoutes(deps));
+  app.route('/api/companies/:companyId/triggers', triggerRoutes(deps));
+  app.route('/api/companies/:companyId/workflows', workflowRoutes(deps));
+  app.route('/api/companies/:companyId/workflow-runs', workflowRunRoutes(deps));
 
   // Heartbeat routes (requires heartbeat engine)
   if (deps.heartbeatEngine) {

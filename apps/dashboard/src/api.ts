@@ -301,3 +301,117 @@ export function rejectApproval(companyId: string, approvalId: string): Promise<A
     decidedByUserId: 'dashboard-user',
   });
 }
+
+// --- Trigger types and functions ---
+
+export interface Trigger {
+  id: string;
+  companyId: string;
+  name: string;
+  description: string | null;
+  patternType: string;
+  patternConfig: Record<string, unknown>;
+  actionType: string;
+  actionConfig: Record<string, unknown>;
+  isActive: boolean;
+  fireCount: number;
+  maxFireCount: number | null;
+  lastFiredAt: string | null;
+  cooldownMs: number;
+  createdByAgentId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function fetchTriggers(companyId: string): Promise<PaginatedResponse<Trigger>> {
+  return get(`/companies/${companyId}/triggers?limit=100`);
+}
+
+export function activateTrigger(companyId: string, triggerId: string): Promise<Trigger> {
+  return post(`/companies/${companyId}/triggers/${triggerId}/activate`);
+}
+
+export function deactivateTrigger(companyId: string, triggerId: string): Promise<Trigger> {
+  return post(`/companies/${companyId}/triggers/${triggerId}/deactivate`);
+}
+
+// --- Workflow types and functions ---
+
+export interface WorkflowDefinition {
+  steps: Array<Record<string, unknown>>;
+}
+
+export interface Workflow {
+  id: string;
+  companyId: string;
+  name: string;
+  description: string | null;
+  definition: WorkflowDefinition;
+  isActive: boolean;
+  createdByAgentId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WorkflowRun {
+  id: string;
+  companyId: string;
+  workflowId: string;
+  status: string;
+  inputVars: Record<string, unknown>;
+  outputVars: Record<string, unknown>;
+  currentStepIndex: number;
+  totalSteps: number;
+  startedAt: string | null;
+  finishedAt: string | null;
+  createdAt: string;
+}
+
+export function fetchWorkflows(companyId: string): Promise<PaginatedResponse<Workflow>> {
+  return get(`/companies/${companyId}/workflows?limit=100`);
+}
+
+export function executeWorkflow(
+  companyId: string,
+  workflowId: string,
+  inputVars: Record<string, unknown>,
+): Promise<WorkflowRun> {
+  return post(`/companies/${companyId}/workflows/${workflowId}/execute`, { inputVars });
+}
+
+export function fetchWorkflowRuns(
+  companyId: string,
+  workflowId: string,
+): Promise<PaginatedResponse<WorkflowRun>> {
+  return get(`/companies/${companyId}/workflows/${workflowId}/runs?limit=50`);
+}
+
+export interface WorkflowStepRun {
+  id: string;
+  stepName: string;
+  stepIndex: number;
+  mode: string;
+  status: string;
+  agentId: string | null;
+  heartbeatRunId: string | null;
+  errorMessage: string | null;
+  retryCount: number;
+  startedAt: string | null;
+  finishedAt: string | null;
+  createdAt: string;
+}
+
+export interface WorkflowRunDetail extends WorkflowRun {
+  steps: WorkflowStepRun[];
+}
+
+export function fetchWorkflowRunDetail(
+  companyId: string,
+  runId: string,
+): Promise<WorkflowRunDetail> {
+  return get(`/companies/${companyId}/workflow-runs/${runId}`);
+}
+
+export function cancelWorkflowRun(companyId: string, runId: string): Promise<{ success: boolean }> {
+  return post(`/companies/${companyId}/workflow-runs/${runId}/cancel`);
+}

@@ -65,6 +65,14 @@ export const EventTypes = {
   STRATEGY_REINFORCED: 'evolution.strategy_reinforced',
   MEMORY_CONSOLIDATED: 'evolution.memory_consolidated',
 
+  // Automation (Triggers + Workflows)
+  TRIGGER_FIRED: 'trigger.fired',
+  TRIGGER_DISABLED: 'trigger.disabled',
+  WORKFLOW_STARTED: 'workflow.started',
+  WORKFLOW_COMPLETED: 'workflow.completed',
+  WORKFLOW_FAILED: 'workflow.failed',
+  WORKFLOW_STEP_COMPLETED: 'workflow.step_completed',
+
   // System
   SYSTEM_HEALTH_CHANGED: 'system.health_changed',
   SYSTEM_DEGRADED: 'system.degraded',
@@ -248,6 +256,69 @@ export interface MemoryConsolidatedEvent extends SystemEvent {
   };
 }
 
+export interface TriggerFiredEvent extends SystemEvent {
+  type: typeof EventTypes.TRIGGER_FIRED;
+  payload: {
+    triggerId: string;
+    triggerName: string;
+    patternType: string;
+    actionType: string;
+    eventType: string;
+    fireCount: number;
+  };
+}
+
+export interface TriggerDisabledEvent extends SystemEvent {
+  type: typeof EventTypes.TRIGGER_DISABLED;
+  payload: {
+    triggerId: string;
+    triggerName: string;
+    reason: string;
+  };
+}
+
+export interface WorkflowStartedEvent extends SystemEvent {
+  type: typeof EventTypes.WORKFLOW_STARTED;
+  payload: {
+    workflowId: string;
+    runId: string;
+    workflowName: string;
+    totalSteps: number;
+  };
+}
+
+export interface WorkflowCompletedEvent extends SystemEvent {
+  type: typeof EventTypes.WORKFLOW_COMPLETED;
+  payload: {
+    workflowId: string;
+    runId: string;
+    workflowName: string;
+    durationMs: number;
+  };
+}
+
+export interface WorkflowFailedEvent extends SystemEvent {
+  type: typeof EventTypes.WORKFLOW_FAILED;
+  payload: {
+    workflowId: string;
+    runId: string;
+    workflowName: string;
+    error: string;
+    failedStep: string;
+  };
+}
+
+export interface WorkflowStepCompletedEvent extends SystemEvent {
+  type: typeof EventTypes.WORKFLOW_STEP_COMPLETED;
+  payload: {
+    workflowId: string;
+    runId: string;
+    stepName: string;
+    stepIndex: number;
+    status: string;
+  };
+}
+
 export type TypedSystemEvent =
   | AgentStatusChangedEvent
   | IssueStatusChangedEvent
@@ -265,4 +336,10 @@ export type TypedSystemEvent =
   | PromptOptimizedEvent
   | CompetenceDecayedEvent
   | StrategyReinforcedEvent
-  | MemoryConsolidatedEvent;
+  | MemoryConsolidatedEvent
+  | TriggerFiredEvent
+  | TriggerDisabledEvent
+  | WorkflowStartedEvent
+  | WorkflowCompletedEvent
+  | WorkflowFailedEvent
+  | WorkflowStepCompletedEvent;

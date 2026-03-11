@@ -1442,18 +1442,26 @@ Expand the surface area. Only start this after Phases 0-4 are solid.
 - [ ] Email (IMAP/SMTP)
 
 ### 7.2 Workflow Engine
-- [ ] Multi-step agent pipelines (TOML definition)
-- [ ] Execution modes: sequential, fan_out, collect, conditional, loop
-- [ ] Variable substitution (`{{input}}`, `{{named_var}}`)
-- [ ] Error handling per step (fail, skip, retry)
-- [ ] Agent resolution via org chart roles
-- [ ] Workflow run tracking and cost attribution
+- [x] Multi-step agent pipelines (JSON definition)
+- [x] Execution modes: sequential, fan_out, conditional
+- [x] Variable substitution (`{{input.field}}`, `{{stepName.field}}`)
+- [x] Error handling per step (fail, skip, retry)
+- [x] Agent resolution via org chart roles
+- [x] Workflow run tracking and cost attribution
+- [x] Workflow CRUD API + execute/cancel endpoints
+- [x] CLI commands (workflow list, run, runs, status)
+- [x] Dashboard components (WorkflowList, WorkflowRunDetail)
 
 ### 7.3 Trigger Engine
-- [ ] Event-driven automation via pattern matching on event bus
-- [ ] Pattern types: lifecycle, budget_threshold, approval_pending, issue_status_change, etc.
-- [ ] Prompt template with `{{event}}` substitution
-- [ ] Fire count limits and auto-disable
+- [x] Event-driven automation via pattern matching on event bus (wildcard subscription)
+- [x] Pattern types: event_match, budget_threshold, quality_failure, agent_idle, schedule_missed
+- [x] Action types: wake_agent, create_issue, run_workflow
+- [x] Prompt template with `{{event.type}}`, `{{event.payload.field}}` substitution
+- [x] Fire count limits and auto-disable (maxFireCount)
+- [x] Cooldown enforcement (configurable per trigger, default 10s)
+- [x] Trigger CRUD API + activate/deactivate endpoints
+- [x] CLI commands (trigger list, create, activate, deactivate, history)
+- [x] Dashboard component (TriggerList)
 
 ### 7.4 Tauri Desktop App
 - [ ] Tauri 2.0 shell wrapping the web dashboard

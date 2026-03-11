@@ -28,6 +28,11 @@ import type {
   QualityTrend,
   SkillStatus,
   StrategyPatternType,
+  TriggerActionType,
+  TriggerPatternType,
+  WorkflowRunStatus,
+  WorkflowStepMode,
+  WorkflowStepStatus,
 } from '../constants/index.js';
 
 // ============================================================
@@ -454,6 +459,92 @@ export interface ConversationMessage {
   senderName: string | null;
   runId: string | null;
   metadata: Record<string, unknown>;
+  createdAt: Date;
+}
+
+// ============================================================
+// AUTOMATION (TRIGGERS + WORKFLOWS)
+// ============================================================
+
+export interface Trigger {
+  id: string;
+  companyId: string;
+  name: string;
+  description: string | null;
+  patternType: TriggerPatternType;
+  patternConfig: Record<string, unknown>;
+  actionType: TriggerActionType;
+  actionConfig: Record<string, unknown>;
+  isActive: boolean;
+  fireCount: number;
+  maxFireCount: number | null;
+  lastFiredAt: Date | null;
+  cooldownMs: number;
+  createdByAgentId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface WorkflowStep {
+  name: string;
+  mode: WorkflowStepMode;
+  agentRole?: string;
+  agentId?: string;
+  prompt?: string;
+  onError?: 'fail' | 'skip' | 'retry';
+  maxRetries?: number;
+  timeoutMs?: number;
+  subSteps?: WorkflowStep[];
+  condition?: string;
+  ifTrue?: WorkflowStep;
+  ifFalse?: WorkflowStep;
+}
+
+export interface WorkflowDefinition {
+  steps: WorkflowStep[];
+}
+
+export interface Workflow {
+  id: string;
+  companyId: string;
+  name: string;
+  description: string | null;
+  definition: WorkflowDefinition;
+  isActive: boolean;
+  createdByAgentId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface WorkflowRun {
+  id: string;
+  companyId: string;
+  workflowId: string;
+  status: WorkflowRunStatus;
+  inputVars: Record<string, unknown>;
+  outputVars: Record<string, unknown>;
+  currentStepIndex: number;
+  totalSteps: number;
+  startedAt: Date | null;
+  finishedAt: Date | null;
+  createdAt: Date;
+}
+
+export interface WorkflowStepRun {
+  id: string;
+  workflowRunId: string;
+  stepName: string;
+  stepIndex: number;
+  mode: WorkflowStepMode;
+  status: WorkflowStepStatus;
+  agentId: string | null;
+  heartbeatRunId: string | null;
+  inputVars: Record<string, unknown>;
+  outputVars: Record<string, unknown>;
+  errorMessage: string | null;
+  retryCount: number;
+  startedAt: Date | null;
+  finishedAt: Date | null;
   createdAt: Date;
 }
 
