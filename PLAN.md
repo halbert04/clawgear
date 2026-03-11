@@ -1470,9 +1470,9 @@ Expand the surface area. Only start this after Phases 0-4 are solid.
 - [x] Close-to-tray behavior
 
 ### 7.5 Browser Automation
-- [ ] Playwright/CDP integration for web tasks
-- [ ] Isolated Chromium instance per agent
-- [ ] Extension Relay mode for existing browser sessions
+- [x] Playwright/CDP integration for web tasks
+- [x] Isolated Chromium instance per agent
+- [x] Extension Relay mode for existing browser sessions
 
 ### 7.6 GearHub Marketplace
 - [ ] Skill publishing with integrity verification
