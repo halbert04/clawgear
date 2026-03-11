@@ -1464,10 +1464,10 @@ Expand the surface area. Only start this after Phases 0-4 are solid.
 - [x] Dashboard component (TriggerList)
 
 ### 7.4 Tauri Desktop App
-- [ ] Tauri 2.0 shell wrapping the web dashboard
-- [ ] System tray with status indicator
-- [ ] Native notifications for urgent attention queue items
-- [ ] Close-to-tray behavior
+- [x] Tauri 2.0 shell wrapping the web dashboard
+- [x] System tray with status indicator
+- [x] Native notifications for urgent attention queue items
+- [x] Close-to-tray behavior
 
 ### 7.5 Browser Automation
 - [ ] Playwright/CDP integration for web tasks

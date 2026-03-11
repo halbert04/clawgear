@@ -38,6 +38,7 @@ import { HandList } from './components/HandList';
 import { IssueBoard } from './components/IssueBoard';
 import { TriggerList } from './components/TriggerList';
 import { WorkflowList } from './components/WorkflowList';
+import { useDesktopNotifications } from './hooks/useDesktopNotifications';
 import { useWebSocket } from './hooks/useWebSocket';
 
 type Tab =
@@ -86,6 +87,9 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
 
   const { events, connected } = useWebSocket();
+
+  // Desktop notifications + tray status (no-ops in browser)
+  useDesktopNotifications(events);
 
   // Load companies on mount
   useEffect(() => {

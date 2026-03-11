@@ -30,6 +30,11 @@ pgdata/
 # Bun
 bun.lockb
 
+# Rust / Tauri
+target/
+apps/desktop/src-tauri/target/
+apps/desktop/src-tauri/gen/
+
 # Drizzle
 drizzle/meta/
 
