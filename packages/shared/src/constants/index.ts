@@ -133,6 +133,28 @@ export const TriggerPriority = [
 ] as const;
 export type TriggerPriority = (typeof TriggerPriority)[number];
 
+// Trigger + Workflow automation
+export const TriggerPatternType = [
+  'event_match',
+  'budget_threshold',
+  'schedule_missed',
+  'quality_failure',
+  'agent_idle',
+] as const;
+export type TriggerPatternType = (typeof TriggerPatternType)[number];
+
+export const TriggerActionType = ['wake_agent', 'create_issue', 'run_workflow'] as const;
+export type TriggerActionType = (typeof TriggerActionType)[number];
+
+export const WorkflowStepMode = ['sequential', 'fan_out', 'conditional'] as const;
+export type WorkflowStepMode = (typeof WorkflowStepMode)[number];
+
+export const WorkflowRunStatus = ['running', 'completed', 'failed', 'cancelled'] as const;
+export type WorkflowRunStatus = (typeof WorkflowRunStatus)[number];
+
+export const WorkflowStepStatus = ['pending', 'running', 'completed', 'failed', 'skipped'] as const;
+export type WorkflowStepStatus = (typeof WorkflowStepStatus)[number];
+
 // Limits
 export const BUDGET_WARNING_THRESHOLD = 0.8;
 export const MAX_REVISION_ITERATIONS = 3;

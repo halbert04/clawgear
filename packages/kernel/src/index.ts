@@ -9,4 +9,13 @@ export {
 } from './heartbeat-engine.js';
 export { HeartbeatScheduler, type HeartbeatSchedulerConfig } from './scheduler.js';
 export { type RouteResult, TaskRouter, type TaskRouterConfig } from './task-router.js';
+export {
+  TriggerEngine,
+  type TriggerEngineConfig,
+  type WorkflowEngineHandle,
+} from './trigger-engine.js';
 export { WakeHandler, type WakeHandlerConfig } from './wake-handler.js';
+export {
+  WorkflowEngine,
+  type WorkflowEngineConfig,
+} from './workflow-engine.js';

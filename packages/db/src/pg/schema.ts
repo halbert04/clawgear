@@ -769,3 +769,131 @@ export const conversationMessages = pgTable(
     check('conversation_messages_role_check', sql`${t.role} IN ('user', 'agent', 'system')`),
   ],
 );
+
+// ============================================================
+// AUTOMATION (TRIGGERS + WORKFLOWS)
+// ============================================================
+
+export const triggers = pgTable(
+  'triggers',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => companies.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    description: text('description'),
+    patternType: text('pattern_type').notNull(),
+    patternConfig: jsonb('pattern_config').notNull().default({}),
+    actionType: text('action_type').notNull(),
+    actionConfig: jsonb('action_config').notNull().default({}),
+    isActive: boolean('is_active').notNull().default(true),
+    fireCount: integer('fire_count').notNull().default(0),
+    maxFireCount: integer('max_fire_count'),
+    lastFiredAt: timestamp('last_fired_at', { withTimezone: true }),
+    cooldownMs: integer('cooldown_ms').notNull().default(10000),
+    createdByAgentId: uuid('created_by_agent_id').references(() => agents.id, {
+      onDelete: 'set null',
+    }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('idx_triggers_company_active').on(t.companyId, t.isActive),
+    check(
+      'triggers_pattern_type_check',
+      sql`${t.patternType} IN ('event_match', 'budget_threshold', 'schedule_missed', 'quality_failure', 'agent_idle')`,
+    ),
+    check(
+      'triggers_action_type_check',
+      sql`${t.actionType} IN ('wake_agent', 'create_issue', 'run_workflow')`,
+    ),
+    check('triggers_fire_count_check', sql`${t.fireCount} >= 0`),
+    check('triggers_cooldown_check', sql`${t.cooldownMs} >= 0`),
+  ],
+);
+
+export const workflows = pgTable(
+  'workflows',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => companies.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    description: text('description'),
+    definition: jsonb('definition').notNull(),
+    isActive: boolean('is_active').notNull().default(true),
+    createdByAgentId: uuid('created_by_agent_id').references(() => agents.id, {
+      onDelete: 'set null',
+    }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [index('idx_workflows_company_active').on(t.companyId, t.isActive)],
+);
+
+export const workflowRuns = pgTable(
+  'workflow_runs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => companies.id, { onDelete: 'cascade' }),
+    workflowId: uuid('workflow_id')
+      .notNull()
+      .references(() => workflows.id, { onDelete: 'cascade' }),
+    status: text('status').notNull().default('running'),
+    inputVars: jsonb('input_vars').notNull().default({}),
+    outputVars: jsonb('output_vars').notNull().default({}),
+    currentStepIndex: integer('current_step_index').notNull().default(0),
+    totalSteps: integer('total_steps').notNull().default(0),
+    startedAt: timestamp('started_at', { withTimezone: true }),
+    finishedAt: timestamp('finished_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('idx_workflow_runs_workflow_status').on(t.workflowId, t.status),
+    index('idx_workflow_runs_company_status').on(t.companyId, t.status),
+    check(
+      'workflow_runs_status_check',
+      sql`${t.status} IN ('running', 'completed', 'failed', 'cancelled')`,
+    ),
+  ],
+);
+
+export const workflowStepRuns = pgTable(
+  'workflow_step_runs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    workflowRunId: uuid('workflow_run_id')
+      .notNull()
+      .references(() => workflowRuns.id, { onDelete: 'cascade' }),
+    stepName: text('step_name').notNull(),
+    stepIndex: integer('step_index').notNull(),
+    mode: text('mode').notNull(),
+    status: text('status').notNull().default('pending'),
+    agentId: uuid('agent_id').references(() => agents.id, { onDelete: 'set null' }),
+    heartbeatRunId: uuid('heartbeat_run_id').references(() => heartbeatRuns.id, {
+      onDelete: 'set null',
+    }),
+    inputVars: jsonb('input_vars').notNull().default({}),
+    outputVars: jsonb('output_vars').notNull().default({}),
+    errorMessage: text('error_message'),
+    retryCount: integer('retry_count').notNull().default(0),
+    startedAt: timestamp('started_at', { withTimezone: true }),
+    finishedAt: timestamp('finished_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('idx_workflow_step_runs_run_index').on(t.workflowRunId, t.stepIndex),
+    check(
+      'workflow_step_runs_status_check',
+      sql`${t.status} IN ('pending', 'running', 'completed', 'failed', 'skipped')`,
+    ),
+    check(
+      'workflow_step_runs_mode_check',
+      sql`${t.mode} IN ('sequential', 'fan_out', 'conditional')`,
+    ),
+  ],
+);
