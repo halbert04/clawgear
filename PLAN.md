@@ -1526,9 +1526,9 @@ Only when the core is proven and compliance demands it.
 - [x] Capability declaration signing
 
 ### 8.4 Taint Tracking
-- [ ] Information flow labels propagated source-to-sink
-- [ ] Classify data sensitivity levels
-- [ ] Prevent sensitive data from reaching unauthorized tools/channels
+- [x] Information flow labels propagated source-to-sink
+- [x] Classify data sensitivity levels
+- [x] Prevent sensitive data from reaching unauthorized tools/channels
 
 ### 8.5 P2P Mutual Authentication
 - [ ] For multi-instance ClawGear deployments
