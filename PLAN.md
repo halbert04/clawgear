@@ -1522,8 +1522,8 @@ Only when the core is proven and compliance demands it.
 - [x] Builds on top of the existing activity_log
 
 ### 8.3 Ed25519 Manifest Signing (Extended)
-- [ ] Agent identity signing (beyond marketplace skills)
-- [ ] Capability declaration signing
+- [x] Agent identity signing (beyond marketplace skills)
+- [x] Capability declaration signing
 
 ### 8.4 Taint Tracking
 - [ ] Information flow labels propagated source-to-sink
