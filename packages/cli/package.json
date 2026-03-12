@@ -14,6 +14,7 @@
     "@clawgear/api": "workspace:*",
     "@clawgear/db": "workspace:*",
     "@clawgear/marketplace": "workspace:*",
+    "@clawgear/migration": "workspace:*",
     "@clawgear/shared": "workspace:*",
     "commander": "catalog:",
     "drizzle-orm": "catalog:"
