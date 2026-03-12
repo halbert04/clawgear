@@ -89,6 +89,9 @@ export const agents = pgTable(
       .default(sql`0`),
     spentMonthlyCents: bigint('spent_monthly_cents', { mode: 'bigint' }).notNull().default(sql`0`),
     systemPrompt: text('system_prompt'),
+    publicKey: text('public_key'),
+    identitySignature: text('identity_signature'),
+    identityVersion: integer('identity_version').notNull().default(0),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
@@ -964,5 +967,33 @@ export const auditChain = pgTable(
     index('idx_audit_chain_chain_hash').on(t.chainHash),
     unique('uq_audit_chain_company_sequence').on(t.companyId, t.sequence),
     check('audit_chain_actor_check', sql`${t.actorType} IN ('agent', 'user', 'system')`),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// Agent Capability Declarations — versioned, Ed25519-signed capability grants
+// ---------------------------------------------------------------------------
+export const agentCapabilityDeclarations = pgTable(
+  'agent_capability_declarations',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => companies.id, { onDelete: 'cascade' }),
+    agentId: uuid('agent_id')
+      .notNull()
+      .references(() => agents.id, { onDelete: 'cascade' }),
+    version: integer('version').notNull(),
+    capabilities: jsonb('capabilities').notNull().default([]),
+    grantedBy: text('granted_by').notNull(),
+    signature: text('signature').notNull(),
+    signerKey: text('signer_key').notNull(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('idx_cap_decl_agent').on(t.agentId),
+    index('idx_cap_decl_company').on(t.companyId),
+    unique('uq_cap_decl_agent_version').on(t.agentId, t.version),
   ],
 );
