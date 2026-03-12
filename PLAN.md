@@ -1542,9 +1542,9 @@ Only when the core is proven and compliance demands it.
 
 ### 8.7 Multi-Tenancy Hardening
 - [ ] ~~Row-level security policies in PostgreSQL~~ **(Moved to Phase 0 -- see Schema Research Insights)**
-- [ ] Tenant isolation testing (fuzz testing: verify no cross-tenant data access across all API endpoints)
-- [ ] Rate limiting per tenant
-- [ ] Database-per-tenant option for whale customers
+- [x] Tenant isolation testing (fuzz testing: verify no cross-tenant data access across all API endpoints)
+- [x] Rate limiting per tenant
+- [x] Database-per-tenant option for whale customers
 
 **Exit criteria:** The system meets compliance requirements for regulated industries. Multi-instance deployment is supported with mutual authentication.
 
