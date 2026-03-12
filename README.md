@@ -4,6 +4,18 @@ CEO Agent Operating System -- orchestrate teams of AI agents to run a business.
 
 ClawGear is a modular platform for deploying, scheduling, and managing autonomous AI agents that collaborate to execute business operations. Agents run on cron schedules ("heartbeats"), produce structured output, learn from feedback, and coordinate through a flat orchestration model with capability-based task routing.
 
+## Inspiration
+
+ClawGear stands on the shoulders of three pioneering projects in the autonomous agent space:
+
+- **[Paperclip](https://github.com/nichochar/paperclip)** -- Demonstrated that lightweight agent loops with structured output and iterative self-improvement could outperform complex multi-agent hierarchies. ClawGear adopts Paperclip's core insight of the cron-driven heartbeat loop: agents don't run continuously, they wake up on a schedule, do focused work, and go back to sleep. This keeps costs predictable and behavior auditable. ClawGear's quality gate system (rubric-based scoring with revision loops capped at 3 iterations) is a direct evolution of Paperclip's self-critique mechanism.
+
+- **[OpenFang](https://github.com/openfang-org/openfang)** -- Showed how to build enterprise-grade agent infrastructure with proper tenant isolation, cryptographic identity, and defense-in-depth security. ClawGear's security stack borrows heavily from OpenFang's architecture: Ed25519 agent identity signing, capability-scoped permissions, SSRF guards, and the Merkle hash-chain audit trail all trace their lineage to OpenFang's compliance-first design. The multi-tenancy model (tiered rate limiting, database-per-tenant routing for whale customers, automated cross-tenant leak detection) is adapted from OpenFang's approach to making agent systems safe for regulated industries.
+
+- **[OpenClaw](https://github.com/nichochar/openclaw)** -- Proved that agent collaboration works best through a flat orchestration model with capability-based routing rather than rigid hierarchical chains. ClawGear's kernel uses OpenClaw's "flat pool" dispatch pattern where a single orchestrator routes tasks to agents based on declared capabilities rather than a fixed org chart. The HAND.toml configuration format, the marketplace with signed skill packages, and the channel-agnostic messaging architecture (agents communicate identically whether the channel is Slack, Discord, email, or a webhook) all build on patterns OpenClaw established.
+
+ClawGear integrates the best ideas from all three: Paperclip's disciplined execution model, OpenFang's security and compliance infrastructure, and OpenClaw's flexible orchestration and ecosystem design. The result is a system that is simple to operate (heartbeat loops, TOML config, cron schedules), secure by default (signed identities, taint tracking, WASM sandboxing), and extensible through a skill marketplace and multi-channel adapters.
+
 ## Architecture
 
 ```
@@ -85,35 +97,32 @@ clawgear/
     desktop/        Desktop client (Tauri)
 ```
 
-## Prerequisites
+## Installation
 
-- [Node.js](https://nodejs.org/) >= 22.0.0
-- [Bun](https://bun.sh/) (runtime and test runner)
-- [pnpm](https://pnpm.io/) 10.x (package manager)
-- [Docker](https://www.docker.com/) (for PostgreSQL with pgvector)
+See [docs/installation.md](docs/installation.md) for the full installation guide, including platform-specific instructions, environment configuration, troubleshooting, and production deployment notes.
 
-## Getting Started
+### Quick Start
+
+**Prerequisites:** Node.js >= 22, Bun, pnpm 10.x, Docker.
 
 ```bash
-# Clone the repository
+# 1. Clone and install
 git clone https://github.com/halbert04/clawgear.git
 cd clawgear
-
-# Install dependencies
 pnpm install
 
-# Start PostgreSQL (pgvector/pgvector:pg17)
+# 2. Start the database
 pnpm docker:up
 
-# Run database migrations
+# 3. Run migrations and seed data
 pnpm db:migrate
-
-# Seed sample data
 pnpm db:seed
 
-# Start the API dev server
+# 4. Start the dev server
 pnpm dev
 ```
+
+The API starts at `http://localhost:3000`. The dashboard can be started separately with `pnpm --filter @clawgear/dashboard dev`.
 
 ## Scripts
 
