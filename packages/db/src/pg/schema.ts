@@ -897,3 +897,42 @@ export const workflowStepRuns = pgTable(
     ),
   ],
 );
+
+// ============================================================
+// Marketplace
+// ============================================================
+
+export const marketplaceSkills = pgTable(
+  'marketplace_skills',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => companies.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    version: text('version').notNull(),
+    description: text('description').notNull().default(''),
+    author: text('author').notNull(),
+    tags: jsonb('tags').notNull().default([]),
+    capabilities: jsonb('capabilities').notNull().default([]),
+    manifest: jsonb('manifest').notNull(),
+    signature: text('signature').notNull(),
+    publisherKey: text('publisher_key').notNull(),
+    packageData: text('package_data').notNull(),
+    checksum: text('checksum').notNull(),
+    downloads: integer('downloads').notNull().default(0),
+    status: text('status').notNull().default('published'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('idx_marketplace_skills_company').on(t.companyId),
+    index('idx_marketplace_skills_name').on(t.name),
+    index('idx_marketplace_skills_author').on(t.author),
+    unique('uq_marketplace_skills_name_version').on(t.companyId, t.name, t.version),
+    check(
+      'marketplace_skills_status_check',
+      sql`${t.status} IN ('published', 'unpublished', 'flagged')`,
+    ),
+  ],
+);
