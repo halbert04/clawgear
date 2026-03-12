@@ -443,9 +443,9 @@ describe('MigrationEngine', () => {
     expect(report.counts.companies).toBe(1);
     expect(report.counts.agents).toBe(1);
     expect(report.counts.issues).toBe(1);
-    expect(Object.keys(report.idMappings.companies)).toHaveLength(1);
-    expect(Object.keys(report.idMappings.agents)).toHaveLength(1);
-    expect(Object.keys(report.idMappings.issues)).toHaveLength(1);
+    expect(Object.keys(report.idMappings.companies!)).toHaveLength(1);
+    expect(Object.keys(report.idMappings.agents!)).toHaveLength(1);
+    expect(Object.keys(report.idMappings.issues!)).toHaveLength(1);
   });
 
   it('should run openfang migration', () => {
