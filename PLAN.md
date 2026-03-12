@@ -1511,10 +1511,10 @@ CREATE TABLE activity_log_2026_01 PARTITION OF activity_log
 Only when the core is proven and compliance demands it.
 
 ### 8.1 WASM Sandbox (Optional High-Security Mode)
-- [ ] Wasmtime integration for marketplace skills compiled to WASM
-- [ ] Dual metering (fuel + epoch)
-- [ ] Watchdog thread
-- [ ] Only for specifically compiled WASM skills, not the general sandbox
+- [x] Wasmtime integration for marketplace skills compiled to WASM
+- [x] Dual metering (fuel + epoch)
+- [x] Watchdog thread
+- [x] Only for specifically compiled WASM skills, not the general sandbox
 
 ### 8.2 Merkle Hash-Chain Audit
 - [ ] Cryptographically linked, tamper-evident action log
