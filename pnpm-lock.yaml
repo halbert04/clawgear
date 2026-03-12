@@ -314,6 +314,9 @@ importers:
       '@clawgear/marketplace':
         specifier: workspace:*
         version: link:../marketplace
+      '@clawgear/migration':
+        specifier: workspace:*
+        version: link:../migration
       '@clawgear/shared':
         specifier: workspace:*
         version: link:../shared
@@ -417,6 +420,25 @@ importers:
         version: 5.9.3
 
   packages/memory:
+    dependencies:
+      '@clawgear/db':
+        specifier: workspace:*
+        version: link:../db
+      '@clawgear/shared':
+        specifier: workspace:*
+        version: link:../shared
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.39.3(bun-types@1.3.10)(postgres@3.4.8)
+    devDependencies:
+      '@types/bun':
+        specifier: 'catalog:'
+        version: 1.3.10
+      typescript:
+        specifier: ^5.8.0
+        version: 5.9.3
+
+  packages/migration:
     dependencies:
       '@clawgear/db':
         specifier: workspace:*

@@ -1482,10 +1482,10 @@ Expand the surface area. Only start this after Phases 0-4 are solid.
 - [x] Ed25519 signing (NOW add this -- marketplace needs it)
 
 ### 7.7 Migration Engine
-- [ ] `clawgear migrate --from paperclip` (companies, agents, issues)
-- [ ] `clawgear migrate --from openfang` (agents, memory, skills)
-- [ ] `clawgear migrate --from openclaw` (config, sessions, skills)
-- [ ] Dry-run mode
+- [x] `clawgear migrate --from paperclip` (companies, agents, issues)
+- [x] `clawgear migrate --from openfang` (agents, memory, skills)
+- [x] `clawgear migrate --from openclaw` (config, sessions, skills)
+- [x] Dry-run mode
 
 **Exit criteria:** ClawGear runs as a native desktop app, supports 5+ channels, has a workflow engine for multi-step pipelines, and a marketplace for sharing skills.
 
