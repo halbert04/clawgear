@@ -16,6 +16,7 @@ import { securityHeaders } from './middleware/security-headers.js';
 import { activityRoutes } from './routes/activity.js';
 import { agentRoutes } from './routes/agents.js';
 import { approvalRoutes } from './routes/approvals.js';
+import { auditRoutes } from './routes/audit.js';
 import { budgetRoutes } from './routes/budget.js';
 import { channelBindingRoutes } from './routes/channel-bindings.js';
 import { companyRoutes } from './routes/companies.js';
@@ -69,6 +70,7 @@ export function createApp(deps: AppDeps) {
   app.route('/api/companies/:companyId/budget', budgetRoutes(deps));
   app.route('/api/companies/:companyId/approvals', approvalRoutes(deps));
   app.route('/api/companies/:companyId/activity', activityRoutes(deps));
+  app.route('/api/companies/:companyId/audit', auditRoutes(deps));
   app.route('/api/companies/:companyId/quality', qualityRoutes(deps));
   app.route('/api/companies/:companyId/facts', factRoutes(deps));
   app.route('/api/companies/:companyId/memory', memoryRoutes(deps));

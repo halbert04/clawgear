@@ -1517,9 +1517,9 @@ Only when the core is proven and compliance demands it.
 - [x] Only for specifically compiled WASM skills, not the general sandbox
 
 ### 8.2 Merkle Hash-Chain Audit
-- [ ] Cryptographically linked, tamper-evident action log
-- [ ] Verification endpoint (`GET /api/audit/verify`)
-- [ ] Builds on top of the existing activity_log
+- [x] Cryptographically linked, tamper-evident action log
+- [x] Verification endpoint (`GET /api/audit/verify`)
+- [x] Builds on top of the existing activity_log
 
 ### 8.3 Ed25519 Manifest Signing (Extended)
 - [ ] Agent identity signing (beyond marketplace skills)

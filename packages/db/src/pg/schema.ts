@@ -936,3 +936,33 @@ export const marketplaceSkills = pgTable(
     ),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// Audit Chain — Merkle hash-chain for tamper-evident action logging
+// ---------------------------------------------------------------------------
+export const auditChain = pgTable(
+  'audit_chain',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    companyId: uuid('company_id')
+      .notNull()
+      .references(() => companies.id, { onDelete: 'cascade' }),
+    sequence: integer('sequence').notNull(),
+    actorType: text('actor_type').notNull(),
+    actorId: text('actor_id').notNull(),
+    action: text('action').notNull(),
+    entityType: text('entity_type').notNull(),
+    entityId: uuid('entity_id'),
+    details: jsonb('details'),
+    entryHash: text('entry_hash').notNull(),
+    previousHash: text('previous_hash'),
+    chainHash: text('chain_hash').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('idx_audit_chain_company_seq').on(t.companyId, t.sequence),
+    index('idx_audit_chain_chain_hash').on(t.chainHash),
+    unique('uq_audit_chain_company_sequence').on(t.companyId, t.sequence),
+    check('audit_chain_actor_check', sql`${t.actorType} IN ('agent', 'user', 'system')`),
+  ],
+);
