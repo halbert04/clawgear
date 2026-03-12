@@ -1531,9 +1531,9 @@ Only when the core is proven and compliance demands it.
 - [x] Prevent sensitive data from reaching unauthorized tools/channels
 
 ### 8.5 P2P Mutual Authentication
-- [ ] For multi-instance ClawGear deployments
-- [ ] HMAC-SHA256 nonce-based mutual auth
-- [ ] Cross-instance agent delegation
+- [x] For multi-instance ClawGear deployments
+- [x] HMAC-SHA256 nonce-based mutual auth
+- [x] Cross-instance agent delegation
 
 ### 8.6 Mobile Companion Apps
 - [ ] iOS (Swift) companion
