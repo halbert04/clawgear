@@ -284,6 +284,19 @@ importers:
         specifier: ^5.8.0
         version: 5.9.3
 
+  packages/audit:
+    dependencies:
+      '@clawgear/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@types/bun':
+        specifier: 'catalog:'
+        version: 1.3.10
+      typescript:
+        specifier: ^5.8.0
+        version: 5.9.3
+
   packages/browser:
     dependencies:
       '@clawgear/security':
