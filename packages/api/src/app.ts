@@ -31,6 +31,7 @@ import { memoryRoutes } from './routes/memory.js';
 import { projectRoutes } from './routes/projects.js';
 import { qualityRoutes } from './routes/quality.js';
 import { triggerRoutes } from './routes/triggers.js';
+import { marketplaceRoutes } from './routes/marketplace.js';
 import { workflowRoutes, workflowRunRoutes } from './routes/workflows.js';
 import { EventBridge } from './ws/event-bridge.js';
 
@@ -78,6 +79,7 @@ export function createApp(deps: AppDeps) {
   app.route('/api/companies/:companyId/triggers', triggerRoutes(deps));
   app.route('/api/companies/:companyId/workflows', workflowRoutes(deps));
   app.route('/api/companies/:companyId/workflow-runs', workflowRunRoutes(deps));
+  app.route('/api/companies/:companyId/marketplace', marketplaceRoutes(deps));
 
   // Heartbeat routes (requires heartbeat engine)
   if (deps.heartbeatEngine) {

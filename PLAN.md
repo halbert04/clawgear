@@ -1475,11 +1475,11 @@ Expand the surface area. Only start this after Phases 0-4 are solid.
 - [x] Extension Relay mode for existing browser sessions
 
 ### 7.6 GearHub Marketplace
-- [ ] Skill publishing with integrity verification
-- [ ] Search and discovery
-- [ ] `clawgear skill install <name>` / `clawgear skill publish`
-- [ ] Security scanning for malicious patterns
-- [ ] Ed25519 signing (NOW add this -- marketplace needs it)
+- [x] Skill publishing with integrity verification
+- [x] Search and discovery
+- [x] `clawgear skill install <name>` / `clawgear skill publish`
+- [x] Security scanning for malicious patterns
+- [x] Ed25519 signing (NOW add this -- marketplace needs it)
 
 ### 7.7 Migration Engine
 - [ ] `clawgear migrate --from paperclip` (companies, agents, issues)
