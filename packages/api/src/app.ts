@@ -27,11 +27,11 @@ import { handRoutes } from './routes/hands.js';
 import { healthRoutes } from './routes/health.js';
 import { heartbeatRoutes } from './routes/heartbeats.js';
 import { issueRoutes } from './routes/issues.js';
+import { marketplaceRoutes } from './routes/marketplace.js';
 import { memoryRoutes } from './routes/memory.js';
 import { projectRoutes } from './routes/projects.js';
 import { qualityRoutes } from './routes/quality.js';
 import { triggerRoutes } from './routes/triggers.js';
-import { marketplaceRoutes } from './routes/marketplace.js';
 import { workflowRoutes, workflowRunRoutes } from './routes/workflows.js';
 import { EventBridge } from './ws/event-bridge.js';
 

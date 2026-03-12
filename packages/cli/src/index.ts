@@ -6,10 +6,10 @@ import { registerEvolutionCommands } from './commands/evolution.js';
 import { registerHandCommands } from './commands/hand.js';
 import { initCommand } from './commands/init.js';
 import { registerIssueCommands } from './commands/issue.js';
+import { registerMarketplaceCommands } from './commands/marketplace.js';
 import { startCommand } from './commands/start.js';
 import { statusCommand } from './commands/status.js';
 import { registerTriggerCommands } from './commands/trigger.js';
-import { registerMarketplaceCommands } from './commands/marketplace.js';
 import { registerWorkflowCommands } from './commands/workflow.js';
 
 program.name('clawgear').description('CEO Agent Operating System').version('0.1.0');
