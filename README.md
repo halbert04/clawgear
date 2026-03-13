@@ -124,6 +124,41 @@ pnpm dev
 
 The API starts at `http://localhost:3000`. The dashboard can be started separately with `pnpm --filter @clawgear/dashboard dev`.
 
+### For OpenClaw Users on Mac Minis
+
+If you're already running OpenClaw on a Mac Mini, ClawGear includes a one-command setup script that detects your existing installation, resolves port conflicts, installs any missing prerequisites, and sets up ClawGear alongside OpenClaw without touching your existing data:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/halbert04/clawgear/main/scripts/setup-mac-mini.sh | bash
+```
+
+The script will:
+- Detect your OpenClaw installation and database configuration
+- Install missing tools (Homebrew, Node.js 22, Bun, pnpm, Docker) if needed
+- Automatically use port 5433 if OpenClaw is already on 5432
+- Run the full test suite to verify the install
+- Optionally configure a macOS LaunchAgent for auto-start on boot
+- Print step-by-step instructions to migrate your OpenClaw data
+
+After setup, migrate your data:
+
+```bash
+# 1. Export from OpenClaw
+cd ~/openclaw && openclaw export --format json --output ~/openclaw-export.json
+
+# 2. Preview the migration (dry run)
+cd ~/clawgear && pnpm clawgear migrate run \
+  --from openclaw --file ~/openclaw-export.json \
+  --company YOUR_COMPANY_ID --dry-run
+
+# 3. Run the migration
+pnpm clawgear migrate run \
+  --from openclaw --file ~/openclaw-export.json \
+  --company YOUR_COMPANY_ID
+```
+
+ClawGear also supports migration from [Paperclip and OpenFang](docs/migrating-from-openclaw.md#migrating-from-paperclip-or-openfang). See [docs/migrating-from-openclaw.md](docs/migrating-from-openclaw.md) for the full migration guide.
+
 ## Scripts
 
 | Command | Description |
