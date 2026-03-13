@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@clawgear/db": "workspace:*",
+    "@clawgear/learning": "workspace:*",
     "@clawgear/runtime": "workspace:*",
     "@clawgear/shared": "workspace:*",
     "cron-parser": "^5.5.0",
