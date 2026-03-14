@@ -1,5 +1,6 @@
 import type { Database } from '@clawgear/db';
 import { agentRuntimeState, agents, costEvents, heartbeatRuns } from '@clawgear/db/pg';
+import type { LessonStore } from '@clawgear/learning';
 import { type AdapterRegistry, assembleContext } from '@clawgear/runtime';
 import type { InvocationSource } from '@clawgear/shared/constants';
 import { HEARTBEAT_DEFAULT_TIMEOUT_MS } from '@clawgear/shared/constants';
@@ -16,6 +17,7 @@ export interface HeartbeatEngineConfig {
   eventBus: EventBus;
   adapterRegistry: AdapterRegistry;
   kernelHandle: KernelHandle;
+  lessonStore?: LessonStore;
 }
 
 export interface HeartbeatResult {
@@ -32,12 +34,14 @@ export class HeartbeatEngine {
   private eventBus: EventBus;
   private adapterRegistry: AdapterRegistry;
   private kernelHandle: KernelHandle;
+  private lessonStore: LessonStore | null;
 
   constructor(config: HeartbeatEngineConfig) {
     this.db = config.db;
     this.eventBus = config.eventBus;
     this.adapterRegistry = config.adapterRegistry;
     this.kernelHandle = config.kernelHandle;
+    this.lessonStore = config.lessonStore ?? null;
   }
 
   async executeHeartbeat(agentId: string, source: InvocationSource): Promise<HeartbeatResult> {
@@ -108,6 +112,27 @@ export class HeartbeatEngine {
         .from(agentRuntimeState)
         .where(eq(agentRuntimeState.agentId, agentId));
 
+      // Retrieve relevant lessons from past work
+      let lessons: string[] | undefined;
+      if (this.lessonStore) {
+        try {
+          const adapterConf = agent.adapterConfig as Record<string, unknown>;
+          const handConf = adapterConf?.handConfig as { name?: string } | undefined;
+          const taskType = handConf?.name ?? agent.role;
+          const relevant = await this.lessonStore.retrieveRelevant(
+            agent.companyId,
+            taskType,
+            null,
+            5,
+          );
+          if (relevant.length > 0) {
+            lessons = relevant.map((l) => l.lesson);
+          }
+        } catch {
+          // Non-critical: proceed without lessons
+        }
+      }
+
       const ctx = assembleContext({
         agentId,
         companyId: agent.companyId,
@@ -116,6 +141,7 @@ export class HeartbeatEngine {
         sessionId: runtimeState?.sessionId ?? null,
         timeout,
         adapterConfig: agent.adapterConfig as Record<string, unknown>,
+        lessons,
       });
 
       // 9. Execute adapter with timeout

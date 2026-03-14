@@ -7,6 +7,7 @@ export {
   type HeartbeatEngineConfig,
   type HeartbeatResult,
 } from './heartbeat-engine.js';
+export { PostHeartbeatHook, type PostHeartbeatHookConfig } from './post-heartbeat-hook.js';
 export { HeartbeatScheduler, type HeartbeatSchedulerConfig } from './scheduler.js';
 export { type RouteResult, TaskRouter, type TaskRouterConfig } from './task-router.js';
 export {

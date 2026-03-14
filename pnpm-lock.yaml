@@ -374,6 +374,9 @@ importers:
       '@clawgear/db':
         specifier: workspace:*
         version: link:../db
+      '@clawgear/learning':
+        specifier: workspace:*
+        version: link:../learning
       '@clawgear/runtime':
         specifier: workspace:*
         version: link:../runtime

@@ -1,0 +1,28 @@
+[hand]
+name = "ceo"
+description = "Chief Executive Officer agent — drives strategy, decomposes goals, assigns work, manages the team"
+schedule = "0 */4 * * *"
+task_prompt = """
+Run your OODA cycle. Observe company state, orient on problems, decide on actions, act to move the company forward.
+
+Your output MUST end with a brief status report for the CEO Log.
+"""
+requires_approval = false
+output_mode = "comment"
+
+[adapter]
+type = "claude_code"
+
+[adapter.config]
+model = "sonnet"
+heartbeatTimeoutMs = 120000
+
+[settings]
+max_issues_per_wakeup = 5
+max_decomposition_depth = 3
+max_reassignments_per_issue = 3
+budget_warning_threshold = 80
+budget_critical_threshold = 90
+
+[metrics]
+track = ["issues_created", "issues_assigned", "goals_decomposed", "agents_paused", "budget_percent_used"]
