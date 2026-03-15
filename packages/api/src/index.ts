@@ -1,3 +1,4 @@
+import { ClaudeCodeAdapter } from '@clawgear/adapter-claude-code';
 import { HandAdapter } from '@clawgear/adapter-hand';
 import { createConnection } from '@clawgear/db';
 import { agents, costEvents } from '@clawgear/db/pg';
@@ -6,10 +7,13 @@ import {
   HeartbeatEngine,
   HeartbeatScheduler,
   InProcessEventBus,
+  PostHeartbeatHook,
+  TaskRouter,
   TriggerEngine,
   WakeHandler,
   WorkflowEngine,
 } from '@clawgear/kernel';
+import { CompetenceTracker, LessonStore } from '@clawgear/learning';
 import { AdapterRegistry } from '@clawgear/runtime';
 import { EnhancedSecurityGate } from '@clawgear/security';
 import type { BudgetStatus, KernelHandle } from '@clawgear/shared/interfaces';
@@ -102,17 +106,36 @@ const kernelHandle: KernelHandle = {
   },
 };
 
-// Heartbeat engine
+// Learning + competence pipeline
+const lessonStore = new LessonStore({ db });
+const competenceTracker = new CompetenceTracker({ db });
+const taskRouter = new TaskRouter({ db });
+
+// Heartbeat engine (with lesson store for context enrichment)
 const heartbeatEngine = new HeartbeatEngine({
   db,
   eventBus,
   adapterRegistry,
   kernelHandle,
+  lessonStore,
 });
 
-// Register HandAdapter
+// Register adapters
 const handAdapter = new HandAdapter({ adapterRegistry, db, eventBus });
 adapterRegistry.register(handAdapter);
+
+const claudeCodeAdapter = new ClaudeCodeAdapter();
+adapterRegistry.register(claudeCodeAdapter);
+
+// Post-heartbeat pipeline: quality eval → lesson extraction → competence update → task routing
+const postHeartbeatHook = new PostHeartbeatHook({
+  db,
+  eventBus,
+  competenceTracker,
+  lessonStore,
+  taskRouter,
+});
+postHeartbeatHook.register();
 
 // Scheduler + wake handler
 const scheduler = new HeartbeatScheduler({ db, heartbeatEngine });

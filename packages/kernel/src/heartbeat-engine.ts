@@ -1,7 +1,12 @@
 import type { Database } from '@clawgear/db';
-import { agentRuntimeState, agents, costEvents, heartbeatRuns } from '@clawgear/db/pg';
+import { agentRuntimeState, agents, heartbeatRuns } from '@clawgear/db/pg';
 import type { LessonStore } from '@clawgear/learning';
-import { type AdapterRegistry, assembleContext } from '@clawgear/runtime';
+import {
+  type AdapterRegistry,
+  assembleContext,
+  executeKernelTool,
+  getKernelToolDefinitions,
+} from '@clawgear/runtime';
 import type { InvocationSource } from '@clawgear/shared/constants';
 import { HEARTBEAT_DEFAULT_TIMEOUT_MS } from '@clawgear/shared/constants';
 import type {
@@ -133,6 +138,13 @@ export class HeartbeatEngine {
         }
       }
 
+      // Resolve tool definitions and build executor
+      const tools = getKernelToolDefinitions();
+      const toolCtx = { db: this.db, eventBus: this.eventBus, agentId, companyId: agent.companyId };
+      const toolExecutor = async (name: string, args: Record<string, unknown>) => {
+        return executeKernelTool(name, args, toolCtx);
+      };
+
       const ctx = assembleContext({
         agentId,
         companyId: agent.companyId,
@@ -140,7 +152,11 @@ export class HeartbeatEngine {
         taskDescription: null,
         sessionId: runtimeState?.sessionId ?? null,
         timeout,
-        adapterConfig: agent.adapterConfig as Record<string, unknown>,
+        tools,
+        adapterConfig: {
+          ...(agent.adapterConfig as Record<string, unknown>),
+          toolExecutor,
+        },
         lessons,
       });
 
@@ -184,17 +200,6 @@ export class HeartbeatEngine {
           billingCode: null,
         });
       }
-
-      // Also insert into cost_events table directly
-      await this.db.insert(costEvents).values({
-        companyId: agent.companyId,
-        agentId: costAgentId,
-        provider: result.usage.provider,
-        model: result.usage.model,
-        inputTokens: result.usage.inputTokens,
-        outputTokens: result.usage.outputTokens,
-        costCents: result.usage.costCents,
-      });
 
       // 12. Upsert agent_runtime_state
       const totalTokens = BigInt(result.usage.inputTokens + result.usage.outputTokens);
