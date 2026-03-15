@@ -31,7 +31,12 @@ describe('EventBridge', () => {
     // Authenticate for company-1
     bridge.handleMessage(
       ws as never,
-      JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'authenticate', params: { companyId: 'company-1' } }),
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'authenticate',
+        params: { companyId: 'company-1' },
+      }),
     );
     (ws.send as ReturnType<typeof mock>).mockClear();
 
@@ -148,7 +153,12 @@ describe('EventBridge', () => {
     // Authenticate first
     bridge.handleMessage(
       ws as never,
-      JSON.stringify({ jsonrpc: '2.0', id: 0, method: 'authenticate', params: { companyId: 'c1' } }),
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 0,
+        method: 'authenticate',
+        params: { companyId: 'c1' },
+      }),
     );
 
     // Subscribe to only agent events
@@ -298,7 +308,12 @@ describe('EventBridge', () => {
     // Authenticate first (send works during auth)
     bridge.handleMessage(
       ws as never,
-      JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'authenticate', params: { companyId: 'c1' } }),
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'authenticate',
+        params: { companyId: 'c1' },
+      }),
     );
     expect(bridge.clientCount).toBe(1);
 

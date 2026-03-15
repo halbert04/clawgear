@@ -43,7 +43,10 @@ export function apiAuthMiddleware(config: ApiAuthConfig): MiddlewareHandler {
     }
 
     if (!token.startsWith('cg_')) {
-      return c.json({ error: 'Unauthorized', message: 'Invalid API key format. Keys must start with cg_' }, 401);
+      return c.json(
+        { error: 'Unauthorized', message: 'Invalid API key format. Keys must start with cg_' },
+        401,
+      );
     }
 
     // Hash the provided key
