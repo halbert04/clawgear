@@ -10,8 +10,11 @@ import type {
 import { Hono } from 'hono';
 import { createBunWebSocket } from 'hono/bun';
 import { cors } from 'hono/cors';
+import { optionalAuthMiddleware } from './middleware/api-auth.js';
+import { companyScopeMiddleware } from './middleware/company-scope.js';
 import { errorHandler } from './middleware/error-handler.js';
 import { requestLogger } from './middleware/logger.js';
+import { rateLimiterMiddleware } from './middleware/rate-limiter.js';
 import { securityHeaders } from './middleware/security-headers.js';
 import { activityRoutes } from './routes/activity.js';
 import { agentRoutes } from './routes/agents.js';
@@ -58,6 +61,9 @@ export function createApp(deps: AppDeps) {
   app.use('*', cors());
   app.use('*', securityHeaders);
   app.use('*', requestLogger);
+  app.use('*', rateLimiterMiddleware({ maxRequests: 100, windowMs: 60_000 }));
+  app.use('*', optionalAuthMiddleware({ db: deps.db }));
+  app.use('/api/companies/:companyId/*', companyScopeMiddleware(deps.db));
   app.onError(errorHandler);
 
   // Routes

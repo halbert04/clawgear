@@ -9,7 +9,8 @@
     "./events": "./src/events/index.ts",
     "./validators": "./src/validators/index.ts",
     "./interfaces": "./src/interfaces/index.ts",
-    "./constants": "./src/constants/index.ts"
+    "./constants": "./src/constants/index.ts",
+    "./logger": "./src/logger.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
