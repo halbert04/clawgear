@@ -1,4 +1,5 @@
 import { marketplaceSkills } from '@clawgear/db/pg';
+import { verifySkillIntegrity } from '@clawgear/marketplace';
 import { sql } from 'drizzle-orm';
 import { and, eq, ilike, or } from 'drizzle-orm/expressions';
 import { Hono } from 'hono';
@@ -137,6 +138,12 @@ export function marketplaceRoutes(deps: AppDeps) {
 
     if (existing) {
       return c.json({ error: `Skill ${m.name}@${m.version} already exists` }, 409);
+    }
+
+    // Verify Ed25519 signature and checksum integrity
+    const integrity = verifySkillIntegrity(m, signature, publisherKey, packageData);
+    if (!integrity.valid) {
+      return c.json({ error: `Integrity verification failed: ${integrity.error}` }, 400);
     }
 
     const [result] = await db

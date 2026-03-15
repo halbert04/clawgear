@@ -18,7 +18,7 @@ export function registerChannelCommands(program: Command) {
     .command('list')
     .description('List channel bindings for a company')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (opts: { company: string; url: string }) => {
       try {
         const res = await fetch(
@@ -65,7 +65,7 @@ export function registerChannelCommands(program: Command) {
   channel
     .command('status')
     .description('Show channel adapter status')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (opts: { url: string }) => {
       try {
         const res = await fetch(`${opts.url}/api/health/detail`);
@@ -96,7 +96,7 @@ export function registerChannelCommands(program: Command) {
     .command('test <channel>')
     .description('Test a channel adapter connection')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (channelName: string, opts: { company: string; url: string }) => {
       try {
         console.log(`Testing ${channelName} adapter...`);

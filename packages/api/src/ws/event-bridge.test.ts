@@ -21,12 +21,24 @@ function parseLastCall(ws: MockWs): unknown {
 }
 
 describe('EventBridge', () => {
-  test('broadcasts events as JSON-RPC notifications', () => {
+  test('broadcasts events as JSON-RPC notifications to authenticated clients', () => {
     const eventBus = new InProcessEventBus();
     const bridge = new EventBridge(eventBus);
 
     const ws = createMockWs();
     bridge.addClient(ws as never);
+
+    // Authenticate for company-1
+    bridge.handleMessage(
+      ws as never,
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'authenticate',
+        params: { companyId: 'company-1' },
+      }),
+    );
+    (ws.send as ReturnType<typeof mock>).mockClear();
 
     eventBus.emit({
       type: 'agent.created',
@@ -89,7 +101,7 @@ describe('EventBridge', () => {
     expect(ws2.send).not.toHaveBeenCalled();
   });
 
-  test('unauthenticated clients receive all events (backward compat)', () => {
+  test('unauthenticated clients do NOT receive events', () => {
     const eventBus = new InProcessEventBus();
     const bridge = new EventBridge(eventBus);
 
@@ -103,7 +115,7 @@ describe('EventBridge', () => {
       payload: {},
     });
 
-    expect(ws.send).toHaveBeenCalledTimes(1);
+    expect(ws.send).not.toHaveBeenCalled();
   });
 
   test('authenticate RPC returns success', () => {
@@ -137,6 +149,17 @@ describe('EventBridge', () => {
 
     const ws = createMockWs();
     bridge.addClient(ws as never);
+
+    // Authenticate first
+    bridge.handleMessage(
+      ws as never,
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 0,
+        method: 'authenticate',
+        params: { companyId: 'c1' },
+      }),
+    );
 
     // Subscribe to only agent events
     bridge.handleMessage(
@@ -280,12 +303,24 @@ describe('EventBridge', () => {
     const bridge = new EventBridge(eventBus);
 
     const ws = createMockWs();
+    bridge.addClient(ws as never);
+
+    // Authenticate first (send works during auth)
+    bridge.handleMessage(
+      ws as never,
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'authenticate',
+        params: { companyId: 'c1' },
+      }),
+    );
+    expect(bridge.clientCount).toBe(1);
+
+    // Now make send throw
     (ws.send as ReturnType<typeof mock>).mockImplementation(() => {
       throw new Error('Connection closed');
     });
-
-    bridge.addClient(ws as never);
-    expect(bridge.clientCount).toBe(1);
 
     eventBus.emit({
       type: 'test.event',

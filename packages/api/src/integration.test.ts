@@ -200,13 +200,25 @@ describe('Phase 1 Integration', () => {
     }
   });
 
-  test('WebSocket bridge forwards events to connected clients', () => {
+  test('WebSocket bridge forwards events to authenticated clients', () => {
     const eventBus = new InProcessEventBus();
     const bridge = new EventBridge(eventBus);
     const received: string[] = [];
 
     const mockWs = { send: mock((msg: string) => received.push(msg)) } as never;
     bridge.addClient(mockWs);
+
+    // Authenticate for company c1
+    bridge.handleMessage(
+      mockWs,
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'authenticate',
+        params: { companyId: 'c1' },
+      }),
+    );
+    received.length = 0; // clear the auth response
 
     // Emit various event types
     const eventTypes = [

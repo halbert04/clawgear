@@ -19,12 +19,16 @@ const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   'claude-sonnet-4-5-20250929': { input: 300, output: 1500 },
   'claude-sonnet-4-20250514': { input: 300, output: 1500 },
   'claude-3-5-haiku-20241022': { input: 80, output: 400 },
+  'claude-3-5-sonnet-20241022': { input: 300, output: 1500 },
+  'claude-3-opus-20240229': { input: 1500, output: 7500 },
+  'claude-3-haiku-20240307': { input: 25, output: 125 },
 };
 
 /** Map short aliases to full model IDs */
 const MODEL_ALIASES: Record<string, string> = {
   opus: 'claude-opus-4-20250514',
   sonnet: 'claude-sonnet-4-20250514',
+  'sonnet-4-5': 'claude-sonnet-4-5-20250929',
   haiku: 'claude-3-5-haiku-20241022',
 };
 
@@ -303,7 +307,16 @@ export class ClaudeCodeAdapter implements Adapter {
 
   private computeCost(model: string, inputTokens: number, outputTokens: number): number {
     const pricing = MODEL_PRICING[model];
-    if (!pricing) return 0;
+    if (!pricing) {
+      console.warn(
+        JSON.stringify({
+          level: 'WARN',
+          message: `No pricing data for model "${model}" — cost will be recorded as 0`,
+          timestamp: new Date().toISOString(),
+        }),
+      );
+      return 0;
+    }
     // Pricing is in cents per million tokens
     return Math.round((inputTokens * pricing.input + outputTokens * pricing.output) / 1_000_000);
   }

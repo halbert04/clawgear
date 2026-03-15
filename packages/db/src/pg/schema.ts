@@ -51,6 +51,7 @@ export const companies = pgTable(
       .notNull()
       .default(sql`0`),
     spentMonthlyCents: bigint('spent_monthly_cents', { mode: 'bigint' }).notNull().default(sql`0`),
+    apiKeyHash: text('api_key_hash'),
     requireBoardApproval: boolean('require_board_approval').notNull().default(true),
     missionGoalId: uuid('mission_goal_id'), // FK added via ALTER TABLE (circular)
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),

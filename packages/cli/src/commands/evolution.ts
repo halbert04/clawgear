@@ -30,7 +30,7 @@ export function registerEvolutionCommands(program: Command) {
     .description('List evolved skills')
     .requiredOption('--company <id>', 'Company ID')
     .option('--status <status>', 'Filter by status (proposed/approved/active/deprecated)')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (opts: { company: string; status?: string; url: string }) => {
       try {
         const params = new URLSearchParams({ limit: '100' });
@@ -59,7 +59,7 @@ export function registerEvolutionCommands(program: Command) {
     .description('Approve a proposed skill')
     .requiredOption('--company <id>', 'Company ID')
     .requiredOption('--skill <id>', 'Skill ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (opts: { company: string; skill: string; url: string }) => {
       try {
         const res = await fetch(
@@ -90,7 +90,7 @@ export function registerEvolutionCommands(program: Command) {
     .command('competence')
     .description('Show team competence dashboard')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (opts: { company: string; url: string }) => {
       try {
         const res = await fetch(
@@ -129,7 +129,7 @@ export function registerEvolutionCommands(program: Command) {
     .requiredOption('--company <id>', 'Company ID')
     .option('--role <role>', 'Filter by agent role')
     .option('--type <type>', 'Filter by prompt type (heartbeat/system/skill)')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (opts: { company: string; role?: string; type?: string; url: string }) => {
       try {
         const params = new URLSearchParams({ limit: '50' });
@@ -180,7 +180,7 @@ export function registerEvolutionCommands(program: Command) {
     .description('List strategy patterns')
     .requiredOption('--company <id>', 'Company ID')
     .option('--type <type>', 'Filter by pattern type')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (opts: { company: string; type?: string; url: string }) => {
       try {
         const params = new URLSearchParams({ limit: '50' });

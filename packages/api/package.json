@@ -18,6 +18,7 @@
     "@clawgear/db": "workspace:*",
     "@clawgear/kernel": "workspace:*",
     "@clawgear/learning": "workspace:*",
+    "@clawgear/marketplace": "workspace:*",
     "@clawgear/runtime": "workspace:*",
     "@clawgear/security": "workspace:*",
     "@clawgear/shared": "workspace:*",

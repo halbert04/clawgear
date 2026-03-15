@@ -29,7 +29,11 @@ program
 program
   .command('status')
   .description('Check system health')
-  .option('-u, --url <url>', 'API base URL', 'http://localhost:3000')
+  .option(
+    '-u, --url <url>',
+    'API base URL',
+    process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000',
+  )
   .action(statusCommand);
 
 registerAgentCommands(program);
