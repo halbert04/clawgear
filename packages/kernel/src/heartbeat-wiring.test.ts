@@ -122,14 +122,16 @@ function createMockDb() {
 
 function createMockKernelHandle(): KernelHandle {
   return {
-    checkBudget: mock(async (): Promise<BudgetStatus> => ({
-      budgetCents: 10000n,
-      spentCents: 0n,
-      remainingCents: 10000n,
-      percentUsed: 0,
-      isExhausted: false,
-      isWarning: false,
-    })),
+    checkBudget: mock(
+      async (): Promise<BudgetStatus> => ({
+        budgetCents: 10000n,
+        spentCents: 0n,
+        remainingCents: 10000n,
+        percentUsed: 0,
+        isExhausted: false,
+        isWarning: false,
+      }),
+    ),
     checkCapability: mock(async () => true),
     emitEvent: mock(() => {}),
     recordCost: mock(async () => {}),
@@ -210,7 +212,7 @@ describe('HeartbeatEngine wiring', () => {
 
     // The event bus should have received the agent.progress event
     const progressEvent = emittedEvents.find(
-      (e: any) => e.type === 'agent.progress',
+      (e) => (e as Record<string, unknown>).type === 'agent.progress',
     );
     expect(progressEvent).toBeDefined();
   });
@@ -238,11 +240,11 @@ describe('HeartbeatEngine wiring', () => {
 
     // The progress event should contain the correct agentId
     const progressEvent = emittedEvents.find(
-      (e: any) => e.type === 'agent.progress',
-    ) as any;
+      (e) => (e as Record<string, unknown>).type === 'agent.progress',
+    ) as Record<string, unknown> | undefined;
     expect(progressEvent).toBeDefined();
-    expect(progressEvent.payload.agentId).toBe(AGENT_ID);
-    expect(progressEvent.companyId).toBe(COMPANY_ID);
+    expect((progressEvent!.payload as Record<string, unknown>).agentId).toBe(AGENT_ID);
+    expect(progressEvent!.companyId).toBe(COMPANY_ID);
   });
 
   test('system prompt includes tool manifest', async () => {

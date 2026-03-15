@@ -260,9 +260,7 @@ export class HeartbeatEngine {
 
       // Resolve CEO-specific context: OODA prompt + meta-task + time context
       const isCeo = agent.role === 'ceo';
-      const systemPrompt = isCeo
-        ? CEO_SYSTEM_PROMPT
-        : agent.systemPrompt;
+      const systemPrompt = isCeo ? CEO_SYSTEM_PROMPT : agent.systemPrompt;
       const taskDescription = isCeo
         ? `Run your OODA cycle. Current time: ${new Date().toISOString()}. Observe company state, orient on problems, decide on actions, act to move the company forward.`
         : null;

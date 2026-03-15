@@ -94,7 +94,7 @@ function fallbackReflection(
   const approach =
     toolCalls && toolCalls.length > 0
       ? `Used tools: ${[...new Set(toolCalls.map((t) => t.tool))].join(', ')}`
-      : sentences[0] ?? 'Approach details not available';
+      : (sentences[0] ?? 'Approach details not available');
 
   // First substantive sentence is the lesson — better than raw truncation
   const lesson =
@@ -103,7 +103,9 @@ function fallbackReflection(
   return {
     approach,
     whatWorked: succeeded ? (sentences[1] ?? 'Task completed successfully') : null,
-    whatFailed: succeeded ? null : (sentences.find((s) => /fail|error|issue|problem/i.test(s)) ?? 'Task failed'),
+    whatFailed: succeeded
+      ? null
+      : (sentences.find((s) => /fail|error|issue|problem/i.test(s)) ?? 'Task failed'),
     lesson,
     outcome: succeeded ? 'success' : 'failure',
     confidence: sentences.length > 0 ? 0.5 : 0.2,
