@@ -211,7 +211,12 @@ describe('Phase 1 Integration', () => {
     // Authenticate for company c1
     bridge.handleMessage(
       mockWs,
-      JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'authenticate', params: { companyId: 'c1' } }),
+      JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'authenticate',
+        params: { companyId: 'c1' },
+      }),
     );
     received.length = 0; // clear the auth response
 
