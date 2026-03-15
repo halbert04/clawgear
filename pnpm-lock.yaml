@@ -249,6 +249,9 @@ importers:
 
   packages/api:
     dependencies:
+      '@clawgear/adapter-claude-code':
+        specifier: workspace:*
+        version: link:../../adapters/claude-code
       '@clawgear/adapter-hand':
         specifier: workspace:*
         version: link:../../adapters/hand
@@ -258,6 +261,9 @@ importers:
       '@clawgear/kernel':
         specifier: workspace:*
         version: link:../kernel
+      '@clawgear/learning':
+        specifier: workspace:*
+        version: link:../learning
       '@clawgear/runtime':
         specifier: workspace:*
         version: link:../runtime

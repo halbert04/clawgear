@@ -47,15 +47,24 @@ Respond in JSON with exactly these fields:
 }`;
 }
 
-export function parseReflectionOutput(raw: string, succeeded: boolean): ExtractedReflection {
+export function parseReflectionOutput(
+  raw: string,
+  succeeded: boolean,
+  toolCalls?: { tool: string }[],
+): ExtractedReflection {
   try {
-    // Try to extract JSON from the output
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    // Try to extract JSON from the output — only match if it looks like a reflection block
+    const jsonMatch = raw.match(/\{[\s\S]*"(?:approach|lesson)"[\s\S]*\}/);
     if (!jsonMatch) {
-      return fallbackReflection(raw, succeeded);
+      return fallbackReflection(raw, succeeded, toolCalls);
     }
 
     const parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
+
+    // Validate it actually has the fields we expect
+    if (!parsed.approach && !parsed.lesson) {
+      return fallbackReflection(raw, succeeded, toolCalls);
+    }
 
     return {
       approach: String(parsed.approach ?? 'Unknown approach'),
@@ -66,17 +75,39 @@ export function parseReflectionOutput(raw: string, succeeded: boolean): Extracte
       confidence: Math.min(1, Math.max(0, Number(parsed.confidence ?? 0.5))),
     };
   } catch {
-    return fallbackReflection(raw, succeeded);
+    return fallbackReflection(raw, succeeded, toolCalls);
   }
 }
 
-function fallbackReflection(raw: string, succeeded: boolean): ExtractedReflection {
+function fallbackReflection(
+  raw: string,
+  succeeded: boolean,
+  toolCalls?: { tool: string }[],
+): ExtractedReflection {
+  // Extract meaningful information from natural language output
+  const sentences = raw
+    .split(/[.!?\n]/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 10);
+
+  // Build approach from tool calls if available
+  const approach =
+    toolCalls && toolCalls.length > 0
+      ? `Used tools: ${[...new Set(toolCalls.map((t) => t.tool))].join(', ')}`
+      : (sentences[0] ?? 'Approach details not available');
+
+  // First substantive sentence is the lesson — better than raw truncation
+  const lesson =
+    sentences.find((s) => s.length > 20) ?? (raw.slice(0, 500) || 'No lesson extracted');
+
   return {
-    approach: 'Approach details not available',
-    whatWorked: succeeded ? 'Task completed successfully' : null,
-    whatFailed: succeeded ? null : 'Task failed',
-    lesson: raw.slice(0, 500) || 'No lesson extracted',
+    approach,
+    whatWorked: succeeded ? (sentences[1] ?? 'Task completed successfully') : null,
+    whatFailed: succeeded
+      ? null
+      : (sentences.find((s) => /fail|error|issue|problem/i.test(s)) ?? 'Task failed'),
+    lesson,
     outcome: succeeded ? 'success' : 'failure',
-    confidence: 0.3,
+    confidence: sentences.length > 0 ? 0.5 : 0.2,
   };
 }

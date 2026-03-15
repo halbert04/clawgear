@@ -13,9 +13,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@clawgear/adapter-claude-code": "workspace:*",
     "@clawgear/adapter-hand": "workspace:*",
     "@clawgear/db": "workspace:*",
     "@clawgear/kernel": "workspace:*",
+    "@clawgear/learning": "workspace:*",
     "@clawgear/runtime": "workspace:*",
     "@clawgear/security": "workspace:*",
     "@clawgear/shared": "workspace:*",

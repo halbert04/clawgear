@@ -60,8 +60,9 @@ export class PostHeartbeatHook {
     if (!run) return;
 
     const succeeded = run.status === 'succeeded';
-    const resultJson = run.resultJson as { output?: string } | null;
+    const resultJson = run.resultJson as { output?: string; toolCalls?: { tool: string }[] } | null;
     const output = resultJson?.output ?? '';
+    const toolCalls = resultJson?.toolCalls;
 
     const taskType = 'heartbeat'; // Simple default for V1
 
@@ -70,7 +71,7 @@ export class PostHeartbeatHook {
 
     // ─── Step 2: Lesson extraction ───
     try {
-      const reflection = parseReflectionOutput(output, succeeded);
+      const reflection = parseReflectionOutput(output, succeeded, toolCalls);
 
       await this.lessonStore.store({
         companyId,
