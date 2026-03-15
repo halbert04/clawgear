@@ -15,6 +15,13 @@
       "when": 1773113884000,
       "tag": "0001_extensions_rls_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773113884100,
+      "tag": "0002_add_missing_tables_fix_constraints",
+      "breakpoints": true
     }
   ]
 }

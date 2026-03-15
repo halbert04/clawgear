@@ -23,7 +23,7 @@ async function main() {
     if (!company) throw new Error('Failed to create company');
     console.log(`Created company: ${company.name} (${company.id})`);
 
-    // Create CEO agent
+    // Create CEO agent (as a hand agent so HandScheduler can auto-wake it)
     const [ceo] = await db
       .insert(agents)
       .values({
@@ -33,7 +33,31 @@ async function main() {
         role: 'ceo',
         icon: '👔',
         capabilities: [],
-        adapterType: 'claude_code',
+        adapterType: 'hand',
+        adapterConfig: {
+          handConfig: {
+            name: 'ceo',
+            description: 'CEO hand that runs the OODA strategic management cycle.',
+            schedule: '0 */4 * * *',
+            innerAdapter: 'claude_code',
+            innerAdapterConfig: { model: 'sonnet' },
+            taskPrompt:
+              'Run your OODA cycle. Observe company state, orient on problems, decide on actions, act to move the company forward.',
+            tools: [],
+            settings: {
+              maxIssuesPerWakeup: 5,
+              maxDecompositionDepth: 3,
+              maxReassignmentsPerIssue: 3,
+              budgetWarningThreshold: 80,
+              budgetCriticalThreshold: 90,
+            },
+            metrics: [],
+            requiresApproval: false,
+            outputMode: 'comment',
+            ownerAgentId: null,
+          },
+          heartbeatTimeoutMs: 120000,
+        },
         modelTier: 'frontier',
         budgetMonthlyCents: 50000n,
         systemPrompt:
