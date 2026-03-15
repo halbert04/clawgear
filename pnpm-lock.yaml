@@ -141,6 +141,9 @@ importers:
       '@clawgear/learning':
         specifier: workspace:*
         version: link:../learning
+      '@clawgear/marketplace':
+        specifier: workspace:*
+        version: link:../marketplace
       '@clawgear/runtime':
         specifier: workspace:*
         version: link:../runtime

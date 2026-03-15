@@ -53,7 +53,7 @@ export function registerWorkflowCommands(program: Command) {
     .command('list')
     .description('List workflows for a company')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (opts: { company: string; url: string }) => {
       try {
         const res = await fetch(`${opts.url}/api/companies/${opts.company}/workflows?limit=100`);
@@ -79,7 +79,7 @@ export function registerWorkflowCommands(program: Command) {
     .description('Execute a workflow with optional input JSON')
     .requiredOption('--company <id>', 'Company ID')
     .option('--input <json>', 'Input variables as JSON', '{}')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (name: string, opts: { company: string; input: string; url: string }) => {
       try {
         // Resolve workflow by name
@@ -130,7 +130,7 @@ export function registerWorkflowCommands(program: Command) {
     .command('runs <name>')
     .description('List runs for a workflow')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (name: string, opts: { company: string; url: string }) => {
       try {
         // Resolve workflow by name
@@ -171,7 +171,7 @@ export function registerWorkflowCommands(program: Command) {
     .command('status <runId>')
     .description('Show run detail with step statuses')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (runId: string, opts: { company: string; url: string }) => {
       try {
         const res = await fetch(`${opts.url}/api/companies/${opts.company}/workflow-runs/${runId}`);

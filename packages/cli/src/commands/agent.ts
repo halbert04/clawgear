@@ -7,7 +7,7 @@ export function registerAgentCommands(program: Command) {
     .command('heartbeat <name>')
     .description('Trigger a heartbeat for an agent')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (name: string, opts: { company: string; url: string }) => {
       try {
         // First look up agent by name
@@ -70,7 +70,7 @@ export function registerAgentCommands(program: Command) {
     .command('list')
     .description('List agents in a company')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (opts: { company: string; url: string }) => {
       try {
         const res = await fetch(`${opts.url}/api/companies/${opts.company}/agents?limit=100`);
@@ -101,7 +101,7 @@ export function registerAgentCommands(program: Command) {
     .option('--adapter <type>', 'Adapter type', 'claude_code')
     .option('--model-tier <tier>', 'Model tier', 'smart')
     .option('--system-prompt <prompt>', 'System prompt')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(
       async (opts: {
         company: string;

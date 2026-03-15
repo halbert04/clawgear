@@ -58,7 +58,15 @@ export function createApp(deps: AppDeps) {
   const eventBridge = new EventBridge(deps.eventBus);
 
   // Global middleware
-  app.use('*', cors());
+  const corsOrigin = process.env.CLAWGEAR_CORS_ORIGIN;
+  app.use(
+    '*',
+    cors(
+      corsOrigin
+        ? { origin: corsOrigin.split(',').map((o) => o.trim()), credentials: true }
+        : undefined,
+    ),
+  );
   app.use('*', securityHeaders);
   app.use('*', requestLogger);
   app.use('*', rateLimiterMiddleware({ maxRequests: 100, windowMs: 60_000 }));

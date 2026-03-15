@@ -22,7 +22,7 @@ export function registerTriggerCommands(program: Command) {
     .command('list')
     .description('List triggers in a company')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (opts: { company: string; url: string }) => {
       try {
         const res = await fetch(`${opts.url}/api/companies/${opts.company}/triggers?limit=100`);
@@ -61,7 +61,7 @@ export function registerTriggerCommands(program: Command) {
     .requiredOption('--action-config <json>', 'Action configuration as JSON')
     .option('--cooldown <ms>', 'Cooldown in milliseconds', '10000')
     .option('--max-fires <n>', 'Maximum fire count')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(
       async (opts: {
         company: string;
@@ -129,7 +129,7 @@ export function registerTriggerCommands(program: Command) {
     .command('activate <name>')
     .description('Activate a trigger')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (name: string, opts: { company: string; url: string }) => {
       try {
         const triggerId = await resolveTriggerIdByName(opts.url, opts.company, name);
@@ -160,7 +160,7 @@ export function registerTriggerCommands(program: Command) {
     .command('deactivate <name>')
     .description('Deactivate a trigger')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (name: string, opts: { company: string; url: string }) => {
       try {
         const triggerId = await resolveTriggerIdByName(opts.url, opts.company, name);
@@ -191,7 +191,7 @@ export function registerTriggerCommands(program: Command) {
     .command('history <name>')
     .description('Show trigger detail and history')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (name: string, opts: { company: string; url: string }) => {
       try {
         const triggerId = await resolveTriggerIdByName(opts.url, opts.company, name);

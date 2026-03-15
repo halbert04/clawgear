@@ -259,9 +259,9 @@ export class EventBridge {
     const message = JSON.stringify(notification);
 
     for (const [ws, session] of this.clients) {
-      // Company scoping: only send to clients authenticated for this company
-      // Unauthenticated clients (companyId=null) receive all events for backward compatibility
-      if (session.companyId && session.companyId !== event.companyId) {
+      // Company scoping: only send to authenticated clients for this company
+      // Unauthenticated clients receive nothing — they must call authenticate first
+      if (!session.companyId || session.companyId !== event.companyId) {
         continue;
       }
 

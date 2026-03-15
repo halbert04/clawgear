@@ -25,7 +25,7 @@ export function registerHandCommands(program: Command) {
     .command('list')
     .description('List hands in a company')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (opts: { company: string; url: string }) => {
       try {
         const res = await fetch(`${opts.url}/api/companies/${opts.company}/hands?limit=100`);
@@ -53,7 +53,7 @@ export function registerHandCommands(program: Command) {
     .description('Create and activate a hand from a template')
     .requiredOption('--company <id>', 'Company ID')
     .option('--owner <agentId>', 'Owner agent ID for cost attribution')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (name: string, opts: { company: string; owner?: string; url: string }) => {
       try {
         const res = await fetch(`${opts.url}/api/companies/${opts.company}/hands`, {
@@ -84,7 +84,7 @@ export function registerHandCommands(program: Command) {
     .command('deactivate <name>')
     .description('Deactivate a hand')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (name: string, opts: { company: string; url: string }) => {
       try {
         const handId = await resolveHandId(opts.url, opts.company, name);
@@ -115,7 +115,7 @@ export function registerHandCommands(program: Command) {
     .command('status <name>')
     .description('Show hand status and schedule info')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (name: string, opts: { company: string; url: string }) => {
       try {
         const handId = await resolveHandId(opts.url, opts.company, name);
@@ -149,7 +149,7 @@ export function registerHandCommands(program: Command) {
     .command('trigger <name>')
     .description('Manually trigger a hand execution')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (name: string, opts: { company: string; url: string }) => {
       try {
         const handId = await resolveHandId(opts.url, opts.company, name);

@@ -12,7 +12,7 @@ export function registerIssueCommands(program: Command) {
     .option('--priority <priority>', 'Priority (critical/high/medium/low)', 'medium')
     .option('--assignee <agentId>', 'Assign to agent ID')
     .option('--project <projectId>', 'Project ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(
       async (opts: {
         company: string;
@@ -62,7 +62,7 @@ export function registerIssueCommands(program: Command) {
     .requiredOption('--company <id>', 'Company ID')
     .option('--status <status>', 'Filter by status')
     .option('--assignee <agentId>', 'Filter by assignee')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (opts: { company: string; status?: string; assignee?: string; url: string }) => {
       try {
         const params = new URLSearchParams({ limit: '50' });
@@ -102,7 +102,7 @@ export function registerIssueCommands(program: Command) {
     .description('Assign an issue to an agent')
     .requiredOption('--company <id>', 'Company ID')
     .requiredOption('--agent <agentId>', 'Agent ID to assign')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (identifier: string, opts: { company: string; agent: string; url: string }) => {
       try {
         // Find issue by identifier

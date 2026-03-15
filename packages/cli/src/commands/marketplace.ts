@@ -19,7 +19,7 @@ export function registerMarketplaceCommands(program: Command) {
     .command('search <query>')
     .description('Search for skills in the marketplace')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .option('--tag <tag>', 'Filter by tag')
     .option('--author <author>', 'Filter by author')
     .action(
@@ -64,7 +64,7 @@ export function registerMarketplaceCommands(program: Command) {
     .command('install <name>')
     .description('Install a skill from the marketplace')
     .requiredOption('--company <id>', 'Company ID')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(async (name: string, opts: { company: string; url: string }) => {
       try {
         const res = await fetch(
@@ -98,7 +98,7 @@ export function registerMarketplaceCommands(program: Command) {
     .requiredOption('--company <id>', 'Company ID')
     .requiredOption('--key <privateKeyHex>', 'Ed25519 private key (hex)')
     .requiredOption('--pubkey <publicKeyHex>', 'Ed25519 public key (hex)')
-    .option('--url <url>', 'API base URL', 'http://localhost:3000')
+    .option('--url <url>', 'API base URL', process.env.CLAWGEAR_API_URL ?? 'http://localhost:3000')
     .action(
       async (dir: string, opts: { company: string; key: string; pubkey: string; url: string }) => {
         try {
