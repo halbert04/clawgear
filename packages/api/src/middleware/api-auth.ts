@@ -69,12 +69,15 @@ export function apiAuthMiddleware(config: ApiAuthConfig): MiddlewareHandler {
 }
 
 /**
- * Simplified auth check for internal/development use.
- * When CLAWGEAR_AUTH_DISABLED=true, all requests are allowed.
+ * Auth middleware that can be disabled via CLAWGEAR_AUTH_DISABLED=true.
+ * Checks env var per-request so tests can set it at any point.
  */
 export function optionalAuthMiddleware(config: ApiAuthConfig): MiddlewareHandler {
-  if (process.env.CLAWGEAR_AUTH_DISABLED === 'true') {
-    return async (_c: Context, next: Next) => next();
-  }
-  return apiAuthMiddleware(config);
+  const authMiddleware = apiAuthMiddleware(config);
+  return async (c: Context, next: Next) => {
+    if (process.env.CLAWGEAR_AUTH_DISABLED === 'true') {
+      return next();
+    }
+    return authMiddleware(c, next);
+  };
 }

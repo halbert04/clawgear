@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "bun --watch src/index.ts",
     "start": "bun run src/index.ts",
-    "test": "bun test",
+    "test": "CLAWGEAR_AUTH_DISABLED=true bun test",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

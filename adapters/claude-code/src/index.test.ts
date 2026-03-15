@@ -37,8 +37,18 @@ function makeApiResponse(overrides: Record<string, unknown> = {}) {
 // ============================================================
 
 describe('ClaudeCodeAdapter', () => {
-  test('constructor defaults', () => {
-    const adapter = new ClaudeCodeAdapter();
+  test('constructor requires API key', () => {
+    const originalKey = process.env.ANTHROPIC_API_KEY;
+    delete process.env.ANTHROPIC_API_KEY;
+    try {
+      expect(() => new ClaudeCodeAdapter()).toThrow('ANTHROPIC_API_KEY');
+    } finally {
+      if (originalKey) process.env.ANTHROPIC_API_KEY = originalKey;
+    }
+  });
+
+  test('constructor accepts API key via config', () => {
+    const adapter = new ClaudeCodeAdapter({ apiKey: 'test-key' });
     expect(adapter.name).toBe('claude_code');
   });
 
@@ -202,12 +212,8 @@ describe('ClaudeCodeAdapter', () => {
     expect(env.checks[0]!.passed).toBe(true);
   });
 
-  test('testEnvironment fails without API key', async () => {
-    const adapter = new ClaudeCodeAdapter({ apiKey: '' });
-    const env = await adapter.testEnvironment();
-
-    expect(env.ok).toBe(false);
-    expect(env.checks[0]!.passed).toBe(false);
+  test('constructor rejects empty API key', () => {
+    expect(() => new ClaudeCodeAdapter({ apiKey: '' })).toThrow('ANTHROPIC_API_KEY');
   });
 
   test('converts tools to Anthropic format', async () => {

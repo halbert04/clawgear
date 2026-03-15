@@ -65,7 +65,14 @@ export class ClaudeCodeAdapter implements Adapter {
   private maxRetries: number;
 
   constructor(config: ClaudeCodeAdapterConfig = {}) {
-    this.apiKey = config.apiKey ?? process.env.ANTHROPIC_API_KEY ?? '';
+    const apiKey = config.apiKey ?? process.env.ANTHROPIC_API_KEY ?? '';
+    if (!apiKey) {
+      throw new Error(
+        'ClaudeCodeAdapter: ANTHROPIC_API_KEY environment variable is required. ' +
+          'Set it in your environment or pass apiKey in config.',
+      );
+    }
+    this.apiKey = apiKey;
     this.defaultModel = config.defaultModel ?? 'sonnet';
     this.apiBaseUrl = config.apiBaseUrl ?? 'https://api.anthropic.com';
     this.maxRetries = config.maxRetries ?? 3;
@@ -168,37 +175,34 @@ export class ClaudeCodeAdapter implements Adapter {
   async testEnvironment(): Promise<EnvironmentTestResult> {
     const checks: EnvironmentTestResult['checks'] = [];
 
-    const hasKey = this.apiKey.length > 0;
     checks.push({
       name: 'anthropic_api_key',
-      passed: hasKey,
-      message: hasKey ? 'ANTHROPIC_API_KEY is set' : 'ANTHROPIC_API_KEY is not set',
+      passed: true,
+      message: 'ANTHROPIC_API_KEY is set',
     });
 
-    if (hasKey) {
-      try {
-        const res = await fetch(`${this.apiBaseUrl}/v1/messages`, {
-          method: 'POST',
-          headers: this.buildHeaders(),
-          body: JSON.stringify({
-            model: this.resolveModel({} as AdapterContext),
-            max_tokens: 1,
-            messages: [{ role: 'user', content: 'ping' }],
-          }),
-        });
-        // Any response (even 400) means the API is reachable
-        checks.push({
-          name: 'anthropic_api_reachable',
-          passed: res.status < 500,
-          message: res.status < 500 ? `API reachable (${res.status})` : `API error (${res.status})`,
-        });
-      } catch (err) {
-        checks.push({
-          name: 'anthropic_api_reachable',
-          passed: false,
-          message: `API unreachable: ${err instanceof Error ? err.message : String(err)}`,
-        });
-      }
+    try {
+      const res = await fetch(`${this.apiBaseUrl}/v1/messages`, {
+        method: 'POST',
+        headers: this.buildHeaders(),
+        body: JSON.stringify({
+          model: this.resolveModel({} as AdapterContext),
+          max_tokens: 1,
+          messages: [{ role: 'user', content: 'ping' }],
+        }),
+      });
+      // Any response (even 400) means the API is reachable
+      checks.push({
+        name: 'anthropic_api_reachable',
+        passed: res.status < 500,
+        message: res.status < 500 ? `API reachable (${res.status})` : `API error (${res.status})`,
+      });
+    } catch (err) {
+      checks.push({
+        name: 'anthropic_api_reachable',
+        passed: false,
+        message: `API unreachable: ${err instanceof Error ? err.message : String(err)}`,
+      });
     }
 
     return {

@@ -2,12 +2,35 @@ import { ClaudeCodeAdapter } from '@clawgear/adapter-claude-code';
 import { HandAdapter } from '@clawgear/adapter-hand';
 import { createConnection } from '@clawgear/db';
 import { agents, costEvents } from '@clawgear/db/pg';
+import { logger } from '@clawgear/shared/logger';
+
+// ============================================================
+// ENVIRONMENT VALIDATION (fail fast)
+// ============================================================
+
+const requiredEnvVars = ['DATABASE_URL'] as const;
+const optionalButWarned = ['ANTHROPIC_API_KEY'] as const;
+
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    logger.fatal(`Missing required environment variable: ${envVar}`);
+    process.exit(1);
+  }
+}
+
+for (const envVar of optionalButWarned) {
+  if (!process.env[envVar]) {
+    logger.warn(`Missing environment variable: ${envVar} — adapter will fail at runtime`);
+  }
+}
+
 import {
   HandScheduler,
   HeartbeatEngine,
   HeartbeatScheduler,
   InProcessEventBus,
   PostHeartbeatHook,
+  StaleRunReaper,
   TaskRouter,
   TriggerEngine,
   WakeHandler,
@@ -24,7 +47,7 @@ import { createApp, websocket } from './app.js';
 const port = Number(process.env.CLAWGEAR_PORT ?? 3000);
 const host = process.env.CLAWGEAR_HOST ?? '0.0.0.0';
 
-const { db } = createConnection();
+const { db, client } = createConnection();
 const eventBus = new InProcessEventBus();
 
 // Adapter registry (adapters registered lazily on first use or at boot)
@@ -152,6 +175,9 @@ const workflowEngine = new WorkflowEngine({ db, eventBus, heartbeatEngine });
 const triggerEngine = new TriggerEngine({ db, eventBus, heartbeatEngine });
 triggerEngine.setWorkflowEngine(workflowEngine);
 
+// Stale run reaper (cleans up stuck runs)
+const staleRunReaper = new StaleRunReaper({ db, eventBus });
+
 const app = createApp({
   db,
   eventBus,
@@ -163,23 +189,47 @@ const app = createApp({
 
 // Start scheduler and wake handler
 scheduler.start().catch((err) => {
-  console.error('Failed to start scheduler:', err);
+  logger.error('Failed to start scheduler', { error: (err as Error).message });
 });
 wakeHandler.start();
 handScheduler.start().catch((err) => {
-  console.error('Failed to start hand scheduler:', err);
+  logger.error('Failed to start hand scheduler', { error: (err as Error).message });
 });
 triggerEngine.start().catch((err) => {
-  console.error('Failed to start trigger engine:', err);
+  logger.error('Failed to start trigger engine', { error: (err as Error).message });
 });
+staleRunReaper.start();
 
-console.log(
-  JSON.stringify({
-    level: 'INFO',
-    message: `ClawGear API starting on ${host}:${port}`,
-    timestamp: new Date().toISOString(),
-  }),
-);
+// Graceful shutdown
+let isShuttingDown = false;
+
+async function shutdown(signal: string) {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+
+  logger.info(`Received ${signal}, shutting down gracefully`);
+
+  // Stop accepting new work
+  scheduler.stop();
+  wakeHandler.stop();
+  handScheduler.stop();
+  triggerEngine.stop();
+  staleRunReaper.stop();
+
+  // Allow in-flight requests to drain (5s grace period)
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+
+  // Close database connection
+  await client.end();
+
+  logger.info('Shutdown complete');
+  process.exit(0);
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
+logger.info(`ClawGear API starting on ${host}:${port}`);
 
 export default {
   port,

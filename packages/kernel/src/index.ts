@@ -9,6 +9,7 @@ export {
 } from './heartbeat-engine.js';
 export { PostHeartbeatHook, type PostHeartbeatHookConfig } from './post-heartbeat-hook.js';
 export { HeartbeatScheduler, type HeartbeatSchedulerConfig } from './scheduler.js';
+export { StaleRunReaper, type StaleRunReaperConfig } from './stale-run-reaper.js';
 export { type RouteResult, TaskRouter, type TaskRouterConfig } from './task-router.js';
 export {
   TriggerEngine,
