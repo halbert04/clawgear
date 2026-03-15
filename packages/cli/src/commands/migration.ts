@@ -30,6 +30,12 @@ export function registerMigrationCommands(program: Command) {
             process.exit(1);
           }
 
+          const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          if (!uuidRe.test(opts.company)) {
+            console.error(`Invalid company ID: ${opts.company} (expected UUID format)`);
+            process.exit(1);
+          }
+
           const fs = await import('node:fs');
           const path = await import('node:path');
 
@@ -39,70 +45,176 @@ export function registerMigrationCommands(program: Command) {
             process.exit(1);
           }
 
-          const raw = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-
-          const { migrate } = await import('@clawgear/migration');
-
-          if (opts.dryRun) {
-            console.log(`[DRY RUN] Previewing migration from ${opts.from}...\n`);
-          } else {
-            console.log(`Migrating from ${opts.from}...\n`);
+          let raw: unknown;
+          try {
+            raw = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+          } catch {
+            console.error(`Invalid JSON file: ${filePath}`);
+            process.exit(1);
           }
 
-          const { report } = migrate({
+          const { migrate, persist } = await import('@clawgear/migration');
+          const sep = '------------------------------------------------';
+          const mode = opts.dryRun ? 'DRY RUN' : 'LIVE';
+
+          console.log(`\n  ClawGear Migration [${mode}]`);
+          console.log(`  ${sep}`);
+          console.log(`  Source:   ${opts.from}`);
+          console.log(`  File:     ${filePath}`);
+          console.log(`  Company:  ${opts.company}`);
+          console.log('');
+
+          // Phase 1: Transform
+          console.log('  [1/3] Transforming data...');
+          const t0 = performance.now();
+
+          const { report, transformed } = migrate({
             source: opts.from as 'paperclip' | 'openfang' | 'openclaw',
             companyId: opts.company,
             data: raw,
             dryRun: opts.dryRun,
           });
 
-          // Print summary
-          console.log(`Status: ${report.status}`);
-          console.log(`Source: ${report.source}`);
-          console.log(`Company: ${report.companyId}`);
-          console.log(`Dry run: ${report.dryRun}\n`);
+          const transformMs = Math.round(performance.now() - t0);
+          const entityTypes = Object.keys(report.counts).length;
+          const entityTotal = Object.values(report.counts).reduce((s, c) => s + c, 0);
+          console.log(
+            `        ${entityTypes} entity types, ${entityTotal} entities in ${transformMs}ms`,
+          );
 
-          console.log('Entities processed:');
+          // Phase 2: Pre-flight check
+          console.log('');
+          console.log('  [2/3] Pre-flight check');
+          console.log(`  ${sep}`);
+          console.log('  Entity            Transformed   Warnings');
+          console.log(`  ${sep}`);
+
+          const warningCounts: Record<string, number> = {};
+          for (const w of report.warnings) {
+            warningCounts[w.entityType] = (warningCounts[w.entityType] ?? 0) + 1;
+          }
           for (const [entity, count] of Object.entries(report.counts)) {
-            console.log(`  ${entity}: ${count}`);
+            const warns = warningCounts[entity] ?? 0;
+            console.log(
+              `  ${entity.padEnd(20)}${String(count).padStart(11)}${String(warns).padStart(11)}`,
+            );
+          }
+          console.log(`  ${sep}`);
+
+          // Phase 3: Persist or skip
+          let persistResult: import('@clawgear/migration').PersistResult | undefined;
+
+          if (opts.dryRun) {
+            console.log('');
+            console.log('  [3/3] Writing to database...');
+            console.log('        Skipped (dry run)');
+          } else {
+            console.log('');
+            console.log('  [3/3] Writing to database...');
+            const { createConnection } = await import('@clawgear/db');
+            const { db, client } = createConnection();
+
+            try {
+              const t1 = performance.now();
+              persistResult = await persist(db, transformed, opts.company, {
+                verify: true,
+                onProgress: (_phase, entity, current, total) => {
+                  process.stdout.write(`\r        ${entity}: ${current}/${total}    `);
+                },
+              });
+              const persistMs = Math.round(performance.now() - t1);
+
+              // Clear progress line and print final counts
+              process.stdout.write(`\r${' '.repeat(60)}\r`);
+              const entities = ['triggers', 'workflows', 'skills', 'runtimeStates'];
+              for (const e of entities) {
+                const ins = persistResult.inserted[e] ?? 0;
+                const total = ins + (persistResult.skipped[e] ?? 0);
+                if (total > 0) {
+                  console.log(`        ${`${e}:`.padEnd(15)}${ins}/${total}`);
+                }
+              }
+              console.log(`        Done in ${persistMs}ms`);
+
+              report.persistence = persistResult;
+            } finally {
+              await client.end();
+            }
           }
 
-          if (report.errors.length > 0) {
-            console.log(`\nErrors (${report.errors.length}):`);
-            for (const err of report.errors.slice(0, 20)) {
-              console.log(`  [${err.entityType}] ${err.entityId}: ${err.message}`);
+          // Results table
+          if (persistResult) {
+            console.log('');
+            console.log('  Results');
+            console.log(`  ${sep}`);
+            console.log('  Entity            Inserted    Skipped');
+            console.log(`  ${sep}`);
+            for (const e of ['triggers', 'workflows', 'skills', 'runtimeStates']) {
+              const ins = persistResult.inserted[e] ?? 0;
+              const skip = persistResult.skipped[e] ?? 0;
+              if (ins > 0 || skip > 0) {
+                console.log(
+                  `  ${e.padEnd(20)}${String(ins).padStart(8)}${String(skip).padStart(11)}`,
+                );
+              }
             }
-            if (report.errors.length > 20) {
-              console.log(`  ... and ${report.errors.length - 20} more`);
+            console.log(`  ${sep}`);
+
+            if (Object.keys(persistResult.verified).length > 0) {
+              console.log('');
+              const verParts = Object.entries(persistResult.verified)
+                .map(([k, v]) => `${k}: ${v}`)
+                .join('    ');
+              console.log(`  Verification (total rows in company):`);
+              console.log(`    ${verParts}`);
             }
           }
 
-          if (report.warnings.length > 0) {
-            console.log(`\nWarnings (${report.warnings.length}):`);
-            for (const warn of report.warnings.slice(0, 10)) {
-              console.log(`  [${warn.entityType}] ${warn.entityId}: ${warn.message}`);
-            }
-            if (report.warnings.length > 10) {
-              console.log(`  ... and ${report.warnings.length - 10} more`);
-            }
-          }
-
-          // ID mappings summary
+          // ID mappings
           const totalMappings = Object.values(report.idMappings).reduce(
             (sum, m) => sum + Object.keys(m).length,
             0,
           );
-          console.log(`\nID mappings created: ${totalMappings}`);
+          console.log('');
+          console.log(`  ID mappings: ${totalMappings}`);
 
           // Write report to file if requested
           if (opts.output) {
             const outputPath = path.resolve(opts.output);
             fs.writeFileSync(outputPath, JSON.stringify(report, null, 2));
-            console.log(`\nReport written to: ${outputPath}`);
+            console.log(`  Report: ${outputPath}`);
           }
 
+          // Warnings summary
+          if (report.warnings.length > 0) {
+            console.log('');
+            console.log(`  Warnings (${report.warnings.length}):`);
+            for (const warn of report.warnings.slice(0, 10)) {
+              console.log(`    [${warn.entityType}] ${warn.entityId}: ${warn.message}`);
+            }
+            if (report.warnings.length > 10) {
+              console.log(`    ... and ${report.warnings.length - 10} more`);
+            }
+          }
+
+          // Errors summary
+          if (report.errors.length > 0) {
+            console.log('');
+            console.log(`  Errors (${report.errors.length}):`);
+            for (const err of report.errors.slice(0, 20)) {
+              console.log(`    [${err.entityType}] ${err.entityId}: ${err.message}`);
+            }
+            if (report.errors.length > 20) {
+              console.log(`    ... and ${report.errors.length - 20} more`);
+            }
+          }
+
+          console.log('');
+          console.log(`  Status: ${report.status}`);
+          console.log('');
+
           if (opts.dryRun) {
-            console.log('\n[DRY RUN] No data was written. Remove --dry-run to execute.');
+            console.log('  No data was written. Remove --dry-run to execute.\n');
           }
 
           if (report.status === 'failed') {

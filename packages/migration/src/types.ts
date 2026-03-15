@@ -31,6 +31,18 @@ export interface MigrationError {
   severity: 'error' | 'warning';
 }
 
+export interface PersistResult {
+  inserted: Record<string, number>;
+  skipped: Record<string, number>;
+  errors: MigrationError[];
+  verified: Record<string, number>;
+}
+
+export interface PersistOptions {
+  verify?: boolean;
+  onProgress?: (phase: string, entity: string, current: number, total: number) => void;
+}
+
 export interface MigrationReport {
   source: MigrationSource;
   companyId: string;
@@ -40,6 +52,7 @@ export interface MigrationReport {
   errors: MigrationError[];
   warnings: MigrationError[];
   idMappings: Record<string, Record<string, string>>;
+  persistence?: PersistResult;
 }
 
 // Source data schemas for each migration source

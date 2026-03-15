@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'bun:test';
-import { migrate } from './engine.js';
-import { parseOpenclawData, transformOpenclaw } from './sources/openclaw.js';
+import type { TransformResult } from './engine.js';
+import { migrate, persist } from './engine.js';
+import {
+  deriveUUID,
+  mapActionType,
+  mapPatternType,
+  parseOpenclawData,
+  transformOpenclaw,
+} from './sources/openclaw.js';
 import { parseOpenfangData, transformOpenfang } from './sources/openfang.js';
 import { parsePaperclipData, transformPaperclip } from './sources/paperclip.js';
 import type { MigrationContext } from './types.js';
@@ -574,5 +581,392 @@ describe('MigrationEngine', () => {
 
     expect(transformed.companies).toHaveLength(1);
     expect(transformed.companies![0]!.name).toBe('Test');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Openclaw enum mapping tests
+// ---------------------------------------------------------------------------
+describe('Openclaw enum mapping', () => {
+  it("should map 'event' patternType to 'event_match'", () => {
+    const ctx = createTestContext('openclaw');
+    expect(mapPatternType('event', ctx, 't1')).toBe('event_match');
+  });
+
+  it("should map 'cron' patternType to 'event_match' with warning", () => {
+    const ctx = createTestContext('openclaw');
+    expect(mapPatternType('cron', ctx, 't1')).toBe('event_match');
+    expect(ctx.warnings).toHaveLength(1);
+    expect(ctx.warnings[0]!.message).toContain('cron');
+  });
+
+  it("should map 'webhook' actionType to 'run_workflow'", () => {
+    const ctx = createTestContext('openclaw');
+    expect(mapActionType('webhook', ctx, 't1')).toBe('run_workflow');
+  });
+
+  it("should map 'notify' actionType to 'wake_agent'", () => {
+    const ctx = createTestContext('openclaw');
+    expect(mapActionType('notify', ctx, 't1')).toBe('wake_agent');
+  });
+
+  it('should pass through valid patternType values unchanged', () => {
+    const ctx = createTestContext('openclaw');
+    expect(mapPatternType('event_match', ctx, 't1')).toBe('event_match');
+    expect(mapPatternType('budget_threshold', ctx, 't1')).toBe('budget_threshold');
+    expect(mapPatternType('schedule_missed', ctx, 't1')).toBe('schedule_missed');
+    expect(mapPatternType('quality_failure', ctx, 't1')).toBe('quality_failure');
+    expect(mapPatternType('agent_idle', ctx, 't1')).toBe('agent_idle');
+    expect(ctx.warnings).toHaveLength(0);
+  });
+
+  it('should pass through valid actionType values unchanged', () => {
+    const ctx = createTestContext('openclaw');
+    expect(mapActionType('wake_agent', ctx, 't1')).toBe('wake_agent');
+    expect(mapActionType('create_issue', ctx, 't1')).toBe('create_issue');
+    expect(mapActionType('run_workflow', ctx, 't1')).toBe('run_workflow');
+    expect(ctx.warnings).toHaveLength(0);
+  });
+
+  it('should warn and default on unknown patternType', () => {
+    const ctx = createTestContext('openclaw');
+    expect(mapPatternType('garbage', ctx, 't1')).toBe('event_match');
+    expect(ctx.warnings).toHaveLength(1);
+    expect(ctx.warnings[0]!.message).toContain('Unknown patternType');
+  });
+
+  it('should warn and default on unknown actionType', () => {
+    const ctx = createTestContext('openclaw');
+    expect(mapActionType('garbage', ctx, 't1')).toBe('run_workflow');
+    expect(ctx.warnings).toHaveLength(1);
+    expect(ctx.warnings[0]!.message).toContain('Unknown actionType');
+  });
+
+  it('should apply enum mapping in full transform', () => {
+    const ctx = createTestContext('openclaw');
+    const data = parseOpenclawData({
+      config: [],
+      sessions: [],
+      skills: [],
+      triggers: [
+        {
+          id: 't1',
+          name: 'trigger1',
+          patternType: 'event',
+          patternConfig: {},
+          actionType: 'webhook',
+          actionConfig: {},
+        },
+        {
+          id: 't2',
+          name: 'trigger2',
+          patternType: 'cron',
+          patternConfig: {},
+          actionType: 'notify',
+          actionConfig: {},
+        },
+      ],
+      workflows: [],
+    });
+    const result = transformOpenclaw(data, ctx);
+    expect(result.triggers[0]!.patternType).toBe('event_match');
+    expect(result.triggers[0]!.actionType).toBe('run_workflow');
+    expect(result.triggers[1]!.patternType).toBe('event_match');
+    expect(result.triggers[1]!.actionType).toBe('wake_agent');
+  });
+
+  it('should add required fields to skills', () => {
+    const ctx = createTestContext('openclaw');
+    const data = parseOpenclawData({
+      config: [],
+      sessions: [],
+      skills: [{ id: 's1', agentId: 'a1', name: 'skill1', content: 'Some skill content here' }],
+      triggers: [],
+      workflows: [],
+    });
+    const result = transformOpenclaw(data, ctx);
+    expect(result.skills[0]!.description).toBe('Some skill content here');
+    expect(result.skills[0]!.triggerConditions).toBe('manual');
+    expect(result.skills[0]!.exampleInvocations).toEqual([]);
+  });
+
+  it('should truncate long content to 200 chars for description', () => {
+    const ctx = createTestContext('openclaw');
+    const longContent = 'x'.repeat(500);
+    const data = parseOpenclawData({
+      config: [],
+      sessions: [],
+      skills: [{ id: 's1', agentId: 'a1', name: 'skill1', content: longContent }],
+      triggers: [],
+      workflows: [],
+    });
+    const result = transformOpenclaw(data, ctx);
+    expect((result.skills[0]!.description as string).length).toBe(200);
+  });
+
+  it('should merge config entries into existing runtime state', () => {
+    const ctx = createTestContext('openclaw');
+    const data = parseOpenclawData({
+      config: [
+        { id: 'cfg1', agentId: 'a1', key: 'theme', value: 'dark' },
+        { id: 'cfg2', agentId: 'a1', key: 'lang', value: 'en' },
+      ],
+      sessions: [{ id: 's1', agentId: 'a1', state: { active: true } }],
+      skills: [],
+      triggers: [],
+      workflows: [],
+    });
+    const result = transformOpenclaw(data, ctx);
+    expect(result.runtimeStates).toHaveLength(1);
+    const state = result.runtimeStates[0]!.stateJson as Record<string, unknown>;
+    expect(state.active).toBe(true);
+    expect((state.config as Record<string, unknown>).theme).toBe('dark');
+    expect((state.config as Record<string, unknown>).lang).toBe('en');
+  });
+
+  it('should create new runtime state for config-only agents', () => {
+    const ctx = createTestContext('openclaw');
+    const data = parseOpenclawData({
+      config: [{ id: 'cfg1', agentId: 'a2', key: 'theme', value: 'light' }],
+      sessions: [{ id: 's1', agentId: 'a1', state: { active: true } }],
+      skills: [],
+      triggers: [],
+      workflows: [],
+    });
+    const result = transformOpenclaw(data, ctx);
+    expect(result.runtimeStates).toHaveLength(2);
+    const configOnlyState = result.runtimeStates.find((rs) => rs.agentId === 'a2');
+    expect(configOnlyState).toBeDefined();
+    const stateJson = configOnlyState!.stateJson as Record<string, unknown>;
+    expect((stateJson.config as Record<string, unknown>).theme).toBe('light');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Deterministic UUID and idempotency tests
+// ---------------------------------------------------------------------------
+describe('Openclaw deterministic UUIDs', () => {
+  it('should produce the same UUIDs for the same input across multiple runs', () => {
+    const input = {
+      config: [],
+      sessions: [{ id: 's1', agentId: 'a1', state: {} }],
+      skills: [{ id: 'sk1', agentId: 'a1', name: 'skill1', content: 'code' }],
+      triggers: [
+        {
+          id: 't1',
+          name: 'trigger1',
+          patternType: 'event_match',
+          patternConfig: {},
+          actionType: 'run_workflow',
+          actionConfig: {},
+        },
+      ],
+      workflows: [{ id: 'w1', name: 'workflow1', definition: {} }],
+    };
+
+    const ctx1 = createTestContext('openclaw');
+    const result1 = transformOpenclaw(parseOpenclawData(input), ctx1);
+
+    const ctx2 = createTestContext('openclaw');
+    const result2 = transformOpenclaw(parseOpenclawData(input), ctx2);
+
+    expect(result1.triggers[0]!.id).toBe(result2.triggers[0]!.id);
+    expect(result1.workflows[0]!.id).toBe(result2.workflows[0]!.id);
+    expect(result1.skills[0]!.id).toBe(result2.skills[0]!.id);
+  });
+
+  it('should produce different UUIDs for different companies', () => {
+    const input = parseOpenclawData({
+      config: [],
+      sessions: [],
+      skills: [],
+      triggers: [
+        {
+          id: 't1',
+          name: 'trigger1',
+          patternType: 'event_match',
+          patternConfig: {},
+          actionType: 'run_workflow',
+          actionConfig: {},
+        },
+      ],
+      workflows: [],
+    });
+
+    const ctx1 = createTestContext('openclaw');
+    ctx1.companyId = 'company-a';
+    const result1 = transformOpenclaw(input, ctx1);
+
+    const ctx2 = createTestContext('openclaw');
+    ctx2.companyId = 'company-b';
+    const result2 = transformOpenclaw(input, ctx2);
+
+    expect(result1.triggers[0]!.id).not.toBe(result2.triggers[0]!.id);
+  });
+
+  it('deriveUUID should produce valid UUID format', () => {
+    const id = deriveUUID('company-1', 'trigger:t1');
+    const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+    expect(uuidRe.test(id)).toBe(true);
+  });
+
+  it('should reject non-object input in parseOpenclawData', () => {
+    expect(() => parseOpenclawData(null)).toThrow('expected a JSON object');
+    expect(() => parseOpenclawData('string')).toThrow('expected a JSON object');
+    expect(() => parseOpenclawData([1, 2, 3])).toThrow('expected a JSON object');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Persist function tests
+// ---------------------------------------------------------------------------
+describe('persist', () => {
+  function createMockDb(options: { companyExists?: boolean; agentIds?: string[] }) {
+    const { companyExists = true, agentIds = [] } = options;
+    const insertedEntities: { table: string; values: Record<string, unknown> }[] = [];
+
+    // Track select call order: 1st = company check, 2nd = agent load, rest = verify counts
+    let selectCallCount = 0;
+
+    const db = {
+      select: () => {
+        const callIndex = ++selectCallCount;
+        return {
+          from: () => ({
+            where: () => {
+              if (callIndex === 1) {
+                // Company exists check
+                return companyExists ? [{ id: 'comp-1' }] : [];
+              }
+              if (callIndex === 2) {
+                // Agent IDs load
+                return agentIds.map((id) => ({ id }));
+              }
+              // Verification counts
+              return [{ count: 5 }];
+            },
+          }),
+        };
+      },
+      insert: () => ({
+        values: (vals: Record<string, unknown>) => {
+          insertedEntities.push({ table: 'entity', values: vals });
+          return {
+            onConflictDoNothing: () => ({
+              returning: () => Promise.resolve([{ id: vals.id ?? 'generated' }]),
+            }),
+            onConflictDoUpdate: () => Promise.resolve(),
+          };
+        },
+      }),
+      _insertedEntities: insertedEntities,
+    };
+
+    return db;
+  }
+
+  it('should return error if company not found', async () => {
+    const db = createMockDb({ companyExists: false });
+    const result = await persist(
+      db as never,
+      { triggers: [], workflows: [], skills: [], runtimeStates: [] },
+      'missing-company',
+    );
+    expect(result.errors).toHaveLength(1);
+    expect(result.errors[0]!.message).toContain('not found');
+    expect(result.inserted).toEqual({});
+  });
+
+  it('should insert triggers and workflows', async () => {
+    const db = createMockDb({ companyExists: true, agentIds: [] });
+    const transformed: TransformResult = {
+      triggers: [
+        {
+          id: 't1',
+          companyId: 'c1',
+          name: 'trig',
+          patternType: 'event_match',
+          patternConfig: {},
+          actionType: 'run_workflow',
+          actionConfig: {},
+          isActive: true,
+        },
+      ],
+      workflows: [{ id: 'w1', companyId: 'c1', name: 'wf', definition: {}, isActive: true }],
+      skills: [],
+      runtimeStates: [],
+    };
+    const result = await persist(db as never, transformed, 'c1');
+    expect(result.inserted.triggers).toBe(1);
+    expect(result.inserted.workflows).toBe(1);
+  });
+
+  it('should skip skills when agent does not exist', async () => {
+    const db = createMockDb({ companyExists: true, agentIds: ['agent-1'] });
+    const transformed: TransformResult = {
+      triggers: [],
+      workflows: [],
+      skills: [
+        {
+          id: 's1',
+          companyId: 'c1',
+          proposedByAgentId: 'non-existent-agent',
+          name: 'sk',
+          description: 'desc',
+          version: 1,
+          content: 'code',
+          triggerConditions: 'manual',
+          exampleInvocations: [],
+          status: 'active',
+          usageCount: 0,
+        },
+      ],
+      runtimeStates: [],
+    };
+    const result = await persist(db as never, transformed, 'c1');
+    expect(result.skipped.skills).toBe(1);
+    expect(result.inserted.skills).toBeUndefined();
+  });
+
+  it('should upsert runtime state for valid agents', async () => {
+    const db = createMockDb({ companyExists: true, agentIds: ['agent-1'] });
+    const transformed: TransformResult = {
+      triggers: [],
+      workflows: [],
+      skills: [],
+      runtimeStates: [
+        { agentId: 'agent-1', companyId: 'c1', sessionId: 'sess-1', stateJson: { active: true } },
+      ],
+    };
+    const result = await persist(db as never, transformed, 'c1');
+    expect(result.inserted.runtimeStates).toBe(1);
+  });
+
+  it('should call onProgress callback', async () => {
+    const db = createMockDb({ companyExists: true, agentIds: [] });
+    const progressCalls: string[] = [];
+    const transformed: TransformResult = {
+      triggers: [
+        {
+          id: 't1',
+          companyId: 'c1',
+          name: 'trig',
+          patternType: 'event_match',
+          patternConfig: {},
+          actionType: 'run_workflow',
+          actionConfig: {},
+          isActive: true,
+        },
+      ],
+      workflows: [],
+      skills: [],
+      runtimeStates: [],
+    };
+    await persist(db as never, transformed, 'c1', {
+      onProgress: (phase, entity, current, total) => {
+        progressCalls.push(`${phase}:${entity}:${current}/${total}`);
+      },
+    });
+    expect(progressCalls).toContain('write:triggers:1/1');
   });
 });

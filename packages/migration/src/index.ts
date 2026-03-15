@@ -1,5 +1,6 @@
-export { migrate } from './engine.js';
-export { parseOpenclawData, transformOpenclaw } from './sources/openclaw.js';
+export type { TransformResult } from './engine.js';
+export { migrate, persist } from './engine.js';
+export { deriveUUID, parseOpenclawData, transformOpenclaw } from './sources/openclaw.js';
 export { parseOpenfangData, transformOpenfang } from './sources/openfang.js';
 export { parsePaperclipData, transformPaperclip } from './sources/paperclip.js';
 export type {
@@ -11,4 +12,6 @@ export type {
   OpenclawData,
   OpenfangData,
   PaperclipData,
+  PersistOptions,
+  PersistResult,
 } from './types.js';

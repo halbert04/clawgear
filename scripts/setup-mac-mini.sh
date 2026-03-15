@@ -318,7 +318,7 @@ setup_launchd() {
   echo ""
   read -rp "Set up ClawGear to start automatically on boot? (y/n) " autostart
   if [ "$autostart" != "y" ]; then
-    info "Skipping auto-start setup. Run manually with: cd $install_dir && pnpm dev"
+    info "Skipping auto-start setup. Run manually with: cd $install_dir && pnpm start"
     return
   fi
 
@@ -340,7 +340,7 @@ setup_launchd() {
     <key>ProgramArguments</key>
     <array>
         <string>$pnpm_path</string>
-        <string>dev</string>
+        <string>start</string>
     </array>
     <key>WorkingDirectory</key>
     <string>$install_dir</string>
@@ -364,10 +364,10 @@ setup_launchd() {
 PLIST
 
   mkdir -p "$install_dir/logs"
-  launchctl load "$plist_path"
+  launchctl bootstrap "gui/$(id -u)" "$plist_path"
   ok "ClawGear API will now start automatically on boot."
   info "Logs: $install_dir/logs/api.stdout.log"
-  info "Stop: launchctl unload $plist_path"
+  info "Stop: launchctl bootout gui/$(id -u)/com.clawgear.api"
 }
 
 # --- Print migration instructions if OpenClaw detected ----------------
