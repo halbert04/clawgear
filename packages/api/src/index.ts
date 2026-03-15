@@ -118,6 +118,7 @@ const heartbeatEngine = new HeartbeatEngine({
   adapterRegistry,
   kernelHandle,
   lessonStore,
+  securityGate,
 });
 
 // Register adapters
