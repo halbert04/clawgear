@@ -76,16 +76,23 @@ export class HandAdapter implements Adapter {
       };
     }
 
-    // Compose system prompt from hand description + settings
-    const systemPromptParts = [`You are the "${handConfig.name}" hand.`, handConfig.description];
+    // Use the outer system prompt if provided (e.g., CEO OODA prompt from HeartbeatEngine),
+    // otherwise compose from hand description + settings
+    let systemPrompt: string;
+    if (ctx.systemPrompt) {
+      systemPrompt = ctx.systemPrompt;
+    } else {
+      const systemPromptParts = [`You are the "${handConfig.name}" hand.`, handConfig.description];
 
-    if (Object.keys(handConfig.settings).length > 0) {
-      systemPromptParts.push(`## Settings\n${JSON.stringify(handConfig.settings, null, 2)}`);
-    }
+      if (Object.keys(handConfig.settings).length > 0) {
+        systemPromptParts.push(`## Settings\n${JSON.stringify(handConfig.settings, null, 2)}`);
+      }
 
-    // If there's a system prompt from the template, use it
-    if (ctx.adapterConfig?.systemPromptOverride) {
-      systemPromptParts.push(ctx.adapterConfig.systemPromptOverride as string);
+      if (ctx.adapterConfig?.systemPromptOverride) {
+        systemPromptParts.push(ctx.adapterConfig.systemPromptOverride as string);
+      }
+
+      systemPrompt = systemPromptParts.join('\n\n');
     }
 
     // Resolve inner adapter
@@ -95,12 +102,16 @@ export class HandAdapter implements Adapter {
     const innerCtx: AdapterContext = {
       agentId: ctx.agentId,
       companyId: ctx.companyId,
-      systemPrompt: systemPromptParts.join('\n\n'),
+      systemPrompt,
       taskPrompt: handConfig.taskPrompt,
       tools: ctx.tools,
       sessionId: ctx.sessionId,
       timeout: ctx.timeout,
-      adapterConfig: handConfig.innerAdapterConfig,
+      adapterConfig: {
+        ...handConfig.innerAdapterConfig,
+        // Pass through toolExecutor from outer context so inner adapter can call tools
+        toolExecutor: ctx.adapterConfig?.toolExecutor,
+      },
     };
 
     // Execute inner adapter

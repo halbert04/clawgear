@@ -247,6 +247,189 @@ describe('HeartbeatEngine wiring', () => {
     expect(progressEvent!.companyId).toBe(COMPANY_ID);
   });
 
+  test('security gate blocks unauthorized tool calls', async () => {
+    // Adapter that tries to call a gated tool (checkout_issue requires tool_invoke capability)
+    class GatedToolAdapter implements Adapter {
+      readonly name = 'claude_code';
+      toolCallResults: unknown[] = [];
+
+      async execute(ctx: AdapterContext): Promise<AdapterResult> {
+        const toolExecutor = ctx.adapterConfig?.toolExecutor as
+          | ((name: string, args: Record<string, unknown>) => Promise<unknown>)
+          | undefined;
+
+        if (toolExecutor) {
+          // Try calling checkout_issue — should be blocked by security gate
+          try {
+            const result = await toolExecutor('checkout_issue', { issueId: 'some-issue' });
+            this.toolCallResults.push({ success: result });
+          } catch (err) {
+            this.toolCallResults.push({ error: String(err) });
+          }
+
+          // Try calling report_progress — should be allowed (no capability required)
+          try {
+            const result = await toolExecutor('report_progress', {
+              status: 'working',
+              percentComplete: 50,
+              details: 'Test',
+            });
+            this.toolCallResults.push({ success: result });
+          } catch (err) {
+            this.toolCallResults.push({ error: String(err) });
+          }
+        }
+
+        return {
+          output: 'Done',
+          toolCalls: [],
+          usage: {
+            inputTokens: 10,
+            outputTokens: 5,
+            costCents: 1,
+            provider: 'mock',
+            model: 'mock',
+          },
+          sessionId: null,
+        };
+      }
+
+      async testEnvironment() {
+        return { ok: true, adapter: 'claude_code', checks: [] };
+      }
+    }
+
+    const adapter = new GatedToolAdapter();
+    const registry = new AdapterRegistry();
+    registry.register(adapter);
+
+    const db = createMockDb();
+    const eventBus = new InProcessEventBus();
+
+    // Security gate that rejects all tool_invoke capabilities (agent has no capabilities)
+    const securityGate = {
+      validateToolCall: async (_agentId: string, tool: string, _args: unknown) => {
+        // report_progress requires no capability → mapToolToCapability returns null → always true
+        if (tool === 'report_progress') return true;
+        // Everything else: agent has no capabilities → denied
+        return false;
+      },
+      sanitizeInput: (input: string) => input,
+      sanitizeOutput: (output: string) => output,
+    };
+
+    const engine = new HeartbeatEngine({
+      db: db as never,
+      eventBus,
+      adapterRegistry: registry,
+      kernelHandle: createMockKernelHandle(),
+      securityGate: securityGate as never,
+    });
+
+    await engine.executeHeartbeat(AGENT_ID, 'manual');
+
+    // First call (checkout_issue) should have been blocked
+    expect(adapter.toolCallResults.length).toBe(2);
+    expect(adapter.toolCallResults[0]).toEqual({
+      error: `Error: Agent ${AGENT_ID} not permitted to call tool: checkout_issue`,
+    });
+
+    // Second call (report_progress) should have succeeded
+    expect(adapter.toolCallResults[1]).toHaveProperty('success');
+  });
+
+  test('exhausted budget mid-execution blocks tool calls', async () => {
+    let budgetCheckCount = 0;
+
+    class BudgetTestAdapter implements Adapter {
+      readonly name = 'claude_code';
+      toolCallResults: unknown[] = [];
+
+      async execute(ctx: AdapterContext): Promise<AdapterResult> {
+        const toolExecutor = ctx.adapterConfig?.toolExecutor as
+          | ((name: string, args: Record<string, unknown>) => Promise<unknown>)
+          | undefined;
+
+        if (toolExecutor) {
+          try {
+            const result = await toolExecutor('report_progress', {
+              status: 'working',
+              percentComplete: 50,
+              details: 'Test',
+            });
+            this.toolCallResults.push({ success: result });
+          } catch (err) {
+            this.toolCallResults.push({ error: String(err) });
+          }
+        }
+
+        return {
+          output: 'Done',
+          toolCalls: [],
+          usage: {
+            inputTokens: 10,
+            outputTokens: 5,
+            costCents: 1,
+            provider: 'mock',
+            model: 'mock',
+          },
+          sessionId: null,
+        };
+      }
+
+      async testEnvironment() {
+        return { ok: true, adapter: 'claude_code', checks: [] };
+      }
+    }
+
+    const adapter = new BudgetTestAdapter();
+    const registry = new AdapterRegistry();
+    registry.register(adapter);
+
+    const db = createMockDb();
+    const eventBus = new InProcessEventBus();
+
+    // Budget check: first call (pre-execution) returns OK, second call (mid-execution) returns exhausted
+    const kernelHandle = createMockKernelHandle();
+    kernelHandle.checkBudget = mock(async (): Promise<BudgetStatus> => {
+      budgetCheckCount++;
+      if (budgetCheckCount === 1) {
+        return {
+          budgetCents: 10000n,
+          spentCents: 5000n,
+          remainingCents: 5000n,
+          percentUsed: 50,
+          isExhausted: false,
+          isWarning: false,
+        };
+      }
+      // Mid-execution: budget exhausted
+      return {
+        budgetCents: 10000n,
+        spentCents: 10000n,
+        remainingCents: 0n,
+        percentUsed: 100,
+        isExhausted: true,
+        isWarning: true,
+      };
+    });
+
+    const engine = new HeartbeatEngine({
+      db: db as never,
+      eventBus,
+      adapterRegistry: registry,
+      kernelHandle,
+    });
+
+    await engine.executeHeartbeat(AGENT_ID, 'manual');
+
+    // The tool call should have been blocked by mid-execution budget check
+    expect(adapter.toolCallResults.length).toBe(1);
+    expect(adapter.toolCallResults[0]).toEqual({
+      error: expect.stringContaining('budget exhausted mid-execution'),
+    });
+  });
+
   test('system prompt includes tool manifest', async () => {
     const adapter = new CapturingAdapter();
     const registry = new AdapterRegistry();
