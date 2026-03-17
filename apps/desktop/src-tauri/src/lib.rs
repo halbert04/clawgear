@@ -1,3 +1,5 @@
+mod openclaw;
+
 use tauri::{
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
@@ -95,7 +97,12 @@ pub fn run() {
 
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![update_tray_status, get_tray_status])
+        .invoke_handler(tauri::generate_handler![
+            update_tray_status,
+            get_tray_status,
+            openclaw::scan_openclaw_instances,
+            openclaw::extract_openclaw_data,
+        ])
         .build(tauri::generate_context!())
         .expect("error building tauri application")
         .run(|app, event| {
