@@ -35,10 +35,12 @@ import { BudgetOverview } from './components/BudgetOverview';
 import { ChannelStatus } from './components/ChannelStatus';
 import { EvolutionDashboard } from './components/EvolutionDashboard';
 import { HandList } from './components/HandList';
+import { ImportWizard } from './components/ImportWizard';
 import { IssueBoard } from './components/IssueBoard';
 import { TriggerList } from './components/TriggerList';
 import { WorkflowList } from './components/WorkflowList';
 import { useDesktopNotifications } from './hooks/useDesktopNotifications';
+import { isTauri } from './hooks/useTauri';
 import { useWebSocket } from './hooks/useWebSocket';
 
 type Tab =
@@ -84,7 +86,9 @@ export function App() {
   const [workflowsList, setWorkflowsList] = useState<Workflow[]>([]);
   const [channelBindings, setChannelBindings] = useState<ChannelBinding[]>([]);
   const [loading, setLoading] = useState(true);
+  const [companiesLoaded, setCompaniesLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showImportWizard, setShowImportWizard] = useState(false);
 
   const { events, connected } = useWebSocket();
 
@@ -96,6 +100,7 @@ export function App() {
     fetchCompanies()
       .then((res) => {
         setCompanies(res.data);
+        setCompaniesLoaded(true);
         if (res.data.length > 0) {
           setSelectedCompanyId(res.data[0]!.id);
         }
@@ -193,6 +198,23 @@ export function App() {
     }
   }, [events, selectedCompanyId, loadData]);
 
+  const showFirstRunWizard = companiesLoaded && companies.length === 0 && isTauri() && !loading;
+
+  if (showFirstRunWizard || showImportWizard) {
+    return (
+      <ImportWizard
+        existingCompanyId={showImportWizard ? selectedCompanyId : undefined}
+        onComplete={(id) => {
+          setShowImportWizard(false);
+          setSelectedCompanyId(id);
+          fetchCompanies().then((res) => setCompanies(res.data));
+          loadData();
+        }}
+        onCancel={() => setShowImportWizard(false)}
+      />
+    );
+  }
+
   return (
     <div className="app-layout">
       <header className="app-header">
@@ -200,6 +222,15 @@ export function App() {
           <span>&gt;</span> ClawGear
         </h1>
         <div className="header-right">
+          {isTauri() && (
+            <button
+              type="button"
+              className="btn btn-import"
+              onClick={() => setShowImportWizard(true)}
+            >
+              Import OpenClaw
+            </button>
+          )}
           <select
             className="company-select"
             value={selectedCompanyId}

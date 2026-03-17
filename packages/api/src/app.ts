@@ -33,6 +33,7 @@ import { heartbeatRoutes } from './routes/heartbeats.js';
 import { issueRoutes } from './routes/issues.js';
 import { marketplaceRoutes } from './routes/marketplace.js';
 import { memoryRoutes } from './routes/memory.js';
+import { migrationRoutes } from './routes/migration.js';
 import { projectRoutes } from './routes/projects.js';
 import { qualityRoutes } from './routes/quality.js';
 import { triggerRoutes } from './routes/triggers.js';
@@ -96,6 +97,8 @@ export function createApp(deps: AppDeps) {
   app.route('/api/companies/:companyId/workflows', workflowRoutes(deps));
   app.route('/api/companies/:companyId/workflow-runs', workflowRunRoutes(deps));
   app.route('/api/companies/:companyId/marketplace', marketplaceRoutes(deps));
+
+  app.route('/api/migration', migrationRoutes(deps));
 
   // Heartbeat routes (requires heartbeat engine)
   if (deps.heartbeatEngine) {

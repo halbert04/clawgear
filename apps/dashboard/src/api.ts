@@ -437,3 +437,52 @@ export function fetchChannelBindings(
 ): Promise<PaginatedResponse<ChannelBinding>> {
   return get(`/companies/${companyId}/channel-bindings?limit=100`);
 }
+
+// --- Migration types and functions ---
+
+export interface MigrationError {
+  entityType: string;
+  entityId: string;
+  message: string;
+  severity: 'error' | 'warning';
+}
+
+export interface PersistResult {
+  inserted: Record<string, number>;
+  skipped: Record<string, number>;
+  errors: MigrationError[];
+  verified: Record<string, number>;
+}
+
+export interface MigrationReport {
+  source: string;
+  companyId: string;
+  dryRun: boolean;
+  status: 'success' | 'partial' | 'failed';
+  counts: Record<string, number>;
+  errors: MigrationError[];
+  warnings: MigrationError[];
+  idMappings: Record<string, Record<string, string>>;
+  persistence?: PersistResult;
+}
+
+export interface MigrateResponse {
+  report: MigrationReport;
+}
+
+export function migrateOpenclaw(
+  data: unknown,
+  companyId: string,
+  dryRun: boolean,
+): Promise<MigrateResponse> {
+  return post('/migration/openclaw', { data, companyId, dryRun });
+}
+
+export function createCompany(body: {
+  name: string;
+  issuePrefix: string;
+  budgetMonthlyCents?: number;
+  description?: string;
+}): Promise<Company> {
+  return post('/companies', body);
+}
